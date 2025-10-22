@@ -1,0 +1,15 @@
+<section style="padding:1rem;border:1px solid #ddd;border-radius:8px;max-width:420px">
+      <h2>Backend Health</h2>
+      <button (click)="refresh()">Ping</button>
+
+      @if (loading()) {
+        <p>⏳ Checking...</p>
+      } @else {
+        <p>
+          Status:
+          <strong [style.color]="status() === 'UP' ? 'green' : 'crimson'">
+            {{ status() }}
+          </strong>
+        </p>
+      }
+    </section>
