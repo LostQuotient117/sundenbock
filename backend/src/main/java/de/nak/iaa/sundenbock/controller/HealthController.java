@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.web;
+package de.nak.iaa.sundenbock.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
