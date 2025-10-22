@@ -1,0 +1,27 @@
+# IDE allgemein
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Generische Build-Ausgaben
+target/
+build/
+out/
+
+# Gemeinsame DB/Temp-Verzeichnisse
+data/
+*.mv.db
+*.trace.db
+
+# Node-Generelles (falls mehrere Frontends)
+**/node_modules/
+**/dist/
+**/.cache/
+**/.tmp/
