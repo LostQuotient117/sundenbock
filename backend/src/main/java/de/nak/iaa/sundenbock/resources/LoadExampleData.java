@@ -3,7 +3,7 @@ package de.nak.iaa.sundenbock.resources;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import de.nak.iaa.sundenbock.repository.TicketRepository;
-import de.nak.iaa.sundenbock.model.Comment;
+import de.nak.iaa.sundenbock.model.comment.Comment;
 import de.nak.iaa.sundenbock.repository.CommentRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,7 +24,7 @@ public class LoadExampleData implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
             if (ticketRepository.count() == 0) {
                 Ticket t1 = new Ticket();
                 t1.setDescription("Login page throws 500 error");
@@ -92,6 +92,6 @@ public class LoadExampleData implements CommandLineRunner {
 
 
                 System.out.println("Example tickets created!");
-            };
+            }
     }
 }
