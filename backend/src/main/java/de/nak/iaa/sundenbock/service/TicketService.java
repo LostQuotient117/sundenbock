@@ -4,7 +4,7 @@ import de.nak.iaa.sundenbock.dto.TicketDTO;
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.repository.TicketRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,33 +20,25 @@ public class TicketService {
         this.ticketMapper = ticketMapper;
     }
 
-    private TicketDTO convertToDTO(Ticket ticket) {
-        return ticketMapper.toTicketDTO(ticket);
-    }
-
-    private Ticket convertToEntity(TicketDTO ticketDTO) {
-        return ticketMapper.toTicket(ticketDTO);
-    }
-
-    @Transactional
+    @Transactional(readOnly = true)
     public List<TicketDTO> getTickets() {
         return ticketRepository.findAll().stream()
-                .map(this::convertToDTO)
+                .map(ticketMapper::toTicketDTO)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public TicketDTO getTicketById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception
-        return convertToDTO(ticket);
+        return ticketMapper.toTicketDTO(ticket);
     }
 
     @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) {
-        Ticket ticket = convertToEntity(ticketDTO);
+        Ticket ticket = ticketMapper.toTicket(ticketDTO);
         Ticket savedTicket = ticketRepository.save(ticket);
-        return convertToDTO(savedTicket);
+        return ticketMapper.toTicketDTO(savedTicket);
     }
 
     @Transactional
@@ -62,7 +54,7 @@ public class TicketService {
         //TODO: automatic change of lastupdatet through @preupdate?
 
         Ticket updatedTicket = ticketRepository.save(existingTicket);
-        return convertToDTO(updatedTicket);
+        return ticketMapper.toTicketDTO(updatedTicket);
     }
 
     @Transactional

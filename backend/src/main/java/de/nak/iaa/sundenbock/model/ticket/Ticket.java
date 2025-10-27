@@ -4,6 +4,8 @@ import de.nak.iaa.sundenbock.model.comment.Comment;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,7 +21,11 @@ public class Ticket {
     public String Title;
     public String Description; //TODO: Add Title? Pictures (maybe Blob?)?
     public TicketStatus Status;
+    @LastModifiedBy
+    @Column(nullable = false)
     public LocalDateTime LastChange;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     public LocalDateTime CreatedOn;
     public String ResponsiblePerson; //TODO: Placehoilder for user-class as datatype
     public String Author; //TODO: Placehoilder for user-class as datatype

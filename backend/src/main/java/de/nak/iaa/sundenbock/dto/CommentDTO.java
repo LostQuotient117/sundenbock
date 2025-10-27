@@ -1,5 +1,7 @@
 package de.nak.iaa.sundenbock.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,5 +14,6 @@ public record CommentDTO(
         String commentText,
         int likes,
         int dislikes,
+        @JsonIgnoreProperties("replies")
         List<CommentDTO> replies
         ){}
