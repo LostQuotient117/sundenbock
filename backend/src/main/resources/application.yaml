@@ -1,16 +1,48 @@
-server:
-  port: 8080
 spring:
+  profiles:
+    active: dev   # <--- Standardmäßig H2 aktiv, kann später auf prod gesetzt werden
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev #run dev: mvn spring-boot:run
   datasource:
-    url: jdbc:h2:file:./data/tickets;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:mydb
+    driver-class-name: org.h2.Driver
     username: sa
     password:
-    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop #database will be created at every start
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+
+  h2:
+    console:
+      enabled: true
+  server:
+    port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod #run prod: mvn spring-boot:run -Dspring-boot.run.profiles=prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ticketsystem
+    driver-class-name: org.postgresql.Driver
+    username: ticketuser
+    password: geheim
   jpa:
     hibernate:
       ddl-auto: update
     properties:
-      hibernate.format_sql: true
-  h2:
-    console:
-      enabled: true
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  server:
+    port: 8080
