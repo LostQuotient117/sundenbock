@@ -1,5 +1,7 @@
-package de.nak.iaa.sundenbock.ticket;
+package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.repository.TicketRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

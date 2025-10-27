@@ -1,10 +1,8 @@
-package de.nak.iaa.sundenbock.ticket.comment;
+package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.ticket.Ticket;
-import de.nak.iaa.sundenbock.ticket.TicketRepository;
+import de.nak.iaa.sundenbock.repository.CommentRepository;
+import de.nak.iaa.sundenbock.repository.TicketRepository;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets/{ticketid}/comments")
