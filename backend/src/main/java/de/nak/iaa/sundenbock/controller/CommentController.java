@@ -1,7 +1,10 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.dto.CommentDTO;
 import de.nak.iaa.sundenbock.service.CommentService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets/{ticketid}/comments")
@@ -12,68 +15,30 @@ public class CommentController {
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
-    //TODO: Implement in Service
 
-    // Endpoint: Retrieve all top-level comments for a ticket
+    // Endpoint: Retrieve all comments for a ticket
     // GET /api/tickets/{ticketId}/comments
-//    @GetMapping
-//    public List<Comment> getCommentsByTicket(@PathVariable Long ticketId) {
-//         return commentRepository.findByTicketIdAndParentCommentIsNull(ticketId)
-//    }
+    @GetMapping
+    public List<CommentDTO> getCommentsByTicket(@PathVariable Long ticketid) {
+         return commentService.getCommentsByTicketId(ticketid);
+    }
 
-    //TODO: Implement in Service
-
-    // Endpoint: Einen neuen Top-Level-Comment erstellen
+    // Endpoint: Einen neuen Comment erstellen
     // POST /api/tickets/{ticketId}/comments
-//    @PostMapping
-//    public Comment createComment(@PathVariable Long ticketId, @RequestBody Comment comment) {
-//        Ticket ticket = ticketRepository.findById(ticketId)
-//                .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
-//        comment.setTicket(ticket);
-//        return commentRepository.save(comment);
-//    }
-
-    //TODO: Implement in Service
-
-    // Endpoint: Einen Sub-Comment zu einem Comment erstellen
-    // POST /api/tickets/{ticketId}/comments/{commentId}/subcomments
-//    @PostMapping("/{commentId}/subcomments")
-//    public Comment createSubComment(
-//            @PathVariable Long ticketId,
-//            @PathVariable Long commentId,
-//            @RequestBody Comment subComment) {
-//        Comment parentComment = commentRepository.findById(commentId)
-//                .orElseThrow(() -> new RuntimeException("Comment nicht gefunden"));
-//        subComment.setTicket(parentComment.getTicket()); // Gleiche Ticket-Zuordnung
-//        subComment.setParentComment(parentComment);
-//        return commentRepository.save(subComment);
-//    }
-
-    //TODO: Implement in Service
-
-    // Endpoint: Alle Sub-Comments eines Comments abrufen
-    // GET /api/tickets/{ticketId}/comments/{commentId}/subcomments
-//    @GetMapping("/{commentId}/subcomments")
-//    public List<Comment> getSubComments(
-//            @PathVariable Long ticketId,
-//            @PathVariable Long commentId) {
-//        return commentRepository.findByParentCommentId(commentId);
-//    }
+    @PostMapping
+    public CommentDTO createComment(@RequestBody CommentDTO commentDTO) {
+        return commentService.createComment(commentDTO);
+    }
 
     //TODO: Implement in Service
 
     // Endpoint: Update a comment
     // PUT /api/tickets/{ticketId}/comments/{commentId}
-//    @PutMapping("/{commentId}")
-//    public Comment updateComment(
-//            @PathVariable Long ticketId,
-//            @PathVariable Long commentId,
-//            @RequestBody Comment commentDetails) {
-//        Comment comment = commentRepository.findById(commentId)
-//                .orElseThrow(() -> new RuntimeException("Comment nicht gefunden"));
-//        comment.setText(commentDetails.getText()); // Beispiel: Nur Text aktualisieren
-//        return commentRepository.save(comment);
-//    }
+    @PutMapping("/{commentId}")
+    public CommentDTO updateComment(CommentDTO commentDTO){
+        return commentService.updateComment(commentDTO);
+    }
+
 
     // Endpoint: Delete a comment
     // DELETE /api/tickets/{ticketId}/comments/{commentId}

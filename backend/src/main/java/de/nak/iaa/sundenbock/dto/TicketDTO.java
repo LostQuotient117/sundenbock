@@ -3,7 +3,6 @@ package de.nak.iaa.sundenbock.dto;
 import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public record TicketDTO(
         Long id,
@@ -14,6 +13,5 @@ public record TicketDTO(
         LocalDateTime createdOn,
         String responsiblePerson,
         String author,
-        String project,
-        List<CommentDTO> comments // Liste der Hauptkommentare
+        String project
 ) {}
