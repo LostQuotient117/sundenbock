@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.model;
+package de.nak.iaa.sundenbock.model.comment;
 
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import jakarta.persistence.*;

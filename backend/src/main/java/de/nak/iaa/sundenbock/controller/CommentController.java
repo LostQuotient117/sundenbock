@@ -1,21 +1,18 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.repository.CommentRepository;
-import de.nak.iaa.sundenbock.repository.TicketRepository;
+import de.nak.iaa.sundenbock.service.CommentService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/tickets/{ticketid}/comments")
 public class CommentController {
 
-    private final CommentRepository commentRepository;
-    private final TicketRepository ticketRepository;
+    private final CommentService commentService;
 
-    public CommentController(CommentRepository commentRepository, TicketRepository ticketRepository) {
-        this.commentRepository = commentRepository;
-        this.ticketRepository = ticketRepository;
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
     }
-    //TODO: Implement
+    //TODO: Implement in Service
 
     // Endpoint: Retrieve all top-level comments for a ticket
     // GET /api/tickets/{ticketId}/comments
@@ -24,7 +21,7 @@ public class CommentController {
 //         return commentRepository.findByTicketIdAndParentCommentIsNull(ticketId)
 //    }
 
-    //TODO: Implement
+    //TODO: Implement in Service
 
     // Endpoint: Einen neuen Top-Level-Comment erstellen
     // POST /api/tickets/{ticketId}/comments
@@ -36,7 +33,7 @@ public class CommentController {
 //        return commentRepository.save(comment);
 //    }
 
-    //TODO: Implement
+    //TODO: Implement in Service
 
     // Endpoint: Einen Sub-Comment zu einem Comment erstellen
     // POST /api/tickets/{ticketId}/comments/{commentId}/subcomments
@@ -52,7 +49,7 @@ public class CommentController {
 //        return commentRepository.save(subComment);
 //    }
 
-    //TODO: Implement
+    //TODO: Implement in Service
 
     // Endpoint: Alle Sub-Comments eines Comments abrufen
     // GET /api/tickets/{ticketId}/comments/{commentId}/subcomments
@@ -63,7 +60,7 @@ public class CommentController {
 //        return commentRepository.findByParentCommentId(commentId);
 //    }
 
-    //TODO: Implement
+    //TODO: Implement in Service
 
     // Endpoint: Update a comment
     // PUT /api/tickets/{ticketId}/comments/{commentId}
@@ -82,6 +79,6 @@ public class CommentController {
     // DELETE /api/tickets/{ticketId}/comments/{commentId}
     @DeleteMapping("/{commentId}")
     public void deleteComment(@PathVariable Long commentId) {
-        commentRepository.deleteById(commentId);
+        commentService.deleteComment(commentId);
     }
 }

@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.model.ticket.Ticket;
-import de.nak.iaa.sundenbock.repository.TicketRepository;
+import de.nak.iaa.sundenbock.dto.TicketDTO;
+import de.nak.iaa.sundenbock.service.TicketService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,50 +9,40 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
-    private final TicketRepository ticketRepository;
+    private final TicketService ticketService;
 
-    public TicketController(TicketRepository ticketRepository) {
-        this.ticketRepository = ticketRepository;
+    public TicketController(TicketService ticketService) {
+        this.ticketService = ticketService;
     }
 
-    //Endpoint: Get all Tickets (GET /api/tickets)
+    // Endpoint: Get all Tickets (GET /api/tickets)
     @GetMapping
-    public List<Ticket> getTickets() {
-        return ticketRepository.findAll();
+    public List<TicketDTO> getTickets() {
+        return ticketService.getTickets();
     }
 
-    //Endpoint: Get Ticket by id (GET /api/tickets/{id})
+    // Endpoint: Get Ticket by ID (GET /api/tickets/{id})
     @GetMapping("/{id}")
-    public Ticket getTicketById(@PathVariable Long id){
-        return ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket Not Found"));
+    public TicketDTO getTicketById(@PathVariable Long id) {
+        return ticketService.getTicketById(id);
     }
 
-    //Endpoint: Create a new Ticket (POST /api/tickets)
+    // Endpoint: Create a new Ticket (POST /api/tickets)
     @PostMapping
-    public Ticket createTicket(@RequestBody Ticket ticket){
-        return ticketRepository.save(ticket);
+    public TicketDTO createTicket(@RequestBody TicketDTO ticketDTO) {
+        return ticketService.createTicket(ticketDTO);
     }
 
-    // Endpoint: update a Ticket (PUT /api/tickets/{id})
+    // Endpoint: Update a Ticket (PUT /api/tickets/{id})
     @PutMapping("/{id}")
-    public Ticket updateTicket(@PathVariable Long id, @RequestBody Ticket ticketDetails) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket nicht gefunden"));
-
-        ticket.setTitle(ticketDetails.getTitle());
-        ticket.setDescription(ticketDetails.getDescription());
-        ticket.setStatus(ticketDetails.getStatus());
-        ticket.setResponsiblePerson(ticketDetails.getResponsiblePerson());
-        ticket.setProject(ticketDetails.getProject());
-
-        return ticketRepository.save(ticket);
+    public TicketDTO updateTicket(@PathVariable Long id, @RequestBody TicketDTO ticketDTO) {
+        return ticketService.updateTicket(id, ticketDTO);
     }
 
-    // Endpoint: delete a Ticket (DELETE /api/tickets/{id})
+    // Endpoint: Delete a Ticket (DELETE /api/tickets/{id})
     @DeleteMapping("/{id}")
     public void deleteTicket(@PathVariable Long id) {
-        ticketRepository.deleteById(id);
+        ticketService.deleteTicket(id);
     }
 
     //TODO: ticket by filters (status, author, developer, prio etc etc)
