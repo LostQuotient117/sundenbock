@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.ticket;
+package de.nak.iaa.sundenbock.model.ticket;
 
 public enum TicketStatus {
     CREATED,

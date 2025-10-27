@@ -1,10 +1,10 @@
-package de.nak.iaa.sundenbock.exampledata;
+package de.nak.iaa.sundenbock.resources;
 
-import de.nak.iaa.sundenbock.ticket.Ticket;
-import de.nak.iaa.sundenbock.ticket.TicketStatus;
-import de.nak.iaa.sundenbock.ticket.TicketRepository;
-import de.nak.iaa.sundenbock.ticket.comment.Comment;
-import de.nak.iaa.sundenbock.ticket.comment.CommentRepository;
+import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
+import de.nak.iaa.sundenbock.repository.TicketRepository;
+import de.nak.iaa.sundenbock.model.Comment;
+import de.nak.iaa.sundenbock.repository.CommentRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;

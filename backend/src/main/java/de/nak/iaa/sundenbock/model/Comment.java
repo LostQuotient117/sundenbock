@@ -1,11 +1,10 @@
-package de.nak.iaa.sundenbock.ticket.comment;
+package de.nak.iaa.sundenbock.model;
 
-import de.nak.iaa.sundenbock.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Blob;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

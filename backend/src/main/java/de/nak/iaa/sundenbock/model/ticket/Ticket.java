@@ -1,6 +1,6 @@
-package de.nak.iaa.sundenbock.ticket;
+package de.nak.iaa.sundenbock.model.ticket;
 
-import de.nak.iaa.sundenbock.ticket.comment.Comment;
+import de.nak.iaa.sundenbock.model.Comment;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
