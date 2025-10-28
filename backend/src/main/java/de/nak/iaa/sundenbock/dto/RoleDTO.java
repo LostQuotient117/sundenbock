@@ -1,4 +1,9 @@
 package de.nak.iaa.sundenbock.dto;
 
-public record RoleDTO() {
-}
+import java.util.Set;
+
+public record RoleDTO(
+        Long id,
+        String name,
+        Set<String> permissions
+) {}

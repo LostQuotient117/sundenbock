@@ -1,4 +1,5 @@
 package de.nak.iaa.sundenbock.dto;
 
-public record PermissionDTO() {
-}
+public record PermissionDTO(
+        String name
+) {}
