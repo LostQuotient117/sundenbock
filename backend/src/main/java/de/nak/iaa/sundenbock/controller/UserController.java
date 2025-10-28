@@ -2,9 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.UserDTO;
 import de.nak.iaa.sundenbock.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,10 +16,24 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Endpoint: GET /api/users/all-users um liste aller user zu bekommen -> test with http://localhost:8080/api/users/all-users
     @GetMapping("/all-users")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public UserDTO getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
+
+    @PutMapping("/{userId}/roles/{roleId}")
+    public void assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        userService.assignRoleToUser(userId, roleId);
+    }
+
+    @PutMapping("/{userId}/permissions/{permissionName}")
+    public void assignPermissionToUser(@PathVariable Long userId, @PathVariable String permissionName) {
+        userService.assignPermissionToUser(userId, permissionName);
     }
 
 }
