@@ -51,6 +51,7 @@ public class LoadExampleData implements CommandLineRunner {
                 c1.setTicket(t1);
                 c1.setAuthor("Max Mustermann");
                 c1.setCreatedOn(LocalDateTime.now());
+                c1.setLastChange(LocalDateTime.now()); // musste ich adden weil sonst crash
                 c1.setCommentText("Ich habe den Fehler reproduziert. Es scheint ein Problem mit der Datenbankverbindung zu geben.");
                 c1.setLikes(2);
                 c1.setDislikes(0);
@@ -61,6 +62,7 @@ public class LoadExampleData implements CommandLineRunner {
                 c1_sub1.setParentComment(c1);
                 c1_sub1.setAuthor("Jannick Gottschalk");
                 c1_sub1.setCreatedOn(LocalDateTime.now().plusMinutes(10));
+                c1_sub1.setLastChange(LocalDateTime.now().plusMinutes(10)); // musste ich adden weil sonst crash
                 c1_sub1.setCommentText("Kannst du bitte den genauen Fehler-Log posten?");
                 c1_sub1.setLikes(1);
                 c1_sub1.setDislikes(0);
@@ -70,6 +72,7 @@ public class LoadExampleData implements CommandLineRunner {
                 c2.setTicket(t2);
                 c2.setAuthor("Lisa Entwickler");
                 c2.setCreatedOn(LocalDateTime.now().minusHours(2));
+                c2.setLastChange(LocalDateTime.now().minusHours(2)); // musste ich adden weil sonst crash
                 c2.setCommentText("Ich habe das CSS-Problem analysiert. Es liegt an der falschen Grid-Konfiguration.");
                 c2.setLikes(5);
                 c2.setDislikes(0);
@@ -80,6 +83,7 @@ public class LoadExampleData implements CommandLineRunner {
                 c2_sub1.setParentComment(c2);
                 c2_sub1.setAuthor("Jannick Gottschalk");
                 c2_sub1.setCreatedOn(LocalDateTime.now().minusHours(1));
+                c2_sub1.setLastChange(LocalDateTime.now().minusHours(1)); // musste ich adden weil sonst crash
                 c2_sub1.setCommentText("Kannst du einen Fix vorschlagen?");
                 c2_sub1.setLikes(3);
                 c2_sub1.setDislikes(0);

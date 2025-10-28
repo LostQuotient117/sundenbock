@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
+        <version>3.5.7</version>
         <relativePath/>
     </parent>
 
@@ -47,6 +47,30 @@
             <scope>[42.6.1,)</scope>
         </dependency>
 
+        <!-- Security Stuff -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.3</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.3</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- MapStruct API -->
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -54,12 +78,19 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
-        <!-- optional: Lombok -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.42</version>
         </dependency>
+        <!-- Lombok addon um mapstruct richtig zu benutzen -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+
 
         <!-- Tests -->
         <dependency>
@@ -80,19 +111,24 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <release>25</release>
-                    <!--Annotation Processor MapStruct-->
                     <annotationProcessorPaths>
+                        <!-- Makes sure lombok gets initialized before mapstruct weil sonst getter & setter fehlen -->
                         <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct.version}</version>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
                         </path>
-
                         <!-- Annotation Processor Lombok -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.34</version>
+                            <version>1.18.42</version>
+                        </path>
+                        <!--Annotation Processor MapStruct-->
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
