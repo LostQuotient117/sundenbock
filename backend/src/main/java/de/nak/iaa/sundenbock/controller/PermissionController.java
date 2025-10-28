@@ -2,9 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.PermissionDTO;
 import de.nak.iaa.sundenbock.service.PermissionService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,8 +16,25 @@ public class PermissionController {
         this.permissionService = permissionService;
     }
 
+    /**
+     * Ruft eine Liste aller verfügbaren Berechtigungen ab.
+     * HTTP-Methode: GET
+     * Endpunkt: /api/permissions
+     *
+     * @return Eine Liste von PermissionDTOs, die alle Berechtigungen repräsentieren.
+     */
     @GetMapping
     public List<PermissionDTO> getAllPermissions() {
         return permissionService.getAllPermissions();
+    }
+
+    /**
+     * Erstellt eine neue Berechtigung.
+     * HTTP-Methode: POST
+     * Endpunkt: /api/permissions
+     */
+    @PostMapping
+    public PermissionDTO createPermission(@RequestBody PermissionDTO permissionDTO) {
+        return permissionService.createPermission(permissionDTO);
     }
 }

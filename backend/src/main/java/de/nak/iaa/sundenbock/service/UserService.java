@@ -1,5 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
+import de.nak.iaa.sundenbock.dto.RoleDTO;
+import de.nak.iaa.sundenbock.dto.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
 import de.nak.iaa.sundenbock.dto.UserDTO;
 import de.nak.iaa.sundenbock.model.user.Permission;
@@ -66,4 +68,12 @@ public class UserService {
         user.getPermissions().add(permission);
         userRepository.save(user);
     }
+
+    @Transactional(readOnly = true)
+    public UserDetailDTO getDetailedUserById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::toUserDetailDTO)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
 }
