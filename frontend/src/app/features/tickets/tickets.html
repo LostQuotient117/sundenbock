@@ -1,1 +1,9 @@
-<p>tickets works!</p>
+<h2>Tickets</h2>
+
+<ul>
+  <li *ngFor="let ticket of tickets()">
+    <strong>{{ ticket.title }}</strong><br />
+    <span>{{ ticket.description }}</span><br />
+    <small>Status: {{ ticket.status }}</small>
+  </li>
+</ul>
