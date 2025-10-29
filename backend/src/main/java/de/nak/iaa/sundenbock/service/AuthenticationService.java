@@ -7,7 +7,6 @@ import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
-import de.nak.iaa.sundenbock.service.JwtService;
 import java.util.Set;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

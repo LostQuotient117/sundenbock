@@ -2,7 +2,6 @@ package de.nak.iaa.sundenbock.resources;
 
 import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.model.user.User;
-import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
