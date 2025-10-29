@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TicketsService } from '../../core/services/tickets.service';
+import { TicketsService } from './ticket.service';
 
 @Component({
   selector: 'app-tickets',
   imports: [CommonModule],
-  templateUrl: './tickets.html',
-  styleUrl: './tickets.css'
+  templateUrl: './ticket.html',
+  styleUrl: './ticket.css'
 })
 export class Tickets {
    tickets = signal<any[]>([]);
