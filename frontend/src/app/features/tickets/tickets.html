@@ -10,8 +10,9 @@
       <input type="checkbox" />
 
       <!-- Overview mit ticket description -->
-      <div class="collapse-title font-semibold text-lg text-gray-800">
-        {{ ticket.description }}
+      <div class="collapse-title font-semibold text-lg text-gray-800 flex justify-between items-center gap-x-4">
+        <span>{{ ticket.description }}</span>
+        <span class="badge badge-info">{{ ticket.status }}</span>
       </div>
 
       <!-- detailed info für tickets -->

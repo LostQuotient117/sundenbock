@@ -1,0 +1,32 @@
+<div class="container mx-auto p-6">
+  <h2 class="text-3xl font-bold mb-4 text-primary text-center">📁 Projekte</h2>
+
+  <!-- Ladezustand -->
+  <div *ngIf="loading()" class="text-center text-gray-500">
+    Loading projects...
+  </div>
+
+  <!-- Keine Projekte verfügbar -->
+  <div *ngIf="!loading() && projects().length === 0" class="alert alert-warning text-center">
+    No projects available.
+  </div>
+
+  <div *ngIf="projects().length > 0" class="space-y-2">
+    <div *ngFor="let project of projects()" class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+      <input type="checkbox" />
+
+    
+      <div class="collapse-title font-semibold text-lg text-gray-800 flex justify-between items-center gap-x-4">
+        {{ project.title }}
+      </div>
+
+      
+      <div class="collapse-content text-gray-700 text-sm mt-2 space-y-1">
+        <p><strong>Description:</strong> {{ project.description || '–' }}</p>
+        <p><strong>Created by:</strong> {{ project.createdBy?.username || '–' }}</p>
+        <p><strong>Created on:</strong> {{ project.createdOn ? (project.createdOn | date: 'short') : '–' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
