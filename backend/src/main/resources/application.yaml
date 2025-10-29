@@ -2,7 +2,8 @@ application:
   security:
     jwt:
       secret-key: "pJ3E/WC+7uYs6zvfs27nzxj+kDHC9aOt+FeZVYdqIxg="
-      expiration: 86400000 # 24 Stunden in Millisekunden
+      # expiration: 86400000 # 24 Stunden in Millisekunden
+      expiration: 2592000000 # 30 Tage in Millisekunden
 
 spring:
   profiles:
