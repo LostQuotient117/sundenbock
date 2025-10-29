@@ -35,7 +35,8 @@ public class LoadBaselineSecurityData implements CommandLineRunner {
 
         // Ticket Permissions
         Permission ticketCreate = createPermissionIfNotFound("TICKET_CREATE");
-        Permission ticketRead = createPermissionIfNotFound("TICKET_READ");
+        Permission ticketReadOwn = createPermissionIfNotFound("TICKET_READ_OWN");
+        Permission ticketReadAll = createPermissionIfNotFound("TICKET_READ_ALL");
         Permission ticketUpdate = createPermissionIfNotFound("TICKET_UPDATE");
         Permission ticketDelete = createPermissionIfNotFound("TICKET_DELETE");
         Permission ticketAssign = createPermissionIfNotFound("TICKET_ASSIGN");
@@ -51,25 +52,34 @@ public class LoadBaselineSecurityData implements CommandLineRunner {
         Permission roleManage = createPermissionIfNotFound("ROLE_MANAGE");
 
         // ========== Base Roles ==========
+        Role userRole = createRoleIfNotFound("ROLE_USER", Set.of(
+                ticketCreate, ticketReadOwn, commentCreate
+        ));
+
         Role devRole = createRoleIfNotFound("ROLE_DEVELOPER", Set.of(
-                projectRead, ticketCreate, ticketRead, ticketUpdate,
+                projectRead, ticketCreate, ticketReadAll, ticketUpdate,
                 commentCreate, commentUpdate, commentDelete
         ));
 
         Role managerRole = createRoleIfNotFound("ROLE_PROJECT_MANAGER", Set.of(
                 projectCreate, projectRead, projectUpdate, projectDelete,
-                ticketCreate, ticketRead, ticketUpdate, ticketDelete,
+                ticketCreate, ticketReadAll, ticketUpdate, ticketDelete,
                 ticketAssign, ticketChangeStatus,
                 commentCreate, commentUpdate, commentDelete
         ));
 
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN", Set.of(
                 projectCreate, projectRead, projectUpdate, projectDelete,
-                ticketCreate, ticketRead, ticketUpdate, ticketDelete,
+                ticketCreate, ticketReadAll, ticketUpdate, ticketDelete,
                 ticketAssign, ticketChangeStatus,
                 commentCreate, commentUpdate, commentDelete,
                 userManage, roleManage
         ));
+
+        Role viewerRole = createRoleIfNotFound("ROLE_VIEWER", Set.of(
+                projectRead, ticketReadAll
+        ));
+
         System.out.println("Baseline permissions and roles loaded!");
     }
 
