@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller für die Authentifizierung und Registrierung von Benutzern.
+ * Stellt Endpunkte für die Registrierung neuer Benutzer und die Authentifizierung bestehender Benutzer bereit.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
@@ -20,11 +24,21 @@ public class AuthenticationController {
         this.service = service;
     }
 
+    /**
+     * Registriert einen neuen Benutzer im System.
+     * @param request Das Registrierungsanforderungs-DTO, das Benutzername, E-Mail und Passwort enthält.
+     * @return Eine ResponseEntity, die ein AuthenticationResponse-DTO mit dem JWT-Token enthält.
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest request) {
         return ResponseEntity.ok(service.register(request));
     }
 
+    /**
+     * Authentifiziert einen Benutzer und gibt bei Erfolg einen JWT-Token zurück.
+     * @param request Das Authentifizierungsanforderungs-DTO, das Benutzername und Passwort enthält.
+     * @return Eine ResponseEntity, die ein AuthenticationResponse-DTO mit dem JWT-Token enthält.
+     */
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));

@@ -15,6 +15,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Implementierung des Spring Security UserDetailsService.
+ * Verantwortlich für das Laden von benutzerspezifischen Daten aus der Datenbank.
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -24,6 +28,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Lädt einen Benutzer anhand seines Benutzernamens.
+     *
+     * @param username Der Benutzername des zu ladenden Benutzers.
+     * @return ein UserDetails-Objekt, das die Kerninformationen des Benutzers enthält.
+     * @throws UsernameNotFoundException wenn kein Benutzer mit dem angegebenen Benutzernamen gefunden wird.
+     */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -36,6 +47,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
     }
 
+    /**
+     * Sammelt die Berechtigungen (Rollen und individuelle Berechtigungen) eines Benutzers.
+     *
+     * @param user Der Benutzer, dessen Berechtigungen gesammelt werden sollen.
+     * @return Eine Sammlung von GrantedAuthority-Objekten.
+     */
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         user.getRoles().forEach(role -> {

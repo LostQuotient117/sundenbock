@@ -15,6 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service-Klasse, die die Geschäftslogik für die Registrierung und Authentifizierung von Benutzern kapselt.
+ */
 @Service
 public class AuthenticationService {
 
@@ -36,6 +39,13 @@ public class AuthenticationService {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Registriert einen neuen Benutzer. Erstellt einen neuen Benutzerdatensatz, weist eine Standardrolle zu,
+     * speichert den Benutzer in der Datenbank und generiert einen JWT-Token.
+     *
+     * @param request Die Registrierungsanforderung mit den Benutzerdaten.
+     * @return Eine Authentifizierungsantwort, die den generierten JWT-Token enthält.
+     */
     public AuthenticationResponse register(RegistrationRequest request) {
         Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
@@ -52,6 +62,13 @@ public class AuthenticationService {
         return new AuthenticationResponse(jwtToken);
     }
 
+    /**
+     * Authentifiziert einen Benutzer anhand seines Benutzernamens und Passworts.
+     * Bei erfolgreicher Authentifizierung wird ein neuer JWT-Token generiert.
+     *
+     * @param request Die Authentifizierungsanforderung mit Benutzername und Passwort.
+     * @return Eine Authentifizierungsantwort, die den generierten JWT-Token enthält.
+     */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
