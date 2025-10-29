@@ -1,3 +1,9 @@
+application:
+  security:
+    jwt:
+      secret-key: "pJ3E/WC+7uYs6zvfs27nzxj+kDHC9aOt+FeZVYdqIxg="
+      expiration: 86400000 # 24 Stunden in Millisekunden
+
 spring:
   profiles:
     active: dev   # <--- Standardmäßig H2 aktiv, kann später auf prod gesetzt werden
