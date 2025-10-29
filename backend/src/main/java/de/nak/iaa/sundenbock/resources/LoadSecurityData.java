@@ -8,6 +8,7 @@ import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
@@ -19,12 +20,14 @@ public class LoadSecurityData implements CommandLineRunner {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public LoadSecurityData(UserRepository userRepository, RoleRepository roleRepository,
-                            PermissionRepository permissionRepository) {
+                            PermissionRepository permissionRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -59,19 +62,23 @@ public class LoadSecurityData implements CommandLineRunner {
         roleRepository.save(adminRole);
 
         // Creates and saves test users with their roles
-        User devUser = new User();
-        devUser.setUsername("dev");
-        devUser.setEmail("dev@test.com");
-        devUser.setPassword("password"); // string "password" for einfachheit im moment
-        devUser.setRoles(Set.of(devRole));
-        userRepository.save(devUser);
+        if (userRepository.findByUsername("dev").isEmpty()) {
+            User devUser = new User();
+            devUser.setUsername("dev");
+            devUser.setEmail("dev@test.com");
+            devUser.setPassword(passwordEncoder.encode("password")); // PASSWORT VERSCHLÜSSELN
+            devUser.setRoles(Set.of(devRole));
+            userRepository.save(devUser);
+        }
 
-        User adminUser = new User();
-        adminUser.setUsername("admin");
-        adminUser.setEmail("admin@test.com");
-        adminUser.setPassword("password"); // string "password" for einfachheit im moment
-        adminUser.setRoles(Set.of(adminRole));
-        userRepository.save(adminUser);
+        if (userRepository.findByUsername("admin").isEmpty()) {
+            User adminUser = new User();
+            adminUser.setUsername("admin");
+            adminUser.setEmail("admin@test.com");
+            adminUser.setPassword(passwordEncoder.encode("password")); // PASSWORT VERSCHLÜSSELN
+            adminUser.setRoles(Set.of(adminRole));
+            userRepository.save(adminUser);
+        }
 
         System.out.println("Test user data (permissions, roles, users) loaded!");
     }
