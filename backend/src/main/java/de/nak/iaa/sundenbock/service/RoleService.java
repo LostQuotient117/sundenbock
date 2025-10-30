@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.RoleDTO;
 import de.nak.iaa.sundenbock.dto.mapper.RoleMapper;
+import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.user.Permission;
 import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
@@ -39,7 +40,7 @@ public class RoleService {
         role.setName(roleDTO.name());
         Set<Permission> permissions = roleDTO.permissions().stream()
                 .map(name -> permissionRepository.findById(name)
-                        .orElseThrow(() -> new RuntimeException("Permission not found: " + name)))
+                        .orElseThrow(() -> new ResourceNotFoundException("Permission not found: " + name)))
                 .collect(Collectors.toSet());
         role.setPermissions(permissions);
         Role savedRole = roleRepository.save(role);
@@ -49,10 +50,10 @@ public class RoleService {
     @Transactional
     public void updateRolePermissions(Long roleId, Set<String> permissionNames) {
         Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         Set<Permission> permissions = permissionNames.stream()
                 .map(name -> permissionRepository.findById(name)
-                        .orElseThrow(() -> new RuntimeException("Permission not found: " + name)))
+                        .orElseThrow(() -> new ResourceNotFoundException("Permission not found: " + name)))
                 .collect(Collectors.toSet());
         role.setPermissions(permissions);
         roleRepository.save(role);
