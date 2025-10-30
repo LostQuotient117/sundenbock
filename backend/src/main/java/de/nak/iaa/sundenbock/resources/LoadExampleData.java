@@ -27,6 +27,7 @@ public class LoadExampleData implements CommandLineRunner {
     public void run(String... args) {
             if (ticketRepository.count() == 0) {
                 Ticket t1 = new Ticket();
+                t1.setTitle("500 error on login page");
                 t1.setDescription("Login page throws 500 error");
                 t1.setStatus(TicketStatus.CREATED);
                 t1.setCreatedOn(LocalDateTime.now());
@@ -36,6 +37,7 @@ public class LoadExampleData implements CommandLineRunner {
                 t1.setProject("TS");
 
                 Ticket t2 = new Ticket();
+                t2.setTitle("CSS misalignment: Dashboard");
                 t2.setDescription("CSS misalignment on dashboard");
                 t2.setStatus(TicketStatus.IN_PROGRESS);
                 t2.setCreatedOn(LocalDateTime.now().minusDays(1));

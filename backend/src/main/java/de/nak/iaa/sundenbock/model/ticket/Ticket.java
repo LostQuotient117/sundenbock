@@ -18,6 +18,7 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //TODO: For auto-increment (the question is whether it can also be used as an ID that is visible. Otherwise, maybe limit the length?
     private Long id;
+    @Column(nullable = false)
     public String Title;
     public String Description; //TODO: Add Title? Pictures (maybe Blob?)?
     public TicketStatus Status;
