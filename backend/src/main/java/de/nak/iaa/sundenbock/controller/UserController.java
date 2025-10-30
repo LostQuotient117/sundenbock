@@ -2,7 +2,10 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.UserDTO;
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
+import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
+import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
 import de.nak.iaa.sundenbock.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,47 +20,52 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Ruft eine Liste aller Benutzer ab.
-     * HTTP-Methode: GET
-     * Endpunkt: /api/users/all-users
-     *
-     * @return Eine Liste von UserDTOs, die alle Benutzer repräsentieren.
-     */
     @GetMapping("/all-users")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    /**
-     * Ruft detaillierte Informationen zu einem Benutzer anhand seiner ID ab, einschließlich seiner Rollen und Berechtigungen.
-     * HTTP-Methode: GET
-     * Endpunkt: /api/users/{id}/details
-     *
-     * @param id Die ID des abzurufenden Benutzers.
-     * @return Ein UserDetailDTO mit den vollständigen Informationen des Benutzers.
-     */
-    @GetMapping("/{id}/details")
-    public UserDetailDTO getDetailedUserById(@PathVariable Long id) {
-        return userService.getDetailedUserById(id);
+    @GetMapping("/{username}")
+    public UserDTO getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username);
     }
 
-    @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    @GetMapping("/{username}/details")
+    public UserDetailDTO getDetailedUserByUsername(@PathVariable String username) {
+        return userService.getDetailedUserByUsername(username);
     }
 
+    @PutMapping("/{username}/update")
+    public UserDetailDTO updateUser(@PathVariable String username, @RequestBody UserDetailDTO userDetailDTO) {
+        return userService.updateUser(username, userDetailDTO);
+    }
+
+    @PostMapping
+    public UserDetailDTO createUser(@RequestBody RegistrationRequest request) {
+        return userService.createUser(request);
+    }
+
+    @DeleteMapping("/{username}/delete")
+    public void deleteUserByUsername(@PathVariable String username) {
+        userService.deleteUserByUsername(username);
+    }
+
+
+
+
+
+    // Not in use rn
     /**
      * Weist einem Benutzer eine Rolle zu.
      * HTTP-Methode: PUT
      * Endpunkt: /api/users/{userId}/roles/{roleId}
      *
-     * @param userId Die ID des Benutzers, dem die Rolle zugewiesen werden soll.
+     * @param username Username des Benutzers, dem die Rolle zugewiesen werden soll.
      * @param roleId Die ID der zuzuweisenden Rolle.
      */
-    @PutMapping("/{userId}/roles/{roleId}")
-    public void assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
-        userService.assignRoleToUser(userId, roleId);
+    @PutMapping("/{username}/roles/{roleId}")
+    public void assignRoleToUser(@PathVariable String username, @PathVariable Long roleId) {
+        userService.assignRoleToUser(username, roleId);
     }
 
     /**
@@ -65,11 +73,11 @@ public class UserController {
      * HTTP-Methode: PUT
      * Endpunkt: /api/users/{userId}/permissions/{permissionName}
      *
-     * @param userId         Die ID des Benutzers, dem die Berechtigung zugewiesen werden soll.
+     * @param username Username des Benutzers, dem die Berechtigung zugewiesen werden soll.
      * @param permissionName Der Name der zuzuweisenden Berechtigung.
      */
-    @PutMapping("/{userId}/permissions/{permissionName}")
-    public void assignPermissionToUser(@PathVariable Long userId, @PathVariable String permissionName) {
-        userService.assignPermissionToUser(userId, permissionName);
+    @PutMapping("/{username}/permissions/{permissionName}")
+    public void assignPermissionToUser(@PathVariable String username, @PathVariable String permissionName) {
+        userService.assignPermissionToUser(username, permissionName);
     }
 }
