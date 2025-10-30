@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Stellt Endpunkte für die Registrierung neuer Benutzer und die Authentifizierung bestehender Benutzer bereit.
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
     private final AuthenticationService service;

@@ -2,13 +2,14 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.UserDTO;
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
+import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
 import de.nak.iaa.sundenbock.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -18,58 +19,82 @@ public class UserController {
     }
 
     /**
-     * Ruft eine Liste aller Benutzer ab.
-     * HTTP-Methode: GET
-     * Endpunkt: /api/users/all-users
+     * Controller method to retrieve all users.
      *
-     * @return Eine Liste von UserDTOs, die alle Benutzer repräsentieren.
+     * @return A list of UserDTO objects representing all users.
      */
-    @GetMapping("/all-users")
+    @GetMapping
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     /**
-     * Ruft detaillierte Informationen zu einem Benutzer anhand seiner ID ab, einschließlich seiner Rollen und Berechtigungen.
-     * HTTP-Methode: GET
-     * Endpunkt: /api/users/{id}/details
+     * Controller method to retrieve a user by their username.
      *
-     * @param id Die ID des abzurufenden Benutzers.
-     * @return Ein UserDetailDTO mit den vollständigen Informationen des Benutzers.
+     * @param username The username of the user to retrieve.
+     * @return A UserDTO object representing the user with the specified username.
      */
-    @GetMapping("/{id}/details")
-    public UserDetailDTO getDetailedUserById(@PathVariable Long id) {
-        return userService.getDetailedUserById(id);
-    }
-
-    @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    @GetMapping("/{username}")
+    public UserDTO getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username);
     }
 
     /**
-     * Weist einem Benutzer eine Rolle zu.
-     * HTTP-Methode: PUT
-     * Endpunkt: /api/users/{userId}/roles/{roleId}
+     * Controller method to retrieve detailed information about a user by their username.
      *
-     * @param userId Die ID des Benutzers, dem die Rolle zugewiesen werden soll.
-     * @param roleId Die ID der zuzuweisenden Rolle.
+     * @param username The username of the user to retrieve details for.
+     * @return A UserDetailDTO object containing detailed information about the user.
      */
-    @PutMapping("/{userId}/roles/{roleId}")
-    public void assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
-        userService.assignRoleToUser(userId, roleId);
+    @GetMapping("/{username}/details")
+    public UserDetailDTO getDetailedUserByUsername(@PathVariable String username) {
+        return userService.getDetailedUserByUsername(username);
     }
 
     /**
-     * Weist einem Benutzer eine einzelne Berechtigung zu.
-     * HTTP-Methode: PUT
-     * Endpunkt: /api/users/{userId}/permissions/{permissionName}
+     * Controller method to update a user's details.
      *
-     * @param userId         Die ID des Benutzers, dem die Berechtigung zugewiesen werden soll.
-     * @param permissionName Der Name der zuzuweisenden Berechtigung.
+     * @param username The username of the user to update.
+     * @param userDetailDTO A UserDetailDTO object containing the updated user details.
+     * @return A UserDetailDTO object representing the updated user.
      */
-    @PutMapping("/{userId}/permissions/{permissionName}")
-    public void assignPermissionToUser(@PathVariable Long userId, @PathVariable String permissionName) {
-        userService.assignPermissionToUser(userId, permissionName);
+    @PutMapping("/{username}/update")
+    public UserDetailDTO updateUser(@PathVariable String username, @RequestBody UserDetailDTO userDetailDTO) {
+        return userService.updateUser(username, userDetailDTO);
+    }
+
+    /**
+     * Controller method to create a new user.
+     *
+     * @param request A RegistrationRequest object containing the details of the new user.
+     * @return A UserDetailDTO object representing the newly created user.
+     */
+    @PostMapping("/create")
+    public UserDetailDTO createUser(@RequestBody RegistrationRequest request) {
+        return userService.createUser(request);
+    }
+
+
+    /**
+     * Controller method to delete a user by their username.
+     *
+     * @param username The username of the user to delete.
+     */
+    @DeleteMapping("/{username}/delete")
+    public void deleteUserByUsername(@PathVariable String username) {
+        userService.deleteUserByUsername(username);
+    }
+
+
+
+
+    // Not in use rn
+    @PutMapping("/{username}/roles/{roleId}")
+    public void assignRoleToUser(@PathVariable String username, @PathVariable Long roleId) {
+        userService.assignRoleToUser(username, roleId);
+    }
+
+    @PutMapping("/{username}/permissions/{permissionName}")
+    public void assignPermissionToUser(@PathVariable String username, @PathVariable String permissionName) {
+        userService.assignPermissionToUser(username, permissionName);
     }
 }

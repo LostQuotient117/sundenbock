@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/permissions")
+@RequestMapping("/api/v1/permissions")
 public class PermissionController {
 
     private final PermissionService permissionService;
@@ -33,7 +33,7 @@ public class PermissionController {
      * HTTP-Methode: POST
      * Endpunkt: /api/permissions
      */
-    @PostMapping
+    @PostMapping("/create")
     public PermissionDTO createPermission(@RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
     }

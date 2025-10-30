@@ -7,8 +7,9 @@ public record UserDetailDTO(
         Long id,
         String username,
         String email,
-        boolean enabled,
         LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        boolean enabled,
         Set<String> roles,
         Set<String> permissions
 ) {
