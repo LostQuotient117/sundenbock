@@ -1,3 +1,6 @@
+import { Project } from "../../projects/models/project";
+import { User } from "../../users/models/user";
+
 export interface Ticket {
   id: number;
   title: string;

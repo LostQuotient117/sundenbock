@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.table th {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: hsl(var(--bc));
+}
+
+.badge {
+  font-weight: 600;
+  text-transform: none;
+}

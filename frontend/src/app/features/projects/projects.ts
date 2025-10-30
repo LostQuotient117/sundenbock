@@ -6,7 +6,6 @@ import { ProjectsService } from './projects.service';
   selector: 'app-projects',
   imports: [CommonModule],
   templateUrl: './projects.html',
-  styleUrl: './projects.css'
 })
 export class Projects {
   projects = signal<any[]>([]);
