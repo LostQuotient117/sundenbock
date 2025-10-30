@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.UserDTO;
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
+import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
 import de.nak.iaa.sundenbock.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +63,7 @@ public class UserController {
         return userService.updateUser(username, userDetailDTO);
     }
 
+    // administrative user creation
     /**
      * Controller method to create a new user.
      *
@@ -73,7 +75,6 @@ public class UserController {
         return userService.createUser(request);
     }
 
-
     /**
      * Controller method to delete a user by their username.
      *
@@ -84,17 +85,61 @@ public class UserController {
         userService.deleteUserByUsername(username);
     }
 
-
-
-
-    // Not in use rn
-    @PutMapping("/{username}/roles/{roleId}")
-    public void assignRoleToUser(@PathVariable String username, @PathVariable Long roleId) {
-        userService.assignRoleToUser(username, roleId);
+    /**
+     * Allows the currently authenticated user to change their own password.
+     * HTTP Method: PUT
+     * Endpoint: /api/users/change-password
+     *
+     * @param request The request body containing the old and new passwords.
+     */
+    @PutMapping("/change-password")
+    public void changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request);
     }
 
+    /**
+     * Assigns a role to a user.
+     * HTTP Method: PUT
+     * Endpoint: /api/v1/users/{username}/roles/{roleName}
+     *
+     * @param username The username of the user to whom the role will be assigned.
+     * @param roleName Role name of the role to assign to the user.
+     */
+    @PutMapping("/{username}/roles/{roleName}")
+    public void assignRoleToUser(@PathVariable String username, @PathVariable String roleName) {
+        userService.assignRoleToUser(username, roleName);
+    }
+
+    /**
+     * Removes a role from a user.
+     * HTTP Method: DELETE
+     * Endpoint: /api/v1/users/{username}/roles/{roleName}
+     */
+    @DeleteMapping("/{username}/roles/{roleName}")
+    public void removeRoleFromUser(@PathVariable String username, @PathVariable String roleName) {
+        userService.removeRoleFromUser(username, roleName);
+    }
+
+    /**
+     * Assigns a permission to a user.
+     * HTTP Method: PUT
+     * Endpoint: /api/v1/users/{username}/permissions/{permissionName}
+     *
+     * @param username The username of the user to whom the permission will be assigned.
+     * @param permissionName The name of the permission to assign to the user.
+     */
     @PutMapping("/{username}/permissions/{permissionName}")
     public void assignPermissionToUser(@PathVariable String username, @PathVariable String permissionName) {
         userService.assignPermissionToUser(username, permissionName);
+    }
+
+    /**
+     * Removes a direct permission from a user.
+     * HTTP Method: DELETE
+     * Endpoint: /api/v1/users/{username}/permissions/{permissionName}
+     */
+    @DeleteMapping("/{username}/permissions/{permissionName}")
+    public void removePermissionFromUser(@PathVariable String username, @PathVariable String permissionName) {
+        userService.removePermissionFromUser(username, permissionName);
     }
 }
