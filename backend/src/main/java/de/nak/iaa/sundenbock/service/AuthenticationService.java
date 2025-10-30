@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
+import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
@@ -48,7 +49,7 @@ public class AuthenticationService {
      */
     public AuthenticationResponse register(RegistrationRequest request) {
         Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
 
         User user = new User();
         user.setUsername(request.username());
