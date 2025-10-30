@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.model.comment;
 
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +28,8 @@ public class Comment {
     private List<Comment> comments = new ArrayList<>();
     @ManyToOne
     private Comment parentComment;
-    public String Author; //TODO: Placeholder for user-class
+    @ManyToOne(optional = false)
+    public User Author; //TODO: Placeholder for user-class
     @CreatedDate
     @Column(nullable = false, updatable = false)
     public LocalDateTime CreatedOn;

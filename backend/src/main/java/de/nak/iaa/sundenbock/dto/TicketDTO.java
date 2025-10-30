@@ -11,7 +11,7 @@ public record TicketDTO(
         TicketStatus status,
         LocalDateTime lastChange,
         LocalDateTime createdOn,
-        String responsiblePerson,
-        String author,
-        String project
+        UserDTO responsiblePerson,
+        UserDTO author,
+        ProjectDTO project
 ) {}

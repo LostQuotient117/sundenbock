@@ -44,17 +44,10 @@ public class TicketService {
     @Transactional
     public TicketDTO updateTicket(Long id, TicketDTO ticketDTO) {
         Ticket existingTicket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+                .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception
 
-        existingTicket.setTitle(ticketDTO.title());
-        existingTicket.setDescription(ticketDTO.description());
-        existingTicket.setStatus(ticketDTO.status());
-        existingTicket.setResponsiblePerson(ticketDTO.responsiblePerson());
-        existingTicket.setProject(ticketDTO.project());
-        //TODO: automatic change of lastupdatet through @preupdate?
-
-        Ticket updatedTicket = ticketRepository.save(existingTicket);
-        return ticketMapper.toTicketDTO(updatedTicket);
+        ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket);
+        return ticketMapper.toTicketDTO(existingTicket);
     }
 
     @Transactional

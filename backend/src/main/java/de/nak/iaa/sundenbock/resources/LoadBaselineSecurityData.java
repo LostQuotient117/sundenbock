@@ -4,16 +4,13 @@ import de.nak.iaa.sundenbock.model.user.Permission;
 import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
 @Component
-@Order(1) // Ensures this runner executes first
-public class LoadBaselineSecurityData implements CommandLineRunner {
+public class LoadBaselineSecurityData{
 
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
@@ -22,8 +19,6 @@ public class LoadBaselineSecurityData implements CommandLineRunner {
         this.permissionRepository = permissionRepository;
         this.roleRepository = roleRepository;
     }
-
-    @Override
     @Transactional
     public void run(String... args) {
         // ========== Base Permissions ==========
