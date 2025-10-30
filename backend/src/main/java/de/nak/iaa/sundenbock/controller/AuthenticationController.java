@@ -24,6 +24,7 @@ public class AuthenticationController {
         this.service = service;
     }
 
+    // public user self-registration
     /**
      * Registriert einen neuen Benutzer im System.
      * @param request Das Registrierungsanforderungs-DTO, das Benutzername, E-Mail und Passwort enthält.
@@ -34,6 +35,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.register(request));
     }
 
+    // basically login
     /**
      * Authentifiziert einen Benutzer und gibt bei Erfolg einen JWT-Token zurück.
      * @param request Das Authentifizierungsanforderungs-DTO, das Benutzername und Passwort enthält.

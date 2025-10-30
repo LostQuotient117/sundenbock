@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
+import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
 import de.nak.iaa.sundenbock.dto.UserDTO;
@@ -10,6 +11,8 @@ import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,10 +108,10 @@ public class UserService {
 
     // maybe not needed
     @Transactional
-    public void assignRoleToUser(String username, Long roleId) {
+    public void assignRoleToUser(String username, String roleName) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Role role = roleRepository.findById(roleId)
+        Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         user.getRoles().add(role);
         userRepository.save(user);
@@ -121,6 +124,44 @@ public class UserService {
         Permission permission = permissionRepository.findById(permissionName)
                 .orElseThrow(() -> new RuntimeException("Permission not found"));
         user.getPermissions().add(permission);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void removeRoleFromUser(String username, String roleName) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+        user.getRoles().remove(role);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void removePermissionFromUser(String username, String permissionName) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Permission permission = permissionRepository.findById(permissionName)
+                .orElseThrow(() -> new RuntimeException("Permission not found"));
+        user.getPermissions().remove(permission);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+
+        // Get the currently authenticated user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Current user not found in database"));
+
+        // Check if the old password is correct
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid old password");
+        }
+
+        // Set the new, encoded password
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
 
