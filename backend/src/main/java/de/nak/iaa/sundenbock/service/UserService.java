@@ -37,6 +37,7 @@ public class UserService {
 
     /**
      * Retrieves all users and converts them to safe DTOs.
+     *
      * @return A list of all users.
      */
     @Transactional(readOnly = true)
