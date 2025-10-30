@@ -33,7 +33,7 @@ public class PermissionController {
      * HTTP-Methode: POST
      * Endpunkt: /api/permissions
      */
-    @PostMapping
+    @PostMapping("/create")
     public PermissionDTO createPermission(@RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
     }

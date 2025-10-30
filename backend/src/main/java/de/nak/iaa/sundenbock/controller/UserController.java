@@ -68,7 +68,7 @@ public class UserController {
      * @param request A RegistrationRequest object containing the details of the new user.
      * @return A UserDetailDTO object representing the newly created user.
      */
-    @PostMapping
+    @PostMapping("/create")
     public UserDetailDTO createUser(@RequestBody RegistrationRequest request) {
         return userService.createUser(request);
     }
