@@ -1,6 +1,8 @@
 package de.nak.iaa.sundenbock.model.ticket;
 
 import de.nak.iaa.sundenbock.model.comment.Comment;
+import de.nak.iaa.sundenbock.model.project.Project;
+import de.nak.iaa.sundenbock.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +30,12 @@ public class Ticket {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     public LocalDateTime CreatedOn;
-    public String ResponsiblePerson; //TODO: Placehoilder for user-class as datatype
-    public String Author; //TODO: Placehoilder for user-class as datatype
-    public String Project; //TODO: Placeholer for project-class as datatype
+    @ManyToOne(optional = false)
+    public User ResponsiblePerson; //TODO: Placehoilder for user-class as datatype
+    @ManyToOne(optional = false)
+    public User Author; //TODO: Placehoilder for user-class as datatype
+    @ManyToOne(optional = false)
+    public Project Project; //TODO: Placeholer for project-class as datatype
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 

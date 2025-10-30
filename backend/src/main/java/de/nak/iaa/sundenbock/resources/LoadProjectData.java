@@ -4,16 +4,14 @@ import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
-@ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:h2:mem:mydb")
-public class LoadProjectData implements CommandLineRunner {
+public class LoadProjectData {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -22,8 +20,7 @@ public class LoadProjectData implements CommandLineRunner {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
     }
-
-    @Override
+    @Transactional
     public void run(String... args) {
         if (projectRepository.count() == 0) {
             // Dev-User und Admin-User aus LoadSecurityData abrufen

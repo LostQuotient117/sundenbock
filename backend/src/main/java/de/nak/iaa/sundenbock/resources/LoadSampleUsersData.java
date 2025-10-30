@@ -4,16 +4,13 @@ import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Component
-@ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:h2:mem:mydb") // only used in h2 db, so i hope no crash when using prod
-public class LoadSampleUsersData implements CommandLineRunner {
+public class LoadSampleUsersData {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -25,8 +22,6 @@ public class LoadSampleUsersData implements CommandLineRunner {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
-    @Override
     @Transactional
     public void run(String... args) {
 

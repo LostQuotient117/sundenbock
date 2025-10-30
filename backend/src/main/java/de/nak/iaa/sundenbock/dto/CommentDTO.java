@@ -9,7 +9,7 @@ public record CommentDTO(
         Long id,
         Long ticketId,
         Long parentCommentId,
-        String author,
+        UserDTO author,
         LocalDateTime createdOn,
         String commentText,
         int likes,
