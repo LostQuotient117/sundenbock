@@ -15,31 +15,26 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    // Endpoint: Get all Tickets (GET /api/tickets)
-    @GetMapping
+    @GetMapping("/all-tickets")
     public List<TicketDTO> getTickets() {
         return ticketService.getTickets();
     }
 
-    // Endpoint: Get Ticket by ID (GET /api/tickets/{id})
     @GetMapping("/{id}")
     public TicketDTO getTicketById(@PathVariable Long id) {
         return ticketService.getTicketById(id);
     }
 
-    // Endpoint: Create a new Ticket (POST /api/tickets)
     @PostMapping
     public TicketDTO createTicket(@RequestBody TicketDTO ticketDTO) {
         return ticketService.createTicket(ticketDTO);
     }
 
-    // Endpoint: Update a Ticket (PUT /api/tickets/{id})
     @PutMapping("/{id}")
     public TicketDTO updateTicket(@PathVariable Long id, @RequestBody TicketDTO ticketDTO) {
         return ticketService.updateTicket(id, ticketDTO);
     }
 
-    // Endpoint: Delete a Ticket (DELETE /api/tickets/{id})
     @DeleteMapping("/{id}")
     public void deleteTicket(@PathVariable Long id) {
         ticketService.deleteTicket(id);
