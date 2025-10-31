@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
-import de.nak.iaa.sundenbock.dto.CommentDTO;
+import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
+import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.dto.mapper.CommentMapper;
 import de.nak.iaa.sundenbock.model.comment.Comment;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
@@ -30,11 +31,12 @@ public class CommentService{
     }
 
     @Transactional
-    public CommentDTO createComment(CommentDTO commentDTO) {
-        Ticket ticket = ticketRepository.findById(commentDTO.ticketId())
+    public CommentDTO createComment(CreateCommentDTO createCommentDTO) {
+        Ticket ticket = ticketRepository.findById(createCommentDTO.ticketId())
                 .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception & maybe own function for ticket-search
-        Comment comment = commentMapper.toComment(commentDTO);
+        Comment comment = commentMapper.toCommentForCreate(createCommentDTO);
         comment.setTicket(ticket);
+        //TODO: parentComment???
         Comment savedComment = commentRepository.save(comment);
         return commentMapper.toCommentDTO(savedComment);
     }
