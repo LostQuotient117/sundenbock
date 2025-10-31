@@ -19,8 +19,8 @@ public record CommentDTO(
         String commentText,
         int likes,
         int dislikes,
-        @JsonIgnoreProperties("replies")
-        List<CommentDTO> replies,
+        @JsonIgnoreProperties("childComments")
+        List<CommentDTO> childComments,
         //!-- from AuditedEntity --!
         Instant createdDate,
         Instant lastModifiedDate,

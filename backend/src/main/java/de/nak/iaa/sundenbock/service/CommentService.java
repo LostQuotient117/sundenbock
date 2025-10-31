@@ -26,8 +26,13 @@ public class CommentService{
     }
 
     @Transactional
-    public void deleteComment(Long id) {
-        commentRepository.deleteById(id);
+    public void deleteCommentWithChildren(Long parentId) {
+        List<Long> childIds = commentRepository.findChildIdsByParentId(parentId);
+        for (Long childId : childIds) {
+            deleteCommentWithChildren(childId);
+        }
+
+        commentRepository.deleteByIdQuery(parentId);
     }
 
     @Transactional
@@ -66,7 +71,7 @@ public class CommentService{
     }
 
     private void buildRepliesTree(Comment comment) {
-        List<Comment> replies = comment.getComments();
+        List<Comment> replies = comment.getChildComments();
         replies.forEach(this::buildRepliesTree);
     }
 
