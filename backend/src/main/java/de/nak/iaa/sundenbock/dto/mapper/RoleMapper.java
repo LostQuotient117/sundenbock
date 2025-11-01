@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.dto.mapper;
 
-import de.nak.iaa.sundenbock.dto.RoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.model.user.Permission;
 import de.nak.iaa.sundenbock.model.user.Role;
 import org.mapstruct.Mapper;

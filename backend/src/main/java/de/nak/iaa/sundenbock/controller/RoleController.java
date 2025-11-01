@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.RoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.service.RoleService;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,12 +35,12 @@ public class RoleController {
      * HTTP-Methode: POST
      * Endpunkt: /api/roles
      *
-     * @param roleDTO Das RoleDTO mit den Daten für die neue Rolle (Name und Berechtigungen) im Request Body.
+     * @param createRoleDTO Das CreateRoleDTO mit den Daten für die neue Rolle (Name und Berechtigungen) im Request Body.
      * @return Das erstellte RoleDTO.
      */
     @PostMapping
-    public RoleDTO createRole(@RequestBody RoleDTO roleDTO) {
-        return roleService.createRole(roleDTO);
+    public RoleDTO createRole(@RequestBody CreateRoleDTO createRoleDTO) {
+        return roleService.createRole(createRoleDTO);
     }
 
     /**

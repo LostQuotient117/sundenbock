@@ -2,9 +2,9 @@ package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
-import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
+import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
-import de.nak.iaa.sundenbock.dto.UserDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.user.Permission;
@@ -80,7 +80,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDetailDTO createUser(RegistrationRequest request) {
+    public UserDetailDTO createUser(CreateUserDTO request) {
         if (userRepository.findByUsername(request.username()).isPresent()) {
             throw new DuplicateResourceException("Username already exists: " + request.username());
         }

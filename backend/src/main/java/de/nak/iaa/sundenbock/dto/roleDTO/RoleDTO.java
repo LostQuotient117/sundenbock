@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.dto;
+package de.nak.iaa.sundenbock.dto.roleDTO;
 
 import java.util.Set;
 

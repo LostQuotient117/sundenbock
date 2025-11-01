@@ -1,9 +1,9 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.UserDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
-import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
+import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,7 +71,7 @@ public class UserController {
      * @return A UserDetailDTO object representing the newly created user.
      */
     @PostMapping("/create")
-    public UserDetailDTO createUser(@RequestBody RegistrationRequest request) {
+    public UserDetailDTO createUser(@RequestBody CreateUserDTO request) {
         return userService.createUser(request);
     }
 

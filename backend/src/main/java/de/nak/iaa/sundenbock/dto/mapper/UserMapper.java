@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.dto.mapper;
 
-import de.nak.iaa.sundenbock.dto.UserDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
 import de.nak.iaa.sundenbock.model.user.Permission;
 import de.nak.iaa.sundenbock.model.user.Role;
