@@ -1,0 +1,38 @@
+stages:
+  - build
+
+# -----------------------
+# Backend Build (Maven)
+# -----------------------
+build_backend:
+  stage: build
+  image: ubuntu:24.04
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y openjdk-25-jdk maven
+  script:
+    - java -version
+    - mvn -version
+    - cd backend
+    - mvn clean compile
+  cache:
+    paths:
+      - backend/.m2/repository
+  artifacts:
+    paths:
+      - backend/target
+    expire_in: 1 week
+
+# -----------------------
+# Frontend Build (Angular)
+# -----------------------
+build_frontend:
+  stage: build
+  image: node:22.17.1
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  cache:
+    paths:
+      - frontend/node_modules
