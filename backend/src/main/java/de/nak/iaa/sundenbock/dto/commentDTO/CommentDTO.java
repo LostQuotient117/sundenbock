@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.dto.commentDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import de.nak.iaa.sundenbock.model.user.User;
+import de.nak.iaa.sundenbock.dto.UserDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,6 +24,6 @@ public record CommentDTO(
         //!-- from AuditedEntity --!
         Instant createdDate,
         Instant lastModifiedDate,
-        User createdBy,
-        User lastModifiedBy
+        UserDTO createdBy,
+        UserDTO lastModifiedBy
         ){}

@@ -6,7 +6,7 @@ import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface TicketMapper {
     TicketDTO toTicketDTO(Ticket ticket);
     Ticket toTicketFromCreate(CreateTicketDTO createTicketDTO);

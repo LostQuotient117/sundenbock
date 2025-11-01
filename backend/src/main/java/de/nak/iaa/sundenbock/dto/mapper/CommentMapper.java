@@ -6,7 +6,7 @@ import de.nak.iaa.sundenbock.model.comment.Comment;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface CommentMapper {
     CommentDTO toCommentDTO(Comment comment);
     Comment toCommentForCreate(CreateCommentDTO createCommentDTO);

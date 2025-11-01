@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.dto.projectDTO;
 
-import de.nak.iaa.sundenbock.model.user.User;
+import de.nak.iaa.sundenbock.dto.UserDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -17,6 +17,6 @@ public record ProjectDTO(
      //!-- from AuditedEntity --!
      Instant createdDate,
      Instant lastModifiedDate,
-     User createdBy,
-     User lastModifiedBy
+     UserDTO createdBy,
+     UserDTO lastModifiedBy
 ) {}

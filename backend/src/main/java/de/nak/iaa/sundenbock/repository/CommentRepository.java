@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     //find all top-level-comments
-    @EntityGraph(attributePaths = {"comments"})
+    @EntityGraph(attributePaths = {"childComments"})
     List<Comment> findByTicketId(Long ticketId);
 
     @Query(value = "SELECT id FROM comment WHERE parent_comment_id = :parentId", nativeQuery = true)

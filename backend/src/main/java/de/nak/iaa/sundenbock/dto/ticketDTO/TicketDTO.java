@@ -3,7 +3,6 @@ package de.nak.iaa.sundenbock.dto.ticketDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.dto.UserDTO;
 import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
-import de.nak.iaa.sundenbock.model.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,6 +26,6 @@ public record TicketDTO(
         //!-- from AuditedEntity --!
         Instant createdDate,
         Instant lastModifiedDate,
-        User createdBy,
-        User lastModifiedBy
+        UserDTO createdBy,
+        UserDTO lastModifiedBy
 ) {}
