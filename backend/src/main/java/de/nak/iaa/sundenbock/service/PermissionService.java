@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.service;
 
-import de.nak.iaa.sundenbock.dto.PermissionDTO;
+import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
 import de.nak.iaa.sundenbock.dto.mapper.PermissionMapper;
 import de.nak.iaa.sundenbock.model.permission.Permission;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;

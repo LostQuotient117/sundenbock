@@ -7,7 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +20,7 @@ import java.util.Set;
 @Table(name = "users") // "user" ist oft reserviert
 @Getter
 @Setter
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,4 +62,39 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "permission_name")
     )
     private Set<Permission> permissions = new HashSet<>();
+
+
+    @Override
+    @Transient
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        if (permissions != null) {
+            permissions.forEach(p -> authorities.add(new SimpleGrantedAuthority(p.getName())));
+        }
+
+        if (roles != null) {
+            roles.forEach(role -> {
+                authorities.add(new SimpleGrantedAuthority(role.getName()));
+                role.getPermissions().forEach(p -> authorities.add(new SimpleGrantedAuthority(p.getName())));
+            });
+        }
+        return authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
 }

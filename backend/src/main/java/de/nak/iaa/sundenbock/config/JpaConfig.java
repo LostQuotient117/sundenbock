@@ -29,7 +29,12 @@ public class JpaConfig {
             var auth =  SecurityContextHolder.getContext().getAuthentication();
 
             if (auth != null && auth.isAuthenticated()){
-                return userRepository.findByUsername(auth.getName());
+                Object principal = auth.getPrincipal();
+                if (principal instanceof User) {
+                    // KEINE DB-ABFRAGE MEHR NÖTIG!
+                    return Optional.of((User) principal);
+                }
+
             }
 
             return userRepository.findByUsername("system")
