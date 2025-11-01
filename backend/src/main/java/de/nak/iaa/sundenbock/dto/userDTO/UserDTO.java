@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.dto;
+package de.nak.iaa.sundenbock.dto.userDTO;
 
 public record UserDTO(
         Long id,

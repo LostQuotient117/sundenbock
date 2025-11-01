@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.dto.ticketDTO;
 
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
-import de.nak.iaa.sundenbock.dto.UserDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

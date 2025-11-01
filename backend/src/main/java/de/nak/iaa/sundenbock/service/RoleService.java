@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
-import de.nak.iaa.sundenbock.dto.RoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.dto.mapper.RoleMapper;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.user.Permission;
@@ -35,10 +36,10 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleDTO createRole(RoleDTO roleDTO) {
+    public RoleDTO createRole(CreateRoleDTO createRoleDTO) {
         Role role = new Role();
-        role.setName(roleDTO.name());
-        Set<Permission> permissions = roleDTO.permissions().stream()
+        role.setName(createRoleDTO.name());
+        Set<Permission> permissions = createRoleDTO.permissions().stream()
                 .map(name -> permissionRepository.findById(name)
                         .orElseThrow(() -> new ResourceNotFoundException("Permission not found: " + name)))
                 .collect(Collectors.toSet());

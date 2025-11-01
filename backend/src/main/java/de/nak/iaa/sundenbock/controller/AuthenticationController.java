@@ -2,7 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
-import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
+import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +31,7 @@ public class AuthenticationController {
      * @return Eine ResponseEntity, die ein AuthenticationResponse-DTO mit dem JWT-Token enthält.
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody CreateUserDTO request) {
         return ResponseEntity.ok(service.register(request));
     }
 

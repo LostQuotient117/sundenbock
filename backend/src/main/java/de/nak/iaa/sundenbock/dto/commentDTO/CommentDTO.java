@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.dto.commentDTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import de.nak.iaa.sundenbock.dto.UserDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

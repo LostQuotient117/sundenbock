@@ -2,7 +2,7 @@ package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
-import de.nak.iaa.sundenbock.dto.auth.RegistrationRequest;
+import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.user.Role;
 import de.nak.iaa.sundenbock.model.user.User;
@@ -47,7 +47,7 @@ public class AuthenticationService {
      * @param request Die Registrierungsanforderung mit den Benutzerdaten.
      * @return Eine Authentifizierungsantwort, die den generierten JWT-Token enthält.
      */
-    public AuthenticationResponse register(RegistrationRequest request) {
+    public AuthenticationResponse register(CreateUserDTO request) {
         Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
                 .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
 

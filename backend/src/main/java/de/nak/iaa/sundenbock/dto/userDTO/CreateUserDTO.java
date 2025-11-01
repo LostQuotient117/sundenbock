@@ -1,6 +1,6 @@
-package de.nak.iaa.sundenbock.dto.auth;
+package de.nak.iaa.sundenbock.dto.userDTO;
 
-public record RegistrationRequest(
+public record CreateUserDTO(
         String username,
         String email,
         String password
