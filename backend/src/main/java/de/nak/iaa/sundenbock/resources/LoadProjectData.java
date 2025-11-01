@@ -14,7 +14,7 @@ public class LoadProjectData {
         this.projectRepository = projectRepository;
     }
     @Transactional
-    public void run(String... args) {
+    public void run() {
         if (projectRepository.count() == 0) {
 
             Project p1 = new Project();

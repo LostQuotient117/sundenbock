@@ -2,8 +2,8 @@ package de.nak.iaa.sundenbock.dto.mapper;
 
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.UserDetailDTO;
-import de.nak.iaa.sundenbock.model.user.Permission;
-import de.nak.iaa.sundenbock.model.user.Role;
+import de.nak.iaa.sundenbock.model.permission.Permission;
+import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +19,8 @@ public interface UserMapper {
 
     @Mapping(target = "permissions", expression = "java(mapAllPermissions(user))")
     @Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")
+    @Mapping(source = "createdAt", target = "createdAt")
+    @Mapping(source = "updatedAt", target = "updatedAt")
     UserDetailDTO toUserDetailDTO(User user);
 
     default Set<String> mapRoles(Set<Role> roles) {

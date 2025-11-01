@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.resources;
 
-import de.nak.iaa.sundenbock.model.user.Role;
+import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
@@ -23,7 +23,7 @@ public class LoadSampleUsersData {
         this.passwordEncoder = passwordEncoder;
     }
     @Transactional
-    public void run(String... args) {
+    public void run() {
 
         Role devRole = roleRepository.findByName("ROLE_DEVELOPER").orElseThrow();
         Role managerRole = roleRepository.findByName("ROLE_PROJECT_MANAGER").orElseThrow();

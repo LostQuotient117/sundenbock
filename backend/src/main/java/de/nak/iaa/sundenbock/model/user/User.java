@@ -1,5 +1,7 @@
 package de.nak.iaa.sundenbock.model.user;
 
+import de.nak.iaa.sundenbock.model.permission.Permission;
+import de.nak.iaa.sundenbock.model.role.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

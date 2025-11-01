@@ -2,7 +2,7 @@ package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.PermissionDTO;
 import de.nak.iaa.sundenbock.dto.mapper.PermissionMapper;
-import de.nak.iaa.sundenbock.model.user.Permission;
+import de.nak.iaa.sundenbock.model.permission.Permission;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

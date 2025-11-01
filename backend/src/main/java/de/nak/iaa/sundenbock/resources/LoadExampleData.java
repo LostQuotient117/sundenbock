@@ -22,9 +22,9 @@ public class LoadExampleData implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        loadBaselineSecurityData.run(args);
-        loadSampleUsersData.run(args);
-        loadProjectData.run(args);
-        loadTicketAndCommentData.run(args);
+        loadBaselineSecurityData.run();
+        loadSampleUsersData.run();
+        loadProjectData.run();
+        loadTicketAndCommentData.run();
     }
 }

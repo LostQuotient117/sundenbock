@@ -22,7 +22,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop #database will be created at every start
-    show-sql: true
+    show-sql: false # use true if console logs of db are wanted
     properties:
       hibernate:
         format_sql: true
