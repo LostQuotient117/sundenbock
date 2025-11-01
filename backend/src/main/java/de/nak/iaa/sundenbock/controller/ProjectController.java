@@ -27,17 +27,17 @@ public class ProjectController {
         return projectService.getProjectById(id);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ProjectDTO createProject(@Valid @RequestBody CreateProjectDTO createProjectDTO) {
         return projectService.createProject(createProjectDTO);
     }
     
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ProjectDTO updateProject(@PathVariable Long id ,@Valid @RequestBody ProjectDTO projectDTO) {
         return projectService.updateProject(id, projectDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public void deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
     }
