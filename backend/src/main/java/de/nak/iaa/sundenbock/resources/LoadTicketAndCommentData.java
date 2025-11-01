@@ -25,7 +25,7 @@ public class LoadTicketAndCommentData {
     }
 
     @Transactional
-    public void run(String[] args) {
+    public void run() {
         if (ticketRepository.count() == 0) {
             Ticket t1 = new Ticket();
             t1.setTitle("500 error on login page");

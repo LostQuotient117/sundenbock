@@ -1,5 +1,7 @@
-package de.nak.iaa.sundenbock.model.user;
+package de.nak.iaa.sundenbock.model.role;
 
+import de.nak.iaa.sundenbock.model.AuditedEntity;
+import de.nak.iaa.sundenbock.model.permission.Permission;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +10,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-public class Role {
+public class Role extends AuditedEntity {
 
     // quasi group of permissions
 

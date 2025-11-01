@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.repository;
 
-import de.nak.iaa.sundenbock.model.user.Role;
+import de.nak.iaa.sundenbock.model.role.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

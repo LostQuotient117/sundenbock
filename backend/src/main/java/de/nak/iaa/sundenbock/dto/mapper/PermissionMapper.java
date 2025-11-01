@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.dto.mapper;
 
 import de.nak.iaa.sundenbock.dto.PermissionDTO;
-import de.nak.iaa.sundenbock.model.user.Permission;
+import de.nak.iaa.sundenbock.model.permission.Permission;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

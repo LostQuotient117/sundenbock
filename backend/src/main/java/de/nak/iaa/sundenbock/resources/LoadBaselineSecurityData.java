@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.resources;
 
-import de.nak.iaa.sundenbock.model.user.Permission;
-import de.nak.iaa.sundenbock.model.user.Role;
+import de.nak.iaa.sundenbock.model.permission.Permission;
+import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class LoadBaselineSecurityData{
         this.roleRepository = roleRepository;
     }
     @Transactional
-    public void run(String... args) {
+    public void run() {
         // ========== Base Permissions ==========
         // Project Permissions
         Permission projectCreate = createPermissionIfNotFound("PROJECT_CREATE");
@@ -47,23 +47,23 @@ public class LoadBaselineSecurityData{
         Permission roleManage = createPermissionIfNotFound("ROLE_MANAGE");
 
         // ========== Base Roles ==========
-        Role userRole = createRoleIfNotFound("ROLE_USER", Set.of(
+        createRoleIfNotFound("ROLE_USER", Set.of(
                 ticketCreate, ticketReadOwn, commentCreate
         ));
 
-        Role devRole = createRoleIfNotFound("ROLE_DEVELOPER", Set.of(
+        createRoleIfNotFound("ROLE_DEVELOPER", Set.of(
                 projectRead, ticketCreate, ticketReadAll, ticketUpdate,
                 commentCreate, commentUpdate, commentDelete
         ));
 
-        Role managerRole = createRoleIfNotFound("ROLE_PROJECT_MANAGER", Set.of(
+        createRoleIfNotFound("ROLE_PROJECT_MANAGER", Set.of(
                 projectCreate, projectRead, projectUpdate, projectDelete,
                 ticketCreate, ticketReadAll, ticketUpdate, ticketDelete,
                 ticketAssign, ticketChangeStatus,
                 commentCreate, commentUpdate, commentDelete
         ));
 
-        Role adminRole = createRoleIfNotFound("ROLE_ADMIN", Set.of(
+        createRoleIfNotFound("ROLE_ADMIN", Set.of(
                 projectCreate, projectRead, projectUpdate, projectDelete,
                 ticketCreate, ticketReadAll, ticketUpdate, ticketDelete,
                 ticketAssign, ticketChangeStatus,
@@ -71,7 +71,7 @@ public class LoadBaselineSecurityData{
                 userManage, roleManage
         ));
 
-        Role viewerRole = createRoleIfNotFound("ROLE_VIEWER", Set.of(
+        createRoleIfNotFound("ROLE_VIEWER", Set.of(
                 projectRead, ticketReadAll
         ));
 
@@ -86,8 +86,8 @@ public class LoadBaselineSecurityData{
         });
     }
 
-    private Role createRoleIfNotFound(String name, Set<Permission> permissions) {
-        return roleRepository.findByName(name).orElseGet(() -> {
+    private void createRoleIfNotFound(String name, Set<Permission> permissions) {
+        roleRepository.findByName(name).orElseGet(() -> {
             Role role = new Role();
             role.setName(name);
             role.setPermissions(permissions);
