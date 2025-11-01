@@ -27,17 +27,17 @@ public class TicketController {
         return ticketService.getTicketById(id);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public TicketDTO createTicket(@Valid @RequestBody CreateTicketDTO createTicketDTO) {
         return ticketService.createTicket(createTicketDTO);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public TicketDTO updateTicket(@PathVariable Long id, @Valid @RequestBody TicketDTO ticketDTO) {
         return ticketService.updateTicket(id, ticketDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public void deleteTicket(@PathVariable Long id) {
         ticketService.deleteTicket(id);
     }

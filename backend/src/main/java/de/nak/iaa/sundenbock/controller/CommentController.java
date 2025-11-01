@@ -23,17 +23,17 @@ public class CommentController {
          return commentService.getCommentsByTicketId(ticketId);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public CommentDTO createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
         return commentService.createComment(createCommentDTO);
     }
 
-    @PutMapping("/{commentId}")
+    @PutMapping("/{commentId}/update")
     public CommentDTO updateComment(@Valid @RequestBody CommentDTO commentDTO){
         return commentService.updateComment(commentDTO);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/{commentId}/delete")
     public void deleteComment(@PathVariable Long commentId) {
         commentService.deleteCommentWithChildren(commentId);
     }
