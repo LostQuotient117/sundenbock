@@ -38,28 +38,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
+
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(), user.getPassword(), user.isEnabled(),
-                true, true, true, getAuthorities(user)
-        );
-    }
-
-    /**
-     * Sammelt die Berechtigungen (Rollen und individuelle Berechtigungen) eines Benutzers.
-     *
-     * @param user Der Benutzer, dessen Berechtigungen gesammelt werden sollen.
-     * @return Eine Sammlung von GrantedAuthority-Objekten.
-     */
-    private Collection<? extends GrantedAuthority> getAuthorities(User user) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
-            role.getPermissions().forEach(p -> authorities.add(new SimpleGrantedAuthority(p.getName())));
-        });
-        user.getPermissions().forEach(p -> authorities.add(new SimpleGrantedAuthority(p.getName())));
-        return authorities;
     }
 }

@@ -1,10 +1,11 @@
 package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
-import de.nak.iaa.sundenbock.dto.UserDetailDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class UserController {
      * @return A UserDetailDTO object representing the updated user.
      */
     @PutMapping("/{username}/update")
-    public UserDetailDTO updateUser(@PathVariable String username, @RequestBody UserDetailDTO userDetailDTO) {
+    public UserDetailDTO updateUser(@Valid @PathVariable String username, @RequestBody UserDetailDTO userDetailDTO) {
         return userService.updateUser(username, userDetailDTO);
     }
 
@@ -71,7 +72,7 @@ public class UserController {
      * @return A UserDetailDTO object representing the newly created user.
      */
     @PostMapping("/create")
-    public UserDetailDTO createUser(@RequestBody CreateUserDTO request) {
+    public UserDetailDTO createUser(@Valid @RequestBody CreateUserDTO request) {
         return userService.createUser(request);
     }
 
@@ -93,7 +94,7 @@ public class UserController {
      * @param request The request body containing the old and new passwords.
      */
     @PutMapping("/change-password")
-    public void changePassword(@RequestBody ChangePasswordRequest request) {
+    public void changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(request);
     }
 

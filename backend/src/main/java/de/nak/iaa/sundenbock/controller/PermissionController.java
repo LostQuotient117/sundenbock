@@ -1,7 +1,8 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.PermissionDTO;
+import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
 import de.nak.iaa.sundenbock.service.PermissionService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class PermissionController {
      * Endpunkt: /api/permissions
      */
     @PostMapping("/create")
-    public PermissionDTO createPermission(@RequestBody PermissionDTO permissionDTO) {
+    public PermissionDTO createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
     }
 }

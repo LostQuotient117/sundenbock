@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.controller;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.service.RoleService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class RoleController {
      * @return Das erstellte RoleDTO.
      */
     @PostMapping
-    public RoleDTO createRole(@RequestBody CreateRoleDTO createRoleDTO) {
+    public RoleDTO createRole(@Valid @RequestBody CreateRoleDTO createRoleDTO) {
         return roleService.createRole(createRoleDTO);
     }
 
@@ -51,7 +52,7 @@ public class RoleController {
      * @param roleId          Die ID der zu aktualisierenden Rolle.
      * @param permissionNames Ein Set von Berechtigungsnamen, die der Rolle zugewiesen werden sollen.
      */
-    @PutMapping("/{roleId}/permissions")
+    @PutMapping("/{roleId}/update-permissions")
     public void updateRolePermissions(@PathVariable Long roleId, @RequestBody Set<String> permissionNames) {
         roleService.updateRolePermissions(roleId, permissionNames);
     }

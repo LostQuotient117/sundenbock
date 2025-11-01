@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.service;
 
-import de.nak.iaa.sundenbock.dto.UserDetailDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
