@@ -1,13 +1,15 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.CommentDTO;
+import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
+import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tickets/{ticketid}/comments")
+@RequestMapping("/api/v1/tickets/{ticketId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -16,23 +18,23 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping("/all-comments")
-    public List<CommentDTO> getCommentsByTicket(@PathVariable Long ticketid) {
-         return commentService.getCommentsByTicketId(ticketid);
+    @GetMapping
+    public List<CommentDTO> getCommentsByTicket(@PathVariable Long ticketId) {
+         return commentService.getCommentsByTicketId(ticketId);
     }
 
     @PostMapping
-    public CommentDTO createComment(@RequestBody CommentDTO commentDTO) {
-        return commentService.createComment(commentDTO);
+    public CommentDTO createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
+        return commentService.createComment(createCommentDTO);
     }
 
     @PutMapping("/{commentId}")
-    public CommentDTO updateComment(CommentDTO commentDTO){
+    public CommentDTO updateComment(@Valid @RequestBody CommentDTO commentDTO){
         return commentService.updateComment(commentDTO);
     }
 
     @DeleteMapping("/{commentId}")
     public void deleteComment(@PathVariable Long commentId) {
-        commentService.deleteComment(commentId);
+        commentService.deleteCommentWithChildren(commentId);
     }
 }

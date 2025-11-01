@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
-import de.nak.iaa.sundenbock.dto.ProjectDTO;
+import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
+import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
@@ -33,8 +34,8 @@ public class ProjectService {
         return projectMapper.toProjectDTO(project);
     }
     @Transactional
-    public ProjectDTO createProject(ProjectDTO projectDTO) {
-        Project project = projectMapper.toProject(projectDTO);
+    public ProjectDTO createProject(CreateProjectDTO createProjectDTO) {
+        Project project = projectMapper.toProjectForCreate(createProjectDTO);
         Project savedProject = projectRepository.save(project);
         return projectMapper.toProjectDTO(savedProject);
     }

@@ -3,11 +3,9 @@ package de.nak.iaa.sundenbock.resources;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:h2:mem:mydb")
-@Transactional
 public class LoadExampleData implements CommandLineRunner {
 
     private final LoadBaselineSecurityData loadBaselineSecurityData;

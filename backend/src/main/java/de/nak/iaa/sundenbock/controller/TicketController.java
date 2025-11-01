@@ -1,13 +1,15 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.TicketDTO;
+import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
+import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.service.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tickets")
+@RequestMapping("/api/v1/tickets")
 public class TicketController {
     private final TicketService ticketService;
 
@@ -15,7 +17,7 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    @GetMapping("/all-tickets")
+    @GetMapping
     public List<TicketDTO> getTickets() {
         return ticketService.getTickets();
     }
@@ -26,12 +28,12 @@ public class TicketController {
     }
 
     @PostMapping
-    public TicketDTO createTicket(@RequestBody TicketDTO ticketDTO) {
-        return ticketService.createTicket(ticketDTO);
+    public TicketDTO createTicket(@Valid @RequestBody CreateTicketDTO createTicketDTO) {
+        return ticketService.createTicket(createTicketDTO);
     }
 
     @PutMapping("/{id}")
-    public TicketDTO updateTicket(@PathVariable Long id, @RequestBody TicketDTO ticketDTO) {
+    public TicketDTO updateTicket(@PathVariable Long id, @Valid @RequestBody TicketDTO ticketDTO) {
         return ticketService.updateTicket(id, ticketDTO);
     }
 

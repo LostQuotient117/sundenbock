@@ -1,13 +1,15 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.ProjectDTO;
+import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
+import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/projects")
+@RequestMapping("api/v1/projects")
 public class ProjectController {
     private final ProjectService projectService;
 
@@ -24,13 +26,14 @@ public class ProjectController {
     public ProjectDTO getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
     }
+
     @PostMapping
-    public ProjectDTO createProject(@RequestBody ProjectDTO projectDTO) {
-        return projectService.createProject(projectDTO);
+    public ProjectDTO createProject(@Valid @RequestBody CreateProjectDTO createProjectDTO) {
+        return projectService.createProject(createProjectDTO);
     }
     
     @PutMapping("/{id}")
-    public ProjectDTO updateProject(@PathVariable Long id ,@RequestBody ProjectDTO projectDTO) {
+    public ProjectDTO updateProject(@PathVariable Long id ,@Valid @RequestBody ProjectDTO projectDTO) {
         return projectService.updateProject(id, projectDTO);
     }
 

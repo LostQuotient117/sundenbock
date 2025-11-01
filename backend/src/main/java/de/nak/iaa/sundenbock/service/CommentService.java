@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
-import de.nak.iaa.sundenbock.dto.CommentDTO;
+import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
+import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.dto.mapper.CommentMapper;
 import de.nak.iaa.sundenbock.model.comment.Comment;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
@@ -25,16 +26,22 @@ public class CommentService{
     }
 
     @Transactional
-    public void deleteComment(Long id) {
-        commentRepository.deleteById(id);
+    public void deleteCommentWithChildren(Long parentId) {
+        List<Long> childIds = commentRepository.findChildIdsByParentId(parentId);
+        for (Long childId : childIds) {
+            deleteCommentWithChildren(childId);
+        }
+
+        commentRepository.deleteByIdQuery(parentId);
     }
 
     @Transactional
-    public CommentDTO createComment(CommentDTO commentDTO) {
-        Ticket ticket = ticketRepository.findById(commentDTO.ticketId())
-                .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception & maybe own function for ticket-search
-        Comment comment = commentMapper.toComment(commentDTO);
+    public CommentDTO createComment(CreateCommentDTO createCommentDTO) {
+        Ticket ticket = ticketRepository.getReferenceById(createCommentDTO.ticketId());
+        Comment parentComment = commentRepository.getReferenceById(createCommentDTO.parentCommentId());
+        Comment comment = commentMapper.toCommentForCreate(createCommentDTO);
         comment.setTicket(ticket);
+        comment.setParentComment(parentComment);
         Comment savedComment = commentRepository.save(comment);
         return commentMapper.toCommentDTO(savedComment);
     }
@@ -64,7 +71,7 @@ public class CommentService{
     }
 
     private void buildRepliesTree(Comment comment) {
-        List<Comment> replies = comment.getComments();
+        List<Comment> replies = comment.getChildComments();
         replies.forEach(this::buildRepliesTree);
     }
 
