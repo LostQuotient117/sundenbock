@@ -37,11 +37,11 @@ public class CommentService{
 
     @Transactional
     public CommentDTO createComment(CreateCommentDTO createCommentDTO) {
-        Ticket ticket = ticketRepository.findById(createCommentDTO.ticketId())
-                .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception & maybe own function for ticket-search
+        Ticket ticket = ticketRepository.getReferenceById(createCommentDTO.ticketId());
+        Comment parentComment = commentRepository.getReferenceById(createCommentDTO.parentCommentId());
         Comment comment = commentMapper.toCommentForCreate(createCommentDTO);
         comment.setTicket(ticket);
-        //TODO: parentComment???
+        comment.setParentComment(parentComment);
         Comment savedComment = commentRepository.save(comment);
         return commentMapper.toCommentDTO(savedComment);
     }
