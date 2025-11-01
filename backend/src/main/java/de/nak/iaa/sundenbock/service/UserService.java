@@ -73,7 +73,18 @@ public class UserService {
 
         user.setEmail(userDetailDTO.email());
         user.setEnabled(userDetailDTO.enabled());
-        // hier maybe noch role / permission updates
+
+        Set<Role> roles = userDetailDTO.roles().stream()
+                .map(roleName -> roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName)))
+                .collect(Collectors.toSet());
+        user.setRoles(roles);
+
+        Set<Permission> permissions = userDetailDTO.permissions().stream()
+                .map(permissionName -> permissionRepository.findById(permissionName)
+                        .orElseThrow(() -> new ResourceNotFoundException("Permission not found: " + permissionName)))
+                .collect(Collectors.toSet());
+        user.setPermissions(permissions);
 
         User updatedUser = userRepository.save(user);
         return userMapper.toUserDetailDTO(updatedUser);
