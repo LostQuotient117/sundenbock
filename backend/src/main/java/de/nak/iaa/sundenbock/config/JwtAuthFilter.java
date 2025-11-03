@@ -16,9 +16,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Ein Filter, der bei jeder Anfrage ausgeführt wird, um JWT-Token zu validieren.
- * Er fängt Anfragen ab, extrahiert den JWT aus dem Authorization-Header, validiert ihn
- * und setzt die Benutzerauthentifizierung im SecurityContextHolder, wenn der Token gültig ist.
+ * Filter that validates JWT tokens on each HTTP request.
+ * <p>
+ * It inspects the Authorization header for a Bearer token, validates the token,
+ * and if valid, sets an authenticated {@link org.springframework.security.core.Authentication}
+ * in the {@link SecurityContextHolder} so downstream code can access the current user.
  */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -32,14 +34,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Führt die Filterlogik aus. Prüft auf einen "Bearer"-Token im "Authorization"-Header.
-     * Wenn ein gültiger Token gefunden wird, wird der Benutzer authentifiziert und der SecurityContext aktualisiert.
+     * Extracts the JWT from the Authorization header, validates it and sets the authentication.
      *
-     * @param request Die eingehende HTTP-Anfrage.
-     * @param response Die ausgehende HTTP-Antwort.
-     * @param filterChain Die Filterkette, um die Anfrage an den nächsten Filter weiterzuleiten.
-     * @throws ServletException wenn ein Servlet-Fehler auftritt.
-     * @throws IOException wenn ein I/O-Fehler auftritt.
+     * @param request     the current HTTP request
+     * @param response    the current HTTP response
+     * @param filterChain the filter chain to continue processing
+     * @throws ServletException on servlet errors
+     * @throws IOException      on I/O errors
      */
     @Override
     protected void doFilterInternal(

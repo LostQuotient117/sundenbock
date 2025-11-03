@@ -11,9 +11,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Centralized exception handler for controller-level exceptions.
+ * <p>
+ * Translates exceptions into meaningful HTTP responses with structured bodies,
+ * including timestamps, status codes and error messages.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles {@link ResourceNotFoundException} (HTTP 404).
+     * @param ex The caught exception.
+     * @return A 404 Not Found response entity.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
         Map<String, Object> body = Map.of(
@@ -25,6 +36,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Handles {@link BadCredentialsException} (HTTP 401).
+     * Thrown by Spring Security on login failure (e.g., wrong password).
+     * @param ex The caught exception.
+     * @return A 401 Unauthorized response entity.
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex) {
         Map<String, Object> body = Map.of(
@@ -36,6 +53,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
 
+    /**
+     * Handles {@link DuplicateResourceException} (HTTP 409).
+     * Thrown when attempting to create a resource that already exists (e.g., duplicate username).
+     * @param ex The caught exception.
+     * @return A 409 Conflict response entity.
+     */
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Object> handleDuplicateResourceException(DuplicateResourceException ex) {
         Map<String, Object> body = Map.of(
@@ -47,6 +70,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
+    /**
+     * Handles {@link UserDisabledException} (HTTP 401).
+     * Thrown when a disabled user attempts to authenticate.
+     * @param ex The caught exception.
+     * @return A 401 Unauthorized response entity with a specific message.
+     */
     @ExceptionHandler(UserDisabledException.class)
     public ResponseEntity<Object> handleUserDisabledException(UserDisabledException ex) {
         Map<String, Object> body = Map.of(
@@ -58,6 +87,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
 
+    /**
+     * Handles {@link MethodArgumentNotValidException} (HTTP 400).
+     * Thrown by the @Valid annotation when DTO validation fails.
+     * Collects all field-specific errors into a structured response.
+     * @param ex The caught validation exception.
+     * @return A 400 Bad Request response entity with detailed field errors.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

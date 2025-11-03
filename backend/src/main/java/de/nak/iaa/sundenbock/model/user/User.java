@@ -16,6 +16,19 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+
+/**
+ * Entity representing a User in the system.
+ * <p>
+ * This class implements Spring Security's {@link UserDetails} interface.
+ * This allows the {@link User} object itself to be stored as the Principal
+ * in the SecurityContextHolder.
+ * <p>
+ * This design is crucial for the {@link de.nak.iaa.sundenbock.config.JpaConfig}
+ * AuditorAware bean, as it allows retrieving the current user from memory
+ * without triggering a database query, preventing a StackOverflowError during
+ * transactional auto-flushing.
+ */
 @Entity
 @Table(name = "users") // "user" ist oft reserviert
 @Getter

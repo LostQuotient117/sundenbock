@@ -3,6 +3,11 @@ package de.nak.iaa.sundenbock.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * Runtime exception thrown when an authentication attempt is made by a disabled user.
+ * <p>
+ * Mapped to HTTP 401 Unauthorized via {@link ResponseStatus}.
+ */
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class UserDisabledException extends RuntimeException {
     public UserDisabledException(String message) {

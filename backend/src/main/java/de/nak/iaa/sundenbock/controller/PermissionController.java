@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for managing permissions.
+ * <p>
+ * Exposes endpoints to list all permissions and to create new permissions.
+ */
 @RestController
 @RequestMapping("/api/v1/permissions")
 public class PermissionController {
@@ -18,11 +23,9 @@ public class PermissionController {
     }
 
     /**
-     * Ruft eine Liste aller verfügbaren Berechtigungen ab.
-     * HTTP-Methode: GET
-     * Endpunkt: /api/permissions
+     * Retrieves a list of all available permissions.
      *
-     * @return Eine Liste von PermissionDTOs, die alle Berechtigungen repräsentieren.
+     * @return a list of {@link PermissionDTO} representing all permissions
      */
     @GetMapping
     public List<PermissionDTO> getAllPermissions() {
@@ -30,9 +33,10 @@ public class PermissionController {
     }
 
     /**
-     * Erstellt eine neue Berechtigung.
-     * HTTP-Methode: POST
-     * Endpunkt: /api/permissions
+     * Creates a new permission.
+     *
+     * @param permissionDTO the permission DTO containing required data
+     * @return the created {@link PermissionDTO}
      */
     @PostMapping("/create")
     public PermissionDTO createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {

@@ -11,6 +11,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+/**
+ * JPA configuration that enables auditing.
+ * <p>
+ * Provides an {@link AuditorAware} bean that returns the current authenticated {@link User}
+ * or a fallback 'system' user when no authentication is available (e.g. at startup).
+ * <p>
+ * The implementation avoids triggering database queries for the current user when the principal
+ * is already the {@link User} entity, preventing circular save/autoflush issues inside transactions.
+ */
 @Configuration
 @EnableJpaAuditing
 public class JpaConfig {
@@ -23,6 +32,15 @@ public class JpaConfig {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Supplies the current auditor for Spring Data JPA auditing.
+     * <p>
+     * - If a fully authenticated {@link User} instance is present in the SecurityContext, it is returned directly
+     *   (avoids extra DB calls during transactional save operations).
+     * - Otherwise, it tries to find an existing 'system' or 'admin' user or creates a disabled 'system' user as fallback.
+     *
+     * @return an {@link Optional} containing the current {@link User} acting as auditor
+     */
     @Bean
     public AuditorAware<User> auditorAware() {
         return () -> {

@@ -19,7 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
- * Service-Klasse, die die Geschäftslogik für die Registrierung und Authentifizierung von Benutzern kapselt.
+ * Service that encapsulates business logic for user registration and authentication.
+ * <p>
+ * Responsible for creating users, assigning default roles during registration,
+ * authenticating credentials and issuing JWT tokens.
  */
 @Service
 public class AuthenticationService {
@@ -43,11 +46,12 @@ public class AuthenticationService {
     }
 
     /**
-     * Registriert einen neuen Benutzer. Erstellt einen neuen Benutzerdatensatz, weist eine Standardrolle zu,
-     * speichert den Benutzer in der Datenbank und generiert einen JWT-Token.
+     * Registers a new user via the public registration endpoint.
+     * Creates a new user record, assigns the default "ROLE_DEVELOPER" role,
+     * saves the user, and generates a JWT.
      *
-     * @param request Die Registrierungsanforderung mit den Benutzerdaten.
-     * @return Eine Authentifizierungsantwort, die den generierten JWT-Token enthält.
+     * @param request The registration request containing user data.
+     * @return An AuthenticationResponse containing the generated JWT.
      */
     public AuthenticationResponse register(CreateUserDTO request) {
         Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
@@ -66,11 +70,13 @@ public class AuthenticationService {
     }
 
     /**
-     * Authentifiziert einen Benutzer anhand seines Benutzernamens und Passworts.
-     * Bei erfolgreicher Authentifizierung wird ein neuer JWT-Token generiert.
+     * Authenticates a user based on their username and password.
+     * On successful authentication, a new JWT is generated.
      *
-     * @param request Die Authentifizierungsanforderung mit Benutzername und Passwort.
-     * @return Eine Authentifizierungsantwort, die den generierten JWT-Token enthält.
+     * @param request The authentication request with username and password.
+     * @return An AuthenticationResponse containing the generated JWT.
+     * @throws BadCredentialsException if the credentials are invalid.
+     * @throws UserDisabledException if the user account is disabled.
      */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 

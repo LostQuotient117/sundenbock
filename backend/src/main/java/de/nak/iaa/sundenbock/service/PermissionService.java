@@ -10,6 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for permission management.
+ * <p>
+ * Provides methods to list all permissions and to create new permissions.
+ */
 @Service
 public class PermissionService {
     private final PermissionRepository permissionRepository;
