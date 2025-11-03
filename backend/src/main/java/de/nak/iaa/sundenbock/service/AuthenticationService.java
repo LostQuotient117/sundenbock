@@ -4,12 +4,14 @@ import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
+import de.nak.iaa.sundenbock.exception.UserDisabledException;
 import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
 import java.util.Set;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -71,9 +73,15 @@ public class AuthenticationService {
      * @return Eine Authentifizierungsantwort, die den generierten JWT-Token enthält.
      */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+            );
+        } catch (DisabledException e) {
+            throw new UserDisabledException("Your account is disabled. Please contact an administrator.");
+        }
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
         String jwtToken = jwtService.generateToken(userDetails);
         return new AuthenticationResponse(jwtToken);
