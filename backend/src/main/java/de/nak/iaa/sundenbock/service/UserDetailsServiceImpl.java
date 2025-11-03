@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Implementierung des Spring Security UserDetailsService.
- * Verantwortlich für das Laden von benutzerspezifischen Daten aus der Datenbank.
+ * Implementation of Spring Security's {@link UserDetailsService}.
+ * <p>
+ * Responsible for loading user-specific data from the database during authentication.
+ * Returns a {@link UserDetails} object representing the user or throws {@link UsernameNotFoundException}
+ * if the user cannot be found.
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,11 +25,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     /**
-     * Lädt einen Benutzer anhand seines Benutzernamens.
+     * Loads a user by username.
      *
-     * @param username Der Benutzername des zu ladenden Benutzers.
-     * @return ein UserDetails-Objekt, das die Kerninformationen des Benutzers enthält.
-     * @throws UsernameNotFoundException wenn kein Benutzer mit dem angegebenen Benutzernamen gefunden wird.
+     * @param username the username to look up
+     * @return a {@link UserDetails} representing the user
+     * @throws UsernameNotFoundException when no user with the given username exists
      */
     @Override
     @Transactional(readOnly = true)

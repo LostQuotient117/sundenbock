@@ -19,8 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Hauptkonfigurationsklasse für Spring Security.
- * Konfiguriert die Sicherheitsfilterkette, Authentifizierungsanbieter und Passwort-Encoder.
+ * Main Spring Security configuration.
+ * <p>
+ * Configures the security filter chain, the authentication provider and password encoder.
+ * It exposes the AuthenticationManager and defines which endpoints are public and which require authentication.
  */
 @Configuration
 @EnableWebSecurity
@@ -36,13 +38,13 @@ public class SecurityConfig {
     }
 
     /**
-     * Konfiguriert die HTTP-Sicherheitsregeln.
-     * Deaktiviert CSRF, legt fest, welche Endpunkte öffentlich sind und welche eine Authentifizierung erfordern,
-     * konfiguriert die Sitzungsverwaltung als zustandslos und fügt den JWT-Authentifizierungsfilter hinzu.
+     * Configures HTTP security: disables CSRF, permits public endpoints (auth, docs, H2-console),
+     * requires authentication for other endpoints, sets session management to stateless,
+     * registers the JWT filter and disables frame options for H2 console usage.
      *
-     * @param http Das HttpSecurity-Objekt zum Konfigurieren.
-     * @return Die gebaute SecurityFilterChain.
-     * @throws Exception wenn bei der Konfiguration ein Fehler auftritt.
+     * @param http the HttpSecurity object to configure
+     * @return the built {@link SecurityFilterChain}
+     * @throws Exception in case of configuration errors
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -60,10 +62,10 @@ public class SecurityConfig {
     }
 
     /**
-     * Erstellt einen DaoAuthenticationProvider, der für die Authentifizierung von Benutzern
-     * anhand der in der Datenbank gespeicherten Daten zuständig ist.
+     * Creates a DaoAuthenticationProvider using the configured {@link UserDetailsService}
+     * and a BCrypt password encoder.
      *
-     * @return Der konfigurierte AuthenticationProvider.
+     * @return configured {@link AuthenticationProvider}
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -74,9 +76,9 @@ public class SecurityConfig {
     }
 
     /**
-     * Stellt einen BCryptPasswordEncoder als Bean zur Verfügung, um Passwörter sicher zu hashen.
+     * Provides a BCrypt password encoder bean for hashing passwords.
      *
-     * @return Der PasswordEncoder.
+     * @return a {@link PasswordEncoder} instance
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -84,11 +86,11 @@ public class SecurityConfig {
     }
 
     /**
-     * Stellt den AuthenticationManager als Bean zur Verfügung.
+     * Exposes the {@link AuthenticationManager} bean from the auto-configuration.
      *
-     * @param config Die AuthenticationConfiguration.
-     * @return Der AuthenticationManager.
-     * @throws Exception wenn der AuthenticationManager nicht abgerufen werden kann.
+     * @param config the {@link AuthenticationConfiguration}
+     * @return the {@link AuthenticationManager}
+     * @throws Exception if the authentication manager cannot be retrieved
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

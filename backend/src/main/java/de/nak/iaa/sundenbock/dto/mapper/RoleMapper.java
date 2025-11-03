@@ -9,6 +9,10 @@ import org.mapstruct.Mapping;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * MapStruct mapper for converting between {@link Role} entities and
+ * {@link de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO} objects.
+ */
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
 

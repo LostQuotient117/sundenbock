@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * REST controller for managing roles.
+ * <p>
+ * Exposes endpoints to list roles, create new roles and update a role's permissions.
+ */
 @RestController
 @RequestMapping("/api/v1/roles")
 public class RoleController {
@@ -20,11 +25,9 @@ public class RoleController {
     }
 
     /**
-     * Ruft eine Liste aller verfügbaren Rollen ab.
-     * HTTP-Methode: GET
-     * Endpunkt: /api/roles
+     * Retrieves a list of all available roles.
      *
-     * @return Eine Liste von RoleDTOs, die alle Rollen repräsentieren.
+     * @return a list of {@link RoleDTO} representing all roles
      */
     @GetMapping
     public List<RoleDTO> getAllRoles() {
@@ -32,12 +35,10 @@ public class RoleController {
     }
 
     /**
-     * Erstellt eine neue Rolle.
-     * HTTP-Methode: POST
-     * Endpunkt: /api/roles
+     * Creates a new role.
      *
-     * @param createRoleDTO Das CreateRoleDTO mit den Daten für die neue Rolle (Name und Berechtigungen) im Request Body.
-     * @return Das erstellte RoleDTO.
+     * @param createRoleDTO contains the name and permissions for the new role
+     * @return the created {@link RoleDTO}
      */
     @PostMapping
     public RoleDTO createRole(@Valid @RequestBody CreateRoleDTO createRoleDTO) {
@@ -45,12 +46,10 @@ public class RoleController {
     }
 
     /**
-     * Aktualisiert die Berechtigungen einer bestehenden Rolle.
-     * HTTP-Methode: PUT
-     * Endpunkt: /api/roles/{roleId}/permissions
+     * Updates the permissions assigned to an existing role.
      *
-     * @param roleId          Die ID der zu aktualisierenden Rolle.
-     * @param permissionNames Ein Set von Berechtigungsnamen, die der Rolle zugewiesen werden sollen.
+     * @param roleId          the ID of the role to update
+     * @param permissionNames a set of permission names to assign to the role
      */
     @PutMapping("/{roleId}/update-permissions")
     public void updateRolePermissions(@PathVariable Long roleId, @RequestBody Set<String> permissionNames) {

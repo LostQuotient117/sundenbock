@@ -23,11 +23,24 @@ public interface UserMapper {
     @Mapping(source = "updatedAt", target = "updatedAt")
     UserDetailDTO toUserDetailDTO(User user);
 
+    /**
+     * Maps a Set of Role entities to a Set of role names (Strings).
+     * @param roles The set of {@link Role} entities.
+     * @return A Set of role name Strings.
+     */
     default Set<String> mapRoles(Set<Role> roles) {
         if (roles == null) return null;
         return roles.stream().map(Role::getName).collect(Collectors.toSet());
     }
 
+    /**
+     * Aggregates all permissions for a user into a single Set of strings.
+     * This includes both permissions assigned directly to the user and
+     * all permissions inherited from the user's roles.
+     *
+     * @param user The {@link User} entity.
+     * @return A distinct Set of all permission name Strings.
+     */
     default Set<String> mapAllPermissions(User user) {
         if (user == null) {
             return null;

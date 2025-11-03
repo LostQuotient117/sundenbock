@@ -66,6 +66,16 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
+    /**
+     * Updates an existing user's details.
+     * This method resolves the sets of role and permission *names* (Strings) from the DTO
+     * into managed JPA entities and overwrites the user's associations.
+     *
+     * @param username      The username of the user to update.
+     * @param userDetailDTO The DTO containing the new data (email, enabled, roles, permissions).
+     * @return The updated UserDetailDTO.
+     * @throws ResourceNotFoundException if the user, a role, or a permission is not found.
+     */
     @Transactional
     public UserDetailDTO updateUser(String username, UserDetailDTO userDetailDTO) {
         User user = userRepository.findByUsername(username)
@@ -90,6 +100,14 @@ public class UserService {
         return userMapper.toUserDetailDTO(updatedUser);
     }
 
+    /**
+     * Creates a new user (administrative creation).
+     * Assigns the default "ROLE_USER" to the new user.
+     *
+     * @param request The DTO with registration details.
+     * @return The DTO of the newly created user.
+     * @throws DuplicateResourceException if the username already exists.
+     */
     @Transactional
     public UserDetailDTO createUser(CreateUserDTO request) {
         if (userRepository.findByUsername(request.username()).isPresent()) {

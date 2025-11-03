@@ -15,6 +15,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Service handling role-related operations.
+ * <p>
+ * Provides methods to list roles, create a role with a set of permissions,
+ * and update the permissions assigned to an existing role.
+ */
 @Service
 public class RoleService {
 

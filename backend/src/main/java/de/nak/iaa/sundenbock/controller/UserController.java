@@ -2,7 +2,6 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
-import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
@@ -10,6 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller exposing user management endpoints.
+ * <p>
+ * Includes endpoints for listing users, retrieving details, creating, updating, deleting users,
+ * and managing roles/permissions assigned to users.
+ */
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -21,9 +26,9 @@ public class UserController {
     }
 
     /**
-     * Controller method to retrieve all users.
+     * Retrieves all users.
      *
-     * @return A list of UserDTO objects representing all users.
+     * @return a list of {@link UserDTO} representing all users
      */
     @GetMapping
     public List<UserDTO> getAllUsers() {
@@ -31,10 +36,10 @@ public class UserController {
     }
 
     /**
-     * Controller method to retrieve a user by their username.
+     * Retrieves a user by username.
      *
-     * @param username The username of the user to retrieve.
-     * @return A UserDTO object representing the user with the specified username.
+     * @param username the username to look up
+     * @return a {@link UserDTO} for the specified username
      */
     @GetMapping("/{username}")
     public UserDTO getUserByUsername(@PathVariable String username) {
@@ -42,10 +47,10 @@ public class UserController {
     }
 
     /**
-     * Controller method to retrieve detailed information about a user by their username.
+     * Retrieves detailed information for a user by username.
      *
-     * @param username The username of the user to retrieve details for.
-     * @return A UserDetailDTO object containing detailed information about the user.
+     * @param username the username to look up
+     * @return a {@link UserDetailDTO} with detailed user information
      */
     @GetMapping("/{username}/details")
     public UserDetailDTO getDetailedUserByUsername(@PathVariable String username) {
@@ -53,23 +58,22 @@ public class UserController {
     }
 
     /**
-     * Controller method to update a user's details.
+     * Updates a user's details.
      *
-     * @param username The username of the user to update.
-     * @param userDetailDTO A UserDetailDTO object containing the updated user details.
-     * @return A UserDetailDTO object representing the updated user.
+     * @param username      the username of the user to update
+     * @param userDetailDTO the new user details
+     * @return the updated {@link UserDetailDTO}
      */
     @PutMapping("/{username}/update")
     public UserDetailDTO updateUser(@Valid @PathVariable String username, @RequestBody UserDetailDTO userDetailDTO) {
         return userService.updateUser(username, userDetailDTO);
     }
 
-    // administrative user creation
     /**
-     * Controller method to create a new user.
+     * Administrative endpoint to create a new user.
      *
-     * @param request A RegistrationRequest object containing the details of the new user.
-     * @return A UserDetailDTO object representing the newly created user.
+     * @param request the create user DTO
+     * @return the created {@link UserDetailDTO}
      */
     @PostMapping("/create")
     public UserDetailDTO createUser(@Valid @RequestBody CreateUserDTO request) {
@@ -77,9 +81,9 @@ public class UserController {
     }
 
     /**
-     * Controller method to delete a user by their username.
+     * Deletes a user by username.
      *
-     * @param username The username of the user to delete.
+     * @param username the username of the user to delete
      */
     @DeleteMapping("/{username}/delete")
     public void deleteUserByUsername(@PathVariable String username) {
@@ -87,24 +91,10 @@ public class UserController {
     }
 
     /**
-     * Allows the currently authenticated user to change their own password.
-     * HTTP Method: PUT
-     * Endpoint: /api/users/change-password
-     *
-     * @param request The request body containing the old and new passwords.
-     */
-    @PutMapping("/change-password")
-    public void changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(request);
-    }
-
-    /**
      * Assigns a role to a user.
-     * HTTP Method: PUT
-     * Endpoint: /api/v1/users/{username}/roles/{roleName}
      *
-     * @param username The username of the user to whom the role will be assigned.
-     * @param roleName Role name of the role to assign to the user.
+     * @param username the username
+     * @param roleName the role name to assign
      */
     @PutMapping("/{username}/roles/{roleName}")
     public void assignRoleToUser(@PathVariable String username, @PathVariable String roleName) {
@@ -113,8 +103,9 @@ public class UserController {
 
     /**
      * Removes a role from a user.
-     * HTTP Method: DELETE
-     * Endpoint: /api/v1/users/{username}/roles/{roleName}
+     *
+     * @param username the username
+     * @param roleName the role name to remove
      */
     @DeleteMapping("/{username}/roles/{roleName}")
     public void removeRoleFromUser(@PathVariable String username, @PathVariable String roleName) {
@@ -122,12 +113,10 @@ public class UserController {
     }
 
     /**
-     * Assigns a permission to a user.
-     * HTTP Method: PUT
-     * Endpoint: /api/v1/users/{username}/permissions/{permissionName}
+     * Assigns a direct permission to a user.
      *
-     * @param username The username of the user to whom the permission will be assigned.
-     * @param permissionName The name of the permission to assign to the user.
+     * @param username       the username
+     * @param permissionName the permission name to assign
      */
     @PutMapping("/{username}/permissions/{permissionName}")
     public void assignPermissionToUser(@PathVariable String username, @PathVariable String permissionName) {
@@ -136,8 +125,9 @@ public class UserController {
 
     /**
      * Removes a direct permission from a user.
-     * HTTP Method: DELETE
-     * Endpoint: /api/v1/users/{username}/permissions/{permissionName}
+     *
+     * @param username       the username
+     * @param permissionName the permission name to remove
      */
     @DeleteMapping("/{username}/permissions/{permissionName}")
     public void removePermissionFromUser(@PathVariable String username, @PathVariable String permissionName) {
