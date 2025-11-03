@@ -9,6 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+/**
+ * Data loader for creating essential security baselines (Permissions and Roles).
+ * <p>
+ * This runner populates the database with all necessary permissions
+ * (e.g., "PROJECT_CREATE", "USER_MANAGE") and the default roles
+ * (e.g., "ROLE_ADMIN", "ROLE_DEVELOPER") that depend on them.
+ * It ensures that the application has a consistent set of authorities
+ * on startup. It is designed to run before {@link LoadSampleUsersData}.
+ */
 @Component
 public class LoadBaselineSecurityData{
 

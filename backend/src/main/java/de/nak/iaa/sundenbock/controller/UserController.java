@@ -2,7 +2,6 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
-import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
@@ -89,16 +88,6 @@ public class UserController {
     @DeleteMapping("/{username}/delete")
     public void deleteUserByUsername(@PathVariable String username) {
         userService.deleteUserByUsername(username);
-    }
-
-    /**
-     * Allows the currently authenticated user to change their own password.
-     *
-     * @param request the change password request containing old and new passwords
-     */
-    @PutMapping("/change-password")
-    public void changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(request);
     }
 
     /**

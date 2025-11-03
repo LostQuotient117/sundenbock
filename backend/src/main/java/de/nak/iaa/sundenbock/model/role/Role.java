@@ -7,12 +7,16 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.Set;
 
+/**
+ * Entity representing a Role (a group of permissions).
+ * <p>
+ * Roles are assigned to users and grant them a set of permissions
+ * defined in the 'permissions' collection.
+ */
 @Entity
 @Getter
 @Setter
 public class Role extends AuditedEntity {
-
-    // quasi group of permissions
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

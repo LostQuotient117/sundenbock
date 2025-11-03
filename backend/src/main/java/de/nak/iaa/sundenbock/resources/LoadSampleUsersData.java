@@ -9,6 +9,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
+/**
+ * Data loader for creating sample users for testing and demonstration.
+ * <p>
+ * This runner populates the database with a set of default users
+ * (dev, manager, admin) and assigns them the roles created by
+ * {@link LoadBaselineSecurityData}.
+ * It should run *after* the baseline security data is loaded.
+ */
 @Component
 public class LoadSampleUsersData {
 
