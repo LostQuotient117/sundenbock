@@ -1,5 +1,6 @@
 package de.nak.iaa.sundenbock.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,38 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    // TODO add @Validated to controller methods to enable ConstraintViolationException
+    /**
+     * Handles {@link ConstraintViolationException} (HTTP 400).
+     * This exception is typically thrown when a validation constraint is violated
+     * (e.g., invalid input data). The method extracts all constraint violations,
+     * maps them to their respective fields, and constructs a structured response body.
+     *
+     * @param ex The caught {@link ConstraintViolationException}.
+     * @return A {@link ResponseEntity} with HTTP 400 (Bad Request) and a detailed error body.
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(cv -> {
+            String fieldName = cv.getPropertyPath().toString();
+            if (fieldName.contains(".")) {
+                fieldName = fieldName.substring(fieldName.lastIndexOf('.') + 1);
+            }
+            String errorMessage = cv.getMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        Map<String, Object> body = Map.of(
+                "timestamp", System.currentTimeMillis(),
+                "status", HttpStatus.BAD_REQUEST.value(),
+                "error", "Bad Request",
+                "message", "Validation failed",
+                "fieldErrors", errors
+        );
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
     /**
      * Handles {@link UserDisabledException} (HTTP 401).
      * Thrown when a disabled user attempts to authenticate.
@@ -82,6 +115,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
 
+    // TODO implement @PreAuthorize
     /**
      * Handles {@link AccessDeniedException} (HTTP 403).
      * Thrown by @PreAuthorize when a user is authenticated but lacks
