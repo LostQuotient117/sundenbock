@@ -1,5 +1,6 @@
 package de.nak.iaa.sundenbock.service;
 
+import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
@@ -177,6 +178,24 @@ public class UserService {
             throw new ResourceNotFoundException("User not found with username: " + username);
         }
         userRepository.deleteByUsername(username);
+    }
+
+    /**
+     * Resets a user's password (administrative action).
+     * This method bypasses the "old password" check and allows an admin
+     * to set a new password for any user.
+     *
+     * @param username the user whose password will be reset
+     * @param request  the DTO containing the new password
+     * @throws ResourceNotFoundException if the user is not found
+     */
+    @Transactional
+    public void adminResetPassword(String username, AdminResetPasswordDTO request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 
     /**

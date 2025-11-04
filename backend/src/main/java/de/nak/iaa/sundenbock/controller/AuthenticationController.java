@@ -5,9 +5,13 @@ import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.service.AuthenticationService;
+import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -17,12 +21,15 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/auth")
+@Validated
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(AuthenticationService authenticationService, UserService userService) {
         this.authenticationService = authenticationService;
+        this.userService = userService;
     }
 
     /**
@@ -48,6 +55,17 @@ public class AuthenticationController {
     }
 
     /**
+     * Retrieves the details of the currently authenticated user.
+     *
+     * @return A {@link UserDetailDTO} for the logged-in user.
+     */
+    @GetMapping("/me")
+    public UserDetailDTO getMyDetails() {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userService.getDetailedUserByUsername(currentUsername);
+    }
+
+    /**
      * Allows the currently authenticated user to change their own password.
      *
      * @param request the change password request containing old and new passwords
@@ -56,18 +74,4 @@ public class AuthenticationController {
     public void changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         authenticationService.changePassword(request);
     }
-
-    /**
-     * Resets a user's password (administrative action).
-     * Requires 'USER_MANAGE' authority.
-     *
-     * @param username the username of the user to update
-     * @param request  the DTO containing the new password
-     */
-    @PutMapping("/{username}/reset-password")
-    public void adminResetPassword(
-            @PathVariable String username, @RequestBody AdminResetPasswordDTO request) {
-        authenticationService.adminResetPassword(username, request);
-    }
-
 }
