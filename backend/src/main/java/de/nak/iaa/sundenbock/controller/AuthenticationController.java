@@ -1,5 +1,6 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
@@ -54,6 +55,19 @@ public class AuthenticationController {
     @PutMapping("/change-password")
     public void changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         authenticationService.changePassword(request);
+    }
+
+    /**
+     * Resets a user's password (administrative action).
+     * Requires 'USER_MANAGE' authority.
+     *
+     * @param username the username of the user to update
+     * @param request  the DTO containing the new password
+     */
+    @PutMapping("/{username}/reset-password")
+    public void adminResetPassword(
+            @PathVariable String username, @RequestBody AdminResetPasswordDTO request) {
+        authenticationService.adminResetPassword(username, request);
     }
 
 }

@@ -1,5 +1,6 @@
 package de.nak.iaa.sundenbock.service;
 
+import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
@@ -66,6 +67,10 @@ public class AuthenticationService {
             throw new DuplicateResourceException("Username already exists: " + request.username());
         }
 
+        if (userRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("Email already in use: " + request.email());
+        }
+
         User user = new User();
         user.setUsername(request.username());
         user.setEmail(request.email());
@@ -112,6 +117,24 @@ public class AuthenticationService {
         if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid old password");
         }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+    }
+
+    /**
+     * Resets a user's password (administrative action).
+     * This method bypasses the "old password" check and allows an admin
+     * to set a new password for any user.
+     *
+     * @param username the user whose password will be reset
+     * @param request  the DTO containing the new password
+     * @throws ResourceNotFoundException if the user is not found
+     */
+    @Transactional
+    public void adminResetPassword(String username, AdminResetPasswordDTO request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);

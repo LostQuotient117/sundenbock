@@ -127,6 +127,10 @@ public class UserService {
             throw new DuplicateResourceException("Username already exists: " + request.username());
         }
 
+        if (userRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("Email already in use: " + request.email());
+        }
+
         User user = new User();
         user.setUsername(request.username());
         user.setEmail(request.email());
