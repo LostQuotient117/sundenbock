@@ -3,6 +3,8 @@ package de.nak.iaa.sundenbock.controller;
 import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
 import de.nak.iaa.sundenbock.service.PermissionService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/permissions")
+@Validated
 public class PermissionController {
 
     private final PermissionService permissionService;
@@ -41,5 +44,18 @@ public class PermissionController {
     @PostMapping("/create")
     public PermissionDTO createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
+    }
+
+    /**
+     * Deletes a permission by its name (ID).
+     * The permission will only be deleted if it is not currently assigned
+     * to any roles or users.
+     *
+     * @param permissionName The name of the permission to delete.
+     */
+    @DeleteMapping("/{permissionName}/delete")
+    public void deletePermission(
+            @PathVariable @NotBlank String permissionName) {
+        permissionService.deletePermission(permissionName);
     }
 }

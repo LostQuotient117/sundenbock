@@ -1,10 +1,14 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/users")
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -42,7 +47,7 @@ public class UserController {
      * @return a {@link UserDTO} for the specified username
      */
     @GetMapping("/{username}")
-    public UserDTO getUserByUsername(@PathVariable String username) {
+    public UserDTO getUserByUsername(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
         return userService.getUserByUsername(username);
     }
 
@@ -53,7 +58,7 @@ public class UserController {
      * @return a {@link UserDetailDTO} with detailed user information
      */
     @GetMapping("/{username}/details")
-    public UserDetailDTO getDetailedUserByUsername(@PathVariable String username) {
+    public UserDetailDTO getDetailedUserByUsername(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
         return userService.getDetailedUserByUsername(username);
     }
 
@@ -65,7 +70,8 @@ public class UserController {
      * @return the updated {@link UserDetailDTO}
      */
     @PutMapping("/{username}/update")
-    public UserDetailDTO updateUser(@Valid @PathVariable String username, @RequestBody UserDetailDTO userDetailDTO) {
+    public UserDetailDTO updateUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
+                                    @Valid  @RequestBody UserDetailDTO userDetailDTO) {
         return userService.updateUser(username, userDetailDTO);
     }
 
@@ -86,8 +92,21 @@ public class UserController {
      * @param username the username of the user to delete
      */
     @DeleteMapping("/{username}/delete")
-    public void deleteUserByUsername(@PathVariable String username) {
+    public void deleteUserByUsername(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
         userService.deleteUserByUsername(username);
+    }
+
+    /**
+     * Resets a user's password (administrative action).
+     * Requires 'USER_MANAGE' authority.
+     *
+     * @param username the username of the user to update
+     * @param request  the DTO containing the new password
+     */
+    @PutMapping("/{username}/reset-password")
+    public void adminResetPassword(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
+                                   @Valid @RequestBody AdminResetPasswordDTO request) {
+        userService.adminResetPassword(username, request);
     }
 
     /**
@@ -97,7 +116,8 @@ public class UserController {
      * @param roleName the role name to assign
      */
     @PutMapping("/{username}/roles/{roleName}")
-    public void assignRoleToUser(@PathVariable String username, @PathVariable String roleName) {
+    public void assignRoleToUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
+                                 @PathVariable @NotBlank String roleName) {
         userService.assignRoleToUser(username, roleName);
     }
 
@@ -108,7 +128,8 @@ public class UserController {
      * @param roleName the role name to remove
      */
     @DeleteMapping("/{username}/roles/{roleName}")
-    public void removeRoleFromUser(@PathVariable String username, @PathVariable String roleName) {
+    public void removeRoleFromUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
+                                   @PathVariable @NotBlank String roleName) {
         userService.removeRoleFromUser(username, roleName);
     }
 
@@ -119,7 +140,8 @@ public class UserController {
      * @param permissionName the permission name to assign
      */
     @PutMapping("/{username}/permissions/{permissionName}")
-    public void assignPermissionToUser(@PathVariable String username, @PathVariable String permissionName) {
+    public void assignPermissionToUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
+                                       @PathVariable @NotBlank String permissionName) {
         userService.assignPermissionToUser(username, permissionName);
     }
 
@@ -130,7 +152,8 @@ public class UserController {
      * @param permissionName the permission name to remove
      */
     @DeleteMapping("/{username}/permissions/{permissionName}")
-    public void removePermissionFromUser(@PathVariable String username, @PathVariable String permissionName) {
+    public void removePermissionFromUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
+                                         @PathVariable @NotBlank String permissionName) {
         userService.removePermissionFromUser(username, permissionName);
     }
 }

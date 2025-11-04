@@ -4,6 +4,8 @@ import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.service.RoleService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/api/v1/roles")
+@Validated
 public class RoleController {
 
     private final RoleService roleService;
@@ -52,7 +55,8 @@ public class RoleController {
      * @param permissionNames a set of permission names to assign to the role
      */
     @PutMapping("/{roleId}/update-permissions")
-    public void updateRolePermissions(@PathVariable Long roleId, @RequestBody Set<String> permissionNames) {
+    public void updateRolePermissions(@PathVariable @Min(1) Long roleId,
+                                      @RequestBody Set<String> permissionNames) {
         roleService.updateRolePermissions(roleId, permissionNames);
     }
 
@@ -64,7 +68,7 @@ public class RoleController {
      * @param roleId The ID of the role to delete.
      */
     @DeleteMapping("/{roleId}/delete")
-    public void deleteRole(@PathVariable Long roleId) {
+    public void deleteRole(@PathVariable @Min(1) Long roleId) {
         roleService.deleteRole(roleId);
     }
 }
