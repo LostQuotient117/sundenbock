@@ -5,7 +5,6 @@ import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.service.AuthenticationService;
-import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
-    private final AuthenticationService service;
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
-    public AuthenticationController(AuthenticationService service, UserService userService) {
-        this.service = service;
-        this.userService = userService;
+    public AuthenticationController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
     /**
@@ -35,7 +32,7 @@ public class AuthenticationController {
      */
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody CreateUserDTO request) {
-        return ResponseEntity.ok(service.register(request));
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 
     /**
@@ -46,7 +43,7 @@ public class AuthenticationController {
      */
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(service.authenticate(request));
+        return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
     /**
@@ -56,7 +53,7 @@ public class AuthenticationController {
      */
     @PutMapping("/change-password")
     public void changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(request);
+        authenticationService.changePassword(request);
     }
 
 }

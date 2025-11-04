@@ -2,7 +2,9 @@ package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
+import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
+import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.UserDisabledException;
 import de.nak.iaa.sundenbock.model.role.Role;
@@ -11,12 +13,15 @@ import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
 import java.util.Set;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service that encapsulates business logic for user registration and authentication.
@@ -57,6 +62,10 @@ public class AuthenticationService {
         Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
                 .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
 
+        if (userRepository.findByUsername(request.username()).isPresent()) {
+            throw new DuplicateResourceException("Username already exists: " + request.username());
+        }
+
         User user = new User();
         user.setUsername(request.username());
         user.setEmail(request.email());
@@ -91,6 +100,21 @@ public class AuthenticationService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
         String jwtToken = jwtService.generateToken(userDetails);
         return new AuthenticationResponse(jwtToken);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Current user not found in database"));
+
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid old password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 
 }
