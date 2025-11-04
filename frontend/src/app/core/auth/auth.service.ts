@@ -3,31 +3,10 @@ import { Router } from '@angular/router';
 import { ApiService } from '../http/api.service';
 import { TokenService } from './token.service';
 import { Observable, tap } from 'rxjs';
-
-export interface AuthenticationRequest { username: string; password: string; }
-export interface RegistrationRequest { username: string; email: string; password: string; }
-export interface AuthenticationResponse { token: string; }
-
-interface JwtPayload {
-  sub?: string;
-  exp?: number;
-  roles?: string[];
-  [k: string]: any;
-}
-
-function decodeJwt(token: string | null): JwtPayload | null {
-  if (!token) return null;
-  const parts = token.split('.');
-  if (parts.length !== 3) return null;
-  try {
-    // base64url -> base64
-    const json = atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
+import { JwtPayload } from './models/jwt-payload.model';
+import { AuthenticationResponse } from './models/auth-response.model';
+import { AuthenticationRequest, RegistrationRequest } from './models/auth-request.model';
+import { decodeJwt } from './utils/jwt.util';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   // DI via inject() -> steht schon zur Verfügung bei Feld-Init
@@ -36,7 +15,7 @@ export class AuthService {
   private router = inject(Router);
 
   // _token darf jetzt sicher das gespeicherte Token lesen
-  private _token = signal<string | null>(this.tokens.get());
+  private _token = signal<string | null>(this.tokens.getToken());
 
   // öffentlich nutzbare Signals
   token     = computed(() => this._token());
@@ -62,7 +41,7 @@ export class AuthService {
   }
 
   setToken(token: string): void {
-    this.tokens.set(token);
+    this.tokens.setToken(token);
     this._token.set(token);
   }
 

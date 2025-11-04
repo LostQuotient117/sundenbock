@@ -3,9 +3,11 @@ import { inject } from '@angular/core';
 import { TokenService } from './token.service';
 
 export const authGuard: CanActivateFn = () => {
-  const tokenSvc = inject(TokenService);
   const router = inject(Router);
-  if (tokenSvc.isLoggedIn()) return true;
-  router.navigate(['/login']);
-  return false;
+  const tokens = inject(TokenService);
+  if (tokens.isUnauthenticated()) {
+    router.navigate(['/login']);
+    return false;
+  }
+  return true;
 };
