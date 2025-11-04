@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByTitle(String Title);
+
+    boolean existsByTitle(String title);
 }
