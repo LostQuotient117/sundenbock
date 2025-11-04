@@ -3,6 +3,8 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
+import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
+import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import org.springframework.stereotype.Service;
@@ -30,11 +32,14 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public ProjectDTO getProjectById(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found")); //TODO: Exception
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + id));
         return projectMapper.toProjectDTO(project);
     }
     @Transactional
     public ProjectDTO createProject(CreateProjectDTO createProjectDTO) {
+        if (projectRepository.existsByTitle(createProjectDTO.title())) {
+            throw new DuplicateResourceException("Project with title '" +  createProjectDTO.title() + "' already exists");
+        }
         Project project = projectMapper.toProjectForCreate(createProjectDTO);
         Project savedProject = projectRepository.save(project);
         return projectMapper.toProjectDTO(savedProject);
@@ -42,7 +47,7 @@ public class ProjectService {
     @Transactional
     public ProjectDTO updateProject(Long id, ProjectDTO projectDTO) {
         Project existingProject = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + id));
         existingProject.setDescription(projectDTO.description());
         existingProject.setTitle(projectDTO.title());
 

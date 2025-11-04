@@ -4,12 +4,15 @@ import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.service.CommentService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tickets/{ticketId}/comments")
+@Validated
 public class CommentController {
 
     private final CommentService commentService;
@@ -19,7 +22,7 @@ public class CommentController {
     }
 
     @GetMapping
-    public List<CommentDTO> getCommentsByTicket(@PathVariable Long ticketId) {
+    public List<CommentDTO> getCommentsByTicket(@PathVariable @Min(1) Long ticketId) {
          return commentService.getCommentsByTicketId(ticketId);
     }
 
@@ -34,7 +37,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}/delete")
-    public void deleteComment(@PathVariable Long commentId) {
+    public void deleteComment(@PathVariable @Min(1) Long commentId) {
         commentService.deleteCommentWithChildren(commentId);
     }
 }

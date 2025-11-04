@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
+import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.model.user.User;
@@ -39,7 +40,7 @@ public class TicketService {
     @Transactional(readOnly = true)
     public TicketDTO getTicketById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
         return ticketMapper.toTicketDTO(ticket);
     }
 
@@ -47,14 +48,12 @@ public class TicketService {
     public TicketDTO createTicket(CreateTicketDTO ticketDTO) {
         Ticket ticket = ticketMapper.toTicketFromCreate(ticketDTO);
 
-        //User
         User responsible = userRepository.findByUsername(ticketDTO.responsiblePersonUserName())
-                .orElseThrow(() -> new RuntimeException("User not found")); //TODO: Exception
+                .orElseThrow(() -> new ResourceNotFoundException("Responsible person not found with username " + ticketDTO.responsiblePersonUserName()));
         ticket.setResponsiblePerson(responsible);
 
-        //Project
         Project project = projectRepository.findById(ticketDTO.projectId())
-                .orElseThrow(() -> new RuntimeException("Project not found")); //TODO: Exception
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + ticketDTO.projectId()));
         ticket.setProject(project);
 
         Ticket savedTicket = ticketRepository.save(ticket);
@@ -64,7 +63,7 @@ public class TicketService {
     @Transactional
     public TicketDTO updateTicket(Long id, TicketDTO ticketDTO) {
         Ticket existingTicket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found")); //TODO: Exception
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
         ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket);
         return ticketMapper.toTicketDTO(existingTicket);
@@ -72,6 +71,10 @@ public class TicketService {
 
     @Transactional
     public void deleteTicket(Long id) {
+        if (!ticketRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Ticket not found with id " + id);
+        }
+
         ticketRepository.deleteById(id);
     }
 }
