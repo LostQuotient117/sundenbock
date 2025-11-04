@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { ProjectsService } from '../../core/services/projects.service';
+import { ProjectsService } from './projects.service';
 
 @Component({
   selector: 'app-projects',
   imports: [CommonModule],
   templateUrl: './projects.html',
-  styleUrl: './projects.css'
 })
 export class Projects {
   projects = signal<any[]>([]);

@@ -1,0 +1,22 @@
+@if (ticket(); as t) {
+  <div class="card bg-base-100 shadow-xl border border-base-200">
+    <div class="card-body">
+      <h2 class="card-title text-xl font-bold">{{ t.title }}</h2>
+
+      <div class="flex flex-col gap-2">
+        <p><strong>Status:</strong> {{ t.status }}</p>
+        <p><strong>Autor:</strong> {{ t.author.username }}</p>
+        <p><strong>Projekt:</strong> {{ t.project?.title || '-' }}</p>
+        <p><strong>Beschreibung:</strong></p>
+        <p class="whitespace-pre-wrap text-sm opacity-80">{{ t.description || 'Keine Beschreibung' }}</p>
+        <p class="text-xs text-gray-500 mt-2">
+          Erstellt am: {{ t.createdOn | date:'short' }}
+        </p>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="flex justify-center items-center min-h-[10rem]">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+}

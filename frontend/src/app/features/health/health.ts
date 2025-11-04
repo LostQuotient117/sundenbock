@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HealthService } from '../../core/services/health.service';
+import { HealthService } from './health.service';
 
 
 @Component({

@@ -1,15 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TicketsService } from '../../core/services/tickets.service';
+import { TicketsService } from './ticket.service';
 
 @Component({
-  selector: 'app-tickets',
+  selector: 'app-ticket',
   imports: [CommonModule],
-  templateUrl: './tickets.html',
-  styleUrl: './tickets.css'
+  templateUrl: './ticket.html',
 })
 export class Tickets {
-   tickets = signal<any[]>([]);
+   /* tickets = signal<any[]>([]);
   loading = signal(false);
 
   constructor(private ticketsService: TicketsService) {
@@ -23,5 +22,5 @@ export class Tickets {
       error: () => this.tickets.set([]),
       complete: () => this.loading.set(false)
     });
-  }
+  } */
 }
