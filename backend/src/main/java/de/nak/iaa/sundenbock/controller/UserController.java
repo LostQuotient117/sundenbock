@@ -72,7 +72,7 @@ public class UserController {
     /**
      * Administrative endpoint to create a new user.
      *
-     * @param request the create user DTO
+     * @param request the creation user DTO
      * @return the created {@link UserDetailDTO}
      */
     @PostMapping("/create")

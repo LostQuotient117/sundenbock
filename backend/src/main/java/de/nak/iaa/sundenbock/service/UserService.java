@@ -1,19 +1,18 @@
 package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
-import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
+import de.nak.iaa.sundenbock.exception.SelfActionException;
 import de.nak.iaa.sundenbock.model.permission.Permission;
 import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -84,6 +83,11 @@ public class UserService {
         user.setEmail(userDetailDTO.email());
         user.setEnabled(userDetailDTO.enabled());
 
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (currentUsername.equals(username) && userDetailDTO.roles().isEmpty()) {
+            throw new SelfActionException("You cannot remove all roles from your own account.");
+        }
+
         Set<Role> roles = userDetailDTO.roles().stream()
                 .map(roleName -> roleRepository.findByName(roleName)
                         .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName)))
@@ -96,17 +100,26 @@ public class UserService {
                 .collect(Collectors.toSet());
         user.setPermissions(permissions);
 
+        if (user.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByName("ROLE_USER")
+                    .orElseThrow(() -> new ResourceNotFoundException("Default role ROLE_USER not found"));
+            user.getRoles().add(userRole);
+        }
+
         User updatedUser = userRepository.save(user);
         return userMapper.toUserDetailDTO(updatedUser);
     }
 
     /**
      * Creates a new user (administrative creation).
-     * Assigns the default "ROLE_USER" to the new user.
+     * <p>
+     * If roles are provided in the request, they are assigned.
+     * If no roles are provided, the user defaults to "ROLE_USER".
      *
      * @param request The DTO with registration details.
-     * @return The DTO of the newly created user.
+     * @return The DTO of the created user.
      * @throws DuplicateResourceException if the username already exists.
+     * @throws ResourceNotFoundException if a specified role does not exist.
      */
     @Transactional
     public UserDetailDTO createUser(CreateUserDTO request) {
@@ -114,29 +127,63 @@ public class UserService {
             throw new DuplicateResourceException("Username already exists: " + request.username());
         }
 
-        Role defaultRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new DuplicateResourceException("Default role ROLE_USER not found"));
-
         User user = new User();
         user.setUsername(request.username());
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRoles(Set.of(defaultRole));
         user.setEnabled(true);
+
+        Set<Role> rolesToAssign;
+        if (request.roles() == null || request.roles().isEmpty()) {
+            Role defaultRole = roleRepository.findByName("ROLE_USER")
+                    .orElseThrow(() -> new ResourceNotFoundException("Default role ROLE_USER not found"));
+            rolesToAssign = Set.of(defaultRole);
+        } else {
+            rolesToAssign = request.roles().stream()
+                    .map(roleName -> roleRepository.findByName(roleName)
+                            .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + roleName)))
+                    .collect(Collectors.toSet());
+        }
+        user.setRoles(rolesToAssign);
 
         User savedUser = userRepository.save(user);
 
         return userMapper.toUserDetailDTO(savedUser);
     }
 
+    /**
+     * Deletes a user by their username.
+     * <p>
+     * Prevents the currently authenticated user from deleting their own account.
+     * Throws an exception if the user does not exist.
+     *
+     * @param username the username of the user to delete
+     * @throws SelfActionException if the user attempts to delete their own account
+     * @throws ResourceNotFoundException if the user does not exist
+     */
     @Transactional
     public void deleteUserByUsername(String username) {
+
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (currentUsername.equals(username)) {
+            throw new SelfActionException("You cannot delete your own account.");
+        }
+
         if (!userRepository.existsByUsername(username)) {
             throw new ResourceNotFoundException("User not found with username: " + username);
         }
         userRepository.deleteByUsername(username);
     }
 
+    /**
+     * Assigns a role to a user.
+     * <p>
+     * Resolves the user and role by their respective identifiers and adds the role to the user's roles.
+     *
+     * @param username the username of the user
+     * @param roleName the name of the role to assign
+     * @throws ResourceNotFoundException if the user or role does not exist
+     */
     @Transactional
     public void assignRoleToUser(String username, String roleName) {
         User user = userRepository.findByUsername(username)
@@ -147,6 +194,15 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Assigns a permission to a user.
+     * <p>
+     * Resolves the user and permission by their respective identifiers and adds the permission to the user's permissions.
+     *
+     * @param username the username of the user
+     * @param permissionName the name of the permission to assign
+     * @throws ResourceNotFoundException if the user or permission does not exist
+     */
     @Transactional
     public void assignPermissionToUser(String username, String permissionName) {
         User user = userRepository.findByUsername(username)
@@ -157,18 +213,66 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Removes a role from a user.
+     * <p>
+     * Prevents the currently authenticated user from removing the "ROLE_ADMIN" role from their own account.
+     * Resolves the user and role by their respective identifiers and removes the role from the user's roles.
+     *
+     * @param username the username of the user
+     * @param roleName the name of the role to remove
+     * @throws SelfActionException if the user attempts to remove the "ROLE_ADMIN" role from their own account
+     * @throws ResourceNotFoundException if the user or role does not exist
+     */
     @Transactional
     public void removeRoleFromUser(String username, String roleName) {
+
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (currentUsername.equals(username) && roleName.equals("ROLE_ADMIN")) {
+            throw new SelfActionException("You cannot remove the ADMIN role from your own account.");
+        }
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        if (currentUsername.equals(username) && user.getRoles().size() == 1) {
+            throw new SelfActionException("You cannot remove the only role from your own account.");
+        }
+
         user.getRoles().remove(role);
+
+        if (user.getRoles().isEmpty()) {
+            Role userRole = roleRepository.findByName("ROLE_USER")
+                    .orElseThrow(() -> new ResourceNotFoundException("Default role ROLE_USER not found"));
+            user.getRoles().add(userRole);
+        }
+
         userRepository.save(user);
     }
 
+    /**
+     * Removes a permission from a user.
+     * <p>
+     * Prevents the currently authenticated user from removing core administrative permissions
+     * ("USER_MANAGE" or "ROLE_MANAGE") from their own account.
+     * Resolves the user and permission by their respective identifiers and removes the permission from the user's permissions.
+     *
+     * @param username the username of the user
+     * @param permissionName the name of the permission to remove
+     * @throws SelfActionException if the user attempts to remove core administrative permissions from their own account
+     * @throws ResourceNotFoundException if the user or permission does not exist
+     */
     @Transactional
     public void removePermissionFromUser(String username, String permissionName) {
+
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (currentUsername.equals(username) &&
+                (permissionName.equals("USER_MANAGE") || permissionName.equals("ROLE_MANAGE"))) {
+            throw new SelfActionException("You cannot remove core administrative permissions from your own account.");
+        }
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Permission permission = permissionRepository.findById(permissionName)
@@ -176,24 +280,5 @@ public class UserService {
         user.getPermissions().remove(permission);
         userRepository.save(user);
     }
-
-    @Transactional
-    public void changePassword(ChangePasswordRequest request) {
-
-        // Get the currently authenticated user
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Current user not found in database"));
-
-        // Check if the old password is correct
-        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid old password");
-        }
-
-        // Set the new, encoded password
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
-        userRepository.save(user);
-    }
-
 
 }

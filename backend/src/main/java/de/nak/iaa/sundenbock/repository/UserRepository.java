@@ -10,4 +10,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUsername(String username);
     void deleteByUsername(String username);
+
+    /**
+     * Counts how many users are directly assigned the specified permission.
+     * @param permissionName The name of the permission.
+     * @return The number of users with this permission.
+     */
+    long countByPermissions_Name(String permissionName);
+
+    /**
+     * Counts how many users are assigned the specified role.
+     * @param roleId The ID of the role.
+     * @return The number of users with this role.
+     */
+    long countByRoles_Id(Long roleId);
 }

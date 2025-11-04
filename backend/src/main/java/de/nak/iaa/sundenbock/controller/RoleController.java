@@ -55,4 +55,16 @@ public class RoleController {
     public void updateRolePermissions(@PathVariable Long roleId, @RequestBody Set<String> permissionNames) {
         roleService.updateRolePermissions(roleId, permissionNames);
     }
+
+    /**
+     * Deletes a role by its ID.
+     * The role will only be deleted if it is not a core role
+     * and not currently assigned to any users.
+     *
+     * @param roleId The ID of the role to delete.
+     */
+    @DeleteMapping("/{roleId}/delete")
+    public void deleteRole(@PathVariable Long roleId) {
+        roleService.deleteRole(roleId);
+    }
 }
