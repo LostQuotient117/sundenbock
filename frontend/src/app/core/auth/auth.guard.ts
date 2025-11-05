@@ -6,12 +6,12 @@ export const authMatchGuard: CanMatchFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  return auth.isLoggedIn() ? true : router.createUrlTree(['/login']);
+  return auth.isLoggedIn() ? true : router.createUrlTree(['/auth', 'login']);
 };
 
 export const authChildGuard: CanActivateChildFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  return auth.isLoggedIn() ? true : router.createUrlTree(['/login']);
+  return auth.isLoggedIn() ? true : router.createUrlTree(['/auth', 'login']);
 };
