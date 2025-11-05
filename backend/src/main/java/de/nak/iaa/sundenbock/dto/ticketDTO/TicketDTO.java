@@ -9,6 +9,15 @@ import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 
+/**
+ * Data Transfer Object representing a ticket as exposed by the API.
+ * <p>
+ * This immutable record is used for reading and transferring ticket data across application layers.
+ * It aggregates core ticket properties, the assigned user and associated project, as well as auditing
+ * information (creation/modification timestamps and users).
+ * <p>
+ * Jakarta Bean Validation annotations document expected constraints for values handled by the API.
+ */
 public record TicketDTO(
         Long id,
         @NotBlank(message = "Title must not be empty")
