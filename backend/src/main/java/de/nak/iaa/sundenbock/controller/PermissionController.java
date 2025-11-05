@@ -1,5 +1,6 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.config.security.CanManageRoles;
 import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
 import de.nak.iaa.sundenbock.service.PermissionService;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class PermissionController {
      * @return a list of {@link PermissionDTO} representing all permissions
      */
     @GetMapping
+    @CanManageRoles
     public List<PermissionDTO> getAllPermissions() {
         return permissionService.getAllPermissions();
     }
@@ -42,6 +44,7 @@ public class PermissionController {
      * @return the created {@link PermissionDTO}
      */
     @PostMapping("/create")
+    @CanManageRoles
     public PermissionDTO createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
     }
@@ -54,6 +57,7 @@ public class PermissionController {
      * @param permissionName The name of the permission to delete.
      */
     @DeleteMapping("/{permissionName}/delete")
+    @CanManageRoles
     public void deletePermission(
             @PathVariable @NotBlank String permissionName) {
         permissionService.deletePermission(permissionName);
