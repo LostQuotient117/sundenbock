@@ -1,0 +1,118 @@
+<h2 class="card-title text-center">Registrieren</h2>
+
+<form class="card-body gap-4" [formGroup]="form" (ngSubmit)="submit()">
+  <!-- Benutzername -->
+  <div class="form-control">
+    <label class="label">
+      <span class="label-text">Benutzername</span>
+    </label>
+    <input
+      type="text"
+      class="input input-bordered"
+      formControlName="username"
+      autocomplete="username"
+    />
+    @if (username.touched && username.invalid) {
+      <span class="text-error text-sm mt-1">
+        @if (username.hasError('required')) { Benutzername ist erforderlich. }
+        @else if (username.hasError('minlength')) { Mindestens 3 Zeichen erforderlich. }
+        @else if (username.hasError('maxlength')) { Maximal 50 Zeichen erlaubt. }
+      </span>
+    }
+  </div>
+
+  <!-- E-Mail -->
+  <div class="form-control">
+    <label class="label">
+      <span class="label-text">E-Mail</span>
+    </label>
+    <input
+      type="email"
+      class="input input-bordered"
+      formControlName="email"
+      autocomplete="email"
+    />
+    @if (email.touched && email.invalid) {
+      <span class="text-error text-sm mt-1">
+        @if (email.hasError('required')) { E-Mail ist erforderlich. }
+        @else if (email.hasError('email')) { Bitte eine gültige E-Mail-Adresse eingeben. }
+      </span>
+    }
+  </div>
+
+  <!-- Passwörter -->
+  <div formGroupName="passwordGroup" class="grid grid-cols-1 gap-4">
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">Passwort</span>
+      </label>
+      <input
+        type="password"
+        class="input input-bordered"
+        formControlName="password"
+        autocomplete="new-password"
+      />
+      @if (password.touched && password.invalid) {
+        <span class="text-error text-sm mt-1">
+          @if (password.hasError('required')) { Passwort ist erforderlich. }
+          @else if (password.hasError('minlength')) { Mindestens 6 Zeichen erforderlich. }
+        </span>
+      }
+    </div>
+
+    <div class="form-control">
+      <label class="label">
+        <span class="label-text">Passwort bestätigen</span>
+      </label>
+      <input
+        type="password"
+        class="input input-bordered"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+      />
+      @if (confirmPassword.touched && confirmPassword.invalid) {
+        <span class="text-error text-sm mt-1">
+          @if (confirmPassword.hasError('required')) { Bestätigung ist erforderlich. }
+        </span>
+      }
+      @if (invalidPasswords()) {
+        <span class="text-error text-sm mt-1">Passwörter stimmen nicht überein.</span>
+      }
+    </div>
+  </div>
+
+  <!-- Rollen -->
+  <div class="form-control">
+    <label class="label">
+      <span class="label-text">Rollen</span>
+    </label>
+    <select multiple class="select select-bordered h-28" formControlName="roles">
+      <option value="USER">USER</option>
+      <option value="ADMIN">ADMIN</option>
+    </select>
+    <span class="text-xs opacity-70 mt-1">Optional: Rollen für den neuen Benutzer</span>
+  </div>
+
+  <!-- Server-Fehler -->
+  @if (serverError()) {
+    <div class="text-error text-center">{{ serverError() }}</div>
+  }
+
+  <!-- Submit -->
+  <div class="form-control mt-2">
+    <button
+      class="btn btn-primary"
+      [class.loading]="submitting()"
+      [disabled]="submitting() || form.invalid"
+    >
+      {{ submitting() ? 'Registriere …' : 'Registrieren' }}
+    </button>
+  </div>
+
+  <div class="divider my-0"></div>
+
+  <p class="text-sm text-base-content/70 text-center">
+    Du hast bereits ein Konto?
+    <a class="link link-primary" routerLink="/auth/login">Anmelden</a>
+  </p>
+</form>

@@ -1,0 +1,45 @@
+{
+  "auth": {
+
+    "register": {
+      "title": "Create Account",
+      "username": { "label": "Username" },
+      "email": { "label": "Email" },
+      "password": { "label": "Password" },
+      "confirmPassword": { "label": "Confirm Password" },
+      "passwordsMismatch": "Passwords do not match.",
+      "roles": { "label": "Roles (optional)", "hint": "Hold Ctrl/Cmd to select multiple." },
+      "submit": { "default": "Register", "loading": "Registering…" },
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+
+    "login": {
+      "title": "Sign In",
+      "username": {
+        "label": "Username",
+        "required": "Username is required."
+      },
+      "password": {
+        "label": "Password",
+        "required": "Password is required."
+      },
+      "rememberMe": "Stay signed in",
+      "submit": {
+        "default": "Sign In",
+        "loading": "Signing in…"
+      },
+      "noAccount": "No account?",
+      "registerLink": "Register",
+      "serverError": "Login failed. Please check your credentials and try again."
+    }
+  },
+
+  "forms": {
+    "required": "This field is required.",
+    "email": "Please enter a valid email address.",
+    "minLength": "Minimum length is {{n}}.",
+    "maxLength": "Maximum length is {{n}}."
+  }
+}
+

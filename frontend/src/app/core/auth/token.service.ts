@@ -12,7 +12,6 @@ export class TokenService {
     const payload = decodeJwt(token);
     const data: StoredToken = { token, exp: payload?.exp };
     const json = JSON.stringify(data);
-    // erst mal überall weg
     localStorage.removeItem(STORAGE_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
     (remember ? localStorage : sessionStorage).setItem(STORAGE_KEY, json);
@@ -27,12 +26,7 @@ export class TokenService {
     }
     return data.token;
   }
-
-  isUnauthenticated(): boolean {
-    const data = this.readRaw();
-    return !data || this.isExpired(data.exp);
-  }
-
+  
   clear(): void {
     localStorage.removeItem(STORAGE_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
