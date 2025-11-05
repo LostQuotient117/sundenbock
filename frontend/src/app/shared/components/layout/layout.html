@@ -43,16 +43,19 @@
     <div class="p-2 border-t border-base-300">
       <button class="btn btn-error btn-sm w-full justify-start gap-3"
               (click)="logout()">
-        <!-- power icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 3v9m6.36-5.36a9 9 0 11-12.72 0" />
-        </svg>
-        <span
-          class="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150
-                 max-w-0 group-hover/sidebar:max-w-[12rem] overflow-hidden">
-          Logout
-        </span>
+          <div class="flex items-center justify-center w-5 h-5">
+    <lucide-icon
+      [img]="LogOutIcon"
+      class="w-4 h-4"
+      [strokeWidth]="2"
+    ></lucide-icon>
+  </div>
+
+  <span
+    class="opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-150
+           max-w-0 group-hover/sidebar:max-w-[12rem] overflow-hidden">
+    Logout
+  </span>
       </button>
 
       <!-- kleine Fußzeile -->
