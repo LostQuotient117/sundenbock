@@ -10,6 +10,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller exposing operations for managing comments that belong to a ticket.
+ * <p>
+ * Base path: {@code /api/v1/tickets/{ticketId}/comments}
+ * </p>
+ * <p>
+ * All request payloads are validated using Jakarta Bean Validation. Path variables annotated with
+ * {@link Min} ensure positive identifiers.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/v1/tickets/{ticketId}/comments")
 @Validated
@@ -17,25 +27,53 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    /**
+     * Creates a new instance of the controller.
+     *
+     * @param commentService service handling the comment business logic
+     */
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
 
+    /**
+     * Retrieves all comments for a given ticket.
+     *
+     * @param ticketId the id of the ticket, must be greater than or equal to 1
+     * @return list of comments for the specified ticket as {@link CommentDTO}
+     */
     @GetMapping
     public List<CommentDTO> getCommentsByTicket(@PathVariable @Min(1) Long ticketId) {
          return commentService.getCommentsByTicketId(ticketId);
     }
 
+    /**
+     * Creates a new comment.
+     *
+     * @param createCommentDTO payload containing the data required to create a comment; validated
+     * @return the created comment as {@link CommentDTO}
+     */
     @PostMapping("/create")
     public CommentDTO createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
         return commentService.createComment(createCommentDTO);
     }
 
+    /**
+     * Updates an existing comment.
+     *
+     * @param commentDTO payload containing the updated comment data; validated
+     * @return the updated comment as {@link CommentDTO}
+     */
     @PutMapping("/{commentId}/update")
     public CommentDTO updateComment(@Valid @RequestBody CommentDTO commentDTO){
         return commentService.updateComment(commentDTO);
     }
 
+    /**
+     * Deletes a comment and all of its child comments (if any).
+     *
+     * @param commentId the id of the comment to delete, must be greater than or equal to 1
+     */
     @DeleteMapping("/{commentId}/delete")
     public void deleteComment(@PathVariable @Min(1) Long commentId) {
         commentService.deleteCommentWithChildren(commentId);

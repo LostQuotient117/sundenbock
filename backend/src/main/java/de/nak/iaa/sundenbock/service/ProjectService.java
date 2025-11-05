@@ -13,28 +13,65 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing {@link Project} entities.
+ * <p>
+ * Provides CRUD operations and mapping between entities and DTOs via {@link ProjectMapper}.
+ * Ensures uniqueness constraints (e.g., title) and translates repository results into {@link ProjectDTO}s.
+ * </p>
+ */
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
 
+    /**
+     * Creates a new {@code ProjectService}.
+     *
+     * @param projectRepository repository for projects
+     * @param projectMapper     mapper for project and DTO conversions
+     */
     public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
     }
 
+    /**
+     * Returns all existing projects as a list of {@link ProjectDTO}.
+     *
+     * @return list of all projects in DTO representation
+     */
     @Transactional(readOnly = true)
     public List<ProjectDTO> getProjects() {
         return projectRepository.findAll().stream()
                 .map(projectMapper::toProjectDTO)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Returns a single project by its ID.
+     *
+     * @param id the ID of the requested project
+     * @return the found project as {@link ProjectDTO}
+     * @throws ResourceNotFoundException if no project exists with the given ID
+     */
     @Transactional(readOnly = true)
     public ProjectDTO getProjectById(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + id));
         return projectMapper.toProjectDTO(project);
     }
+
+    /**
+     * Creates a new project.
+     * <p>
+     * Validates that the title is unique before persisting.
+     * </p>
+     *
+     * @param createProjectDTO data for creating the project
+     * @return the created project as {@link ProjectDTO}
+     * @throws DuplicateResourceException if a project with the same title already exists
+     */
     @Transactional
     public ProjectDTO createProject(CreateProjectDTO createProjectDTO) {
         if (projectRepository.existsByTitle(createProjectDTO.title())) {
@@ -44,6 +81,16 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
         return projectMapper.toProjectDTO(savedProject);
     }
+
+    /**
+     * Updates an existing project with the data from the provided {@link ProjectDTO}.
+     * Only the mutable fields (title, description) are updated.
+     *
+     * @param id         the ID of the project to update
+     * @param projectDTO the new values for the project
+     * @return the updated project as {@link ProjectDTO}
+     * @throws ResourceNotFoundException if no project exists with the given ID
+     */
     @Transactional
     public ProjectDTO updateProject(Long id, ProjectDTO projectDTO) {
         Project existingProject = projectRepository.findById(id)
@@ -54,6 +101,12 @@ public class ProjectService {
         Project updatedProject = projectRepository.save(existingProject);
         return projectMapper.toProjectDTO(updatedProject);
     }
+
+    /**
+     * Deletes a project by its ID.
+     *
+     * @param id the ID of the project to delete
+     */
     @Transactional
     public void deleteProject(Long id) {
         projectRepository.deleteById(id);

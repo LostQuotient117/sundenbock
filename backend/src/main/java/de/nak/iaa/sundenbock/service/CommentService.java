@@ -16,18 +16,39 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing {@link Comment} entities and their hierarchy.
+ * <p>
+ * Provides creation, update, and deletion logic for comments, including recursive
+ * deletion of entire reply trees. Also handles associations to {@link Ticket}
+ * and converts entities to DTOs using the {@link CommentMapper}.
+ * </p>
+ */
 @Service
 public class CommentService{
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final TicketRepository ticketRepository;
 
+    /**
+     * Creates a new {@code CommentService}.
+     *
+     * @param commentRepository repository for comments
+     * @param commentMapper     mapper for comment and DTO conversions
+     * @param ticketRepository  repository for tickets (to validate and resolve the associated ticket)
+     */
     public CommentService(CommentRepository commentRepository, CommentMapper commentMapper, TicketRepository ticketRepository) {
         this.commentRepository = commentRepository;
         this.commentMapper = commentMapper;
         this.ticketRepository = ticketRepository;
     }
 
+    /**
+     * Deletes a comment including all of its child comments (replies) recursively.
+     *
+     * @param commentId the ID of the comment to delete
+     * @throws ResourceNotFoundException if the comment with the given ID does not exist
+     */
     @Transactional
     public void deleteCommentWithChildren(Long commentId) {
         List<Long> childIds = commentRepository.findChildIdsByParentId(commentId);
@@ -40,6 +61,17 @@ public class CommentService{
         commentRepository.deleteByIdQuery(commentId);
     }
 
+    /**
+     * Creates a new comment.
+     * <p>
+     * Validates the existence of the associated ticket and, if provided,
+     * the parent comment. The created entity is persisted and returned as a DTO.
+     * </p>
+     *
+     * @param createCommentDTO data for creating the comment
+     * @return the created comment as {@link CommentDTO}
+     * @throws ResourceNotFoundException if the ticket or the specified parent comment cannot be found
+     */
     @Transactional
     public CommentDTO createComment(CreateCommentDTO createCommentDTO) {
         if (!ticketRepository.existsById(createCommentDTO.ticketId())){
@@ -61,6 +93,13 @@ public class CommentService{
         return commentMapper.toCommentDTO(savedComment);
     }
 
+    /**
+     * Updates an existing comment with the values from the provided {@link CommentDTO}.
+     *
+     * @param commentDTO the new values for the comment
+     * @return the updated comment as {@link CommentDTO}
+     * @throws ResourceNotFoundException if no comment exists with the given ID
+     */
     @Transactional
     public CommentDTO updateComment(CommentDTO commentDTO) {
         Comment existingComment = commentRepository.findById(commentDTO.id())
@@ -70,6 +109,17 @@ public class CommentService{
         return commentMapper.toCommentDTO(existingComment);
     }
 
+    /**
+     * Returns all comments for a given ticket as a nested structure.
+     * <p>
+     * Only top-level comments (without a parent) are returned directly; their reply trees
+     * are populated recursively so that the mapping to DTOs contains full hierarchies.
+     * </p>
+     *
+     * @param ticketId the ID of the ticket whose comments should be retrieved
+     * @return a list of top-level comments as {@link CommentDTO}s with populated replies
+     * @throws ResourceNotFoundException if no ticket exists with the given ID
+     */
     @Transactional(readOnly = true)
     public List<CommentDTO> getCommentsByTicketId(Long ticketId) {
         if (!ticketRepository.existsById(ticketId)) {

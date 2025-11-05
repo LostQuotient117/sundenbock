@@ -11,21 +11,31 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JPA entity representing a ticket in the issue tracking domain.
+ * <p>
+ * A ticket has a title, optional description and a {@link TicketStatus}.
+ * It is always associated with exactly one {@link Project} and one responsible {@link User}.
+ * The entity inherits auditing information (creation and modification metadata)
+ * from {@link AuditedEntity}. Comments are modeled via a one-to-many relationship
+ * to {@link Comment} and are removed when the ticket is deleted.
+ * </p>
+ */
 @Entity
 @Setter
 @Getter
 public class Ticket extends AuditedEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //TODO: For auto-increment (the question is whether it can also be used as an ID that is visible. Otherwise, maybe limit the length?
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private String title;
-    private String description; //TODO: Add Title? Pictures (maybe Blob?)?
+    private String description;
     private TicketStatus status;
     @ManyToOne(optional = false)
-    private User responsiblePerson; //TODO: Placehoilder for user-class as datatype
+    private User responsiblePerson;
     @ManyToOne(optional = false)
-    private Project project; //TODO: Placeholer for project-class as datatype
+    private Project project;
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 }

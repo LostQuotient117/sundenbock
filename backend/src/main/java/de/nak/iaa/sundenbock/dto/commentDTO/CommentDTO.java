@@ -9,6 +9,15 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Data Transfer Object representing a comment as exposed by the API.
+ * <p>
+ * This immutable record is used for reading and transferring comment data across application layers.
+ * It includes the comment hierarchy (parent/children), reaction counts, and auditing information
+ * such as creation/modification timestamps and users.
+ * <p>
+ * Jakarta Bean Validation annotations document expected constraints for values handled by the API.
+ */
 public record CommentDTO(
         Long id,
         @NotNull
