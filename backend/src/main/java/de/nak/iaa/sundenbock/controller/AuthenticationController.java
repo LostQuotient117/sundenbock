@@ -1,6 +1,5 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller responsible for user authentication and registration endpoints.
- * <p>
  * Exposes public endpoints for user self-registration and login (authentication).
  */
 @RestController

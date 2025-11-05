@@ -57,12 +57,13 @@ public class LoadBaselineSecurityData{
 
         // ========== Base Roles ==========
         createRoleIfNotFound("ROLE_USER", Set.of(
-                ticketCreate, ticketReadOwn, commentCreate
+                ticketCreate, ticketReadAll, ticketChangeStatus, commentCreate, commentDelete
         ));
 
         createRoleIfNotFound("ROLE_DEVELOPER", Set.of(
                 projectRead, ticketCreate, ticketReadAll, ticketUpdate,
-                commentCreate, commentUpdate, commentDelete
+                ticketAssign, ticketChangeStatus, commentCreate, commentUpdate,
+                commentDelete
         ));
 
         createRoleIfNotFound("ROLE_PROJECT_MANAGER", Set.of(

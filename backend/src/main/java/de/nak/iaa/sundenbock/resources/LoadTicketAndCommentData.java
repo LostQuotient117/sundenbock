@@ -33,9 +33,9 @@ public class LoadTicketAndCommentData {
             t1.setStatus(TicketStatus.CREATED);
 //            t1.setCreatedDate(Instant.now());
 //            t1.setLastModifiedDate(Instant.now());
-//            t1.setLastModifiedBy(userRepository.findByUsername("manager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
-            t1.setResponsiblePerson(userRepository.findByUsername("dev").orElseThrow(() -> new RuntimeException("user not found for sample data")));
-            //t1.setCreatedBy(userRepository.findByUsername("manager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            t1.setLastModifiedBy(userRepository.findByUsername("MainManager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+            t1.setResponsiblePerson(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+            //t1.setCreatedBy(userRepository.findByUsername("MainManager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             t1.setProject(projectRepository.findByTitle("Ticket System").orElseThrow(() -> new RuntimeException("project not found for sample data")));
 
             Ticket t2 = new Ticket();
@@ -44,9 +44,9 @@ public class LoadTicketAndCommentData {
             t2.setStatus(TicketStatus.IN_PROGRESS);
 //            t2.setCreatedDate(Instant.from(Instant.now()));
 //            t2.setLastModifiedDate(Instant.now());
-//            t2.setLastModifiedBy(userRepository.findByUsername("manager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
-            t2.setResponsiblePerson(userRepository.findByUsername("dev").orElseThrow(() -> new RuntimeException("user not found for sample data")));
-            //t2.setCreatedBy(userRepository.findByUsername("manager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            t2.setLastModifiedBy(userRepository.findByUsername("MainManager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+            t2.setResponsiblePerson(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+            //t2.setCreatedBy(userRepository.findByUsername("MainManager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             t2.setProject(projectRepository.findByTitle("Ticket System").orElseThrow(() -> new RuntimeException("project not found for sample data")));
 
             ticketRepository.save(t1);
@@ -54,10 +54,10 @@ public class LoadTicketAndCommentData {
 
             Comment c1 = new Comment();
             c1.setTicket(t1);
-            //c1.setCreatedBy(userRepository.findByUsername("manager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+            //c1.setCreatedBy(userRepository.findByUsername("MainManager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             //c1.setCreatedDate(Instant.now());
             //c1.setLastModifiedDate(Instant.now());
-            //c1.setLastModifiedBy(userRepository.findByUsername("manager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+            //c1.setLastModifiedBy(userRepository.findByUsername("MainManager").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             c1.setCommentText("Ich habe den Fehler reproduziert. Es scheint ein Problem mit der Datenbankverbindung zu geben.");
             c1.setLikes(2);
             c1.setDislikes(0);
@@ -66,10 +66,10 @@ public class LoadTicketAndCommentData {
             Comment c1_sub1 = new Comment();
             c1_sub1.setTicket(t1);
             c1_sub1.setParentComment(c1);
-//            c1_sub1.setCreatedBy(userRepository.findByUsername("admin").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            c1_sub1.setCreatedBy(userRepository.findByUsername("Super-admin-666").orElseThrow(() -> new RuntimeException("user not found for sample data")));
 //            c1_sub1.setCreatedDate(Instant.now().plusSeconds(60));
 //            c1_sub1.setLastModifiedDate(Instant.now().plusSeconds(60));
-//            c1_sub1.setLastModifiedBy(userRepository.findByUsername("admin").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            c1_sub1.setLastModifiedBy(userRepository.findByUsername("Super-admin-666").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             c1_sub1.setCommentText("Kannst du bitte den genauen Fehler-Log posten?");
             c1_sub1.setLikes(1);
             c1_sub1.setDislikes(0);
@@ -77,10 +77,10 @@ public class LoadTicketAndCommentData {
             // Kommentar zu Ticket t2
             Comment c2 = new Comment();
             c2.setTicket(t2);
-//            c2.setCreatedBy(userRepository.findByUsername("dev").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            c2.setCreatedBy(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
 //            c2.setCreatedDate(Instant.now());
 //            c2.setLastModifiedDate(Instant.now());
-//            c2.setLastModifiedBy(userRepository.findByUsername("dev").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            c2.setLastModifiedBy(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             c2.setCommentText("Ich habe das CSS-Problem analysiert. Es liegt an der falschen Grid-Konfiguration.");
             c2.setLikes(5);
             c2.setDislikes(0);
@@ -89,10 +89,10 @@ public class LoadTicketAndCommentData {
             Comment c2_sub1 = new Comment();
             c2_sub1.setTicket(t2);
             c2_sub1.setParentComment(c2);
-//            c2_sub1.setCreatedBy(userRepository.findByUsername("dev").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            c2_sub1.setCreatedBy(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
 //            c2_sub1.setCreatedDate(Instant.now());
 //            c2_sub1.setLastModifiedDate(Instant.now());
-//            c2_sub1.setLastModifiedBy(userRepository.findByUsername("dev").orElseThrow(() -> new RuntimeException("user not found for sample data")));
+//            c2_sub1.setLastModifiedBy(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             c2_sub1.setCommentText("Kannst du einen Fix vorschlagen?");
             c2_sub1.setLikes(3);
             c2_sub1.setDislikes(0);

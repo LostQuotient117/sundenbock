@@ -1,5 +1,6 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.config.security.CanManageRoles;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.service.RoleService;
@@ -33,6 +34,7 @@ public class RoleController {
      * @return a list of {@link RoleDTO} representing all roles
      */
     @GetMapping
+    @CanManageRoles
     public List<RoleDTO> getAllRoles() {
         return roleService.getAllRoles();
     }
@@ -44,6 +46,7 @@ public class RoleController {
      * @return the created {@link RoleDTO}
      */
     @PostMapping
+    @CanManageRoles
     public RoleDTO createRole(@Valid @RequestBody CreateRoleDTO createRoleDTO) {
         return roleService.createRole(createRoleDTO);
     }
@@ -55,6 +58,7 @@ public class RoleController {
      * @param permissionNames a set of permission names to assign to the role
      */
     @PutMapping("/{roleId}/update-permissions")
+    @CanManageRoles
     public void updateRolePermissions(@PathVariable @Min(1) Long roleId,
                                       @RequestBody Set<String> permissionNames) {
         roleService.updateRolePermissions(roleId, permissionNames);
@@ -68,6 +72,7 @@ public class RoleController {
      * @param roleId The ID of the role to delete.
      */
     @DeleteMapping("/{roleId}/delete")
+    @CanManageRoles
     public void deleteRole(@PathVariable @Min(1) Long roleId) {
         roleService.deleteRole(roleId);
     }
