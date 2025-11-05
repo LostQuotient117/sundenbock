@@ -5,7 +5,23 @@
   <title>Frontend</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link id="app-favicon" rel="icon" type="image/x-icon" href="favicon-light.ico">
+  <script>
+  (function() {
+    const STORAGE_KEY = 'theme';
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved === 'light' || saved === 'dark' ? saved : (systemDark ? 'dark' : 'light');
+
+    const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');   // Tailwind
+    root.setAttribute('data-theme', theme);            // DaisyUI
+
+    // Favicon sofort setzen (keine “falsche” Farbe beim Initial-Ladeblink)
+    const icon = document.getElementById('app-favicon');
+    if (icon) icon.setAttribute('href', theme === 'dark' ? '/favicon-light.ico' : '/favicon-dark.ico');
+  })();
+</script>
 </head>
 <body>
   <app-root></app-root>
