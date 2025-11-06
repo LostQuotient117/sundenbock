@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.security;
 
 
 import de.nak.iaa.sundenbock.repository.CommentRepository;

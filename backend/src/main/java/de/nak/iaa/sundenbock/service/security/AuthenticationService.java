@@ -1,6 +1,5 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.security;
 
-import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;

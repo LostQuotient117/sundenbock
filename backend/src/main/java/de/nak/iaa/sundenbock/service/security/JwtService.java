@@ -1,9 +1,8 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.security;
 
 import de.nak.iaa.sundenbock.config.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Jwts.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;

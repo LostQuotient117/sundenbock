@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.user;
 
 import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UpdateUserDTO;
@@ -80,15 +80,15 @@ public class UserService {
 
         User user = findUserByUsername(username);
 
-        if (updateDto.getEmail() != null && !updateDto.getEmail().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(updateDto.getEmail())) {
-                throw new DuplicateResourceException("Email " + updateDto.getEmail() + " is already in use.");
+        if (updateDto.email() != null && !updateDto.email().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(updateDto.email())) {
+                throw new DuplicateResourceException("Email " + updateDto.email() + " is already in use.");
             }
-            user.setEmail(updateDto.getEmail());
+            user.setEmail(updateDto.email());
         }
 
-        if (updateDto.getEnabled() != null) {
-            user.setEnabled(updateDto.getEnabled());
+        if (updateDto.enabled() != null) {
+            user.setEnabled(updateDto.enabled());
         }
 
         User savedUser = userRepository.save(user);

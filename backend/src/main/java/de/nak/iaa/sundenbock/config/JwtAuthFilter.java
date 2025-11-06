@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.config;
 
-import de.nak.iaa.sundenbock.service.JwtService;
+import de.nak.iaa.sundenbock.service.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
