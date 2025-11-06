@@ -5,6 +5,7 @@ import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.service.CommentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,7 @@ public class CommentController {
      * @return list of comments for the specified ticket as {@link CommentDTO}
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('TICKET_READ_ALL') or @customSecurityService.canAccessTicket(#ticketId, authentication)")
     public List<CommentDTO> getCommentsByTicket(@PathVariable @Min(1) Long ticketId) {
          return commentService.getCommentsByTicketId(ticketId);
     }
@@ -54,6 +56,7 @@ public class CommentController {
      * @return the created comment as {@link CommentDTO}
      */
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('COMMENT_CREATE') or @customSecurityService.canAccessTicket(#ticketId, authentication)")
     public CommentDTO createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
         return commentService.createComment(createCommentDTO);
     }
@@ -65,6 +68,7 @@ public class CommentController {
      * @return the updated comment as {@link CommentDTO}
      */
     @PutMapping("/{commentId}/update")
+    @PreAuthorize("hasAuthority('COMMENT_UPDATE') or @customSecurityService.isCommentOwner(#commentId, authentication)")
     public CommentDTO updateComment(@Valid @RequestBody CommentDTO commentDTO){
         return commentService.updateComment(commentDTO);
     }
@@ -75,6 +79,7 @@ public class CommentController {
      * @param commentId the id of the comment to delete, must be greater than or equal to 1
      */
     @DeleteMapping("/{commentId}/delete")
+    @PreAuthorize("hasAuthority('COMMENT_DELETE') or @customSecurityService.isCommentOwner(#commentId, authentication)")
     public void deleteComment(@PathVariable @Min(1) Long commentId) {
         commentService.deleteCommentWithChildren(commentId);
     }

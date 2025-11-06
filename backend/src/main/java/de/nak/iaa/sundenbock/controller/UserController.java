@@ -50,7 +50,7 @@ public class UserController {
      * @return a {@link UserDTO} for the specified username
      */
     @GetMapping("/{username}")
-    @PreAuthorize("hasAuthority('USER_MANAGE') or #username == authentication.principal.username")
+    @PreAuthorize("@customSecurityService.canAccessUser(#username, authentication)")
     public UserDTO getUserByUsername(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
         return userService.getUserByUsername(username);
     }
@@ -62,7 +62,7 @@ public class UserController {
      * @return a {@link UserDetailDTO} with detailed user information
      */
     @GetMapping("/{username}/details")
-    @PreAuthorize("hasAuthority('USER_MANAGE') or #username == authentication.principal.username")
+    @PreAuthorize("@customSecurityService.canAccessUser(#username, authentication)")
     public UserDetailDTO getDetailedUserByUsername(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
         return userService.getDetailedUserByUsername(username);
     }
@@ -75,7 +75,7 @@ public class UserController {
      * @return the updated {@link UserDetailDTO}
      */
     @PutMapping("/{username}/update")
-    @PreAuthorize("hasAuthority('USER_MANAGE') or #username == authentication.principal.username")
+    @PreAuthorize("@customSecurityService.canAccessUser(#username, authentication)")
     public UserDetailDTO updateUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
                                     @Valid  @RequestBody UserDetailDTO userDetailDTO) {
         return userService.updateUser(username, userDetailDTO);
