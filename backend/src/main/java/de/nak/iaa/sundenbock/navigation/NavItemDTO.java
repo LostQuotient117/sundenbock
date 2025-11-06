@@ -6,5 +6,5 @@ public record NavItemDTO(
         String label,
         String path,
         String icon,
-        Set<String> requiredRoles
+        Set<String> requiredPermissions
 ) {}

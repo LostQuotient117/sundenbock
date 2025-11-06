@@ -3,14 +3,17 @@ package de.nak.iaa.sundenbock.navigation;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/api/v1/ui/navigation")
 public class NavigationController {
 
     private final NavigationRegistry registry;
@@ -19,16 +22,18 @@ public class NavigationController {
         this.registry = registry;
     }
 
-    @GetMapping("/api/v1/ui/navigation")
-    public List<NavItemDTO> getNav(Authentication auth) {
-        var roles = extractRoles(auth.getAuthorities());
-        return registry.getForRoles(roles);
+    @GetMapping
+    public List<NavItemDTO> getNavItems(Authentication authentication) {
+        Collection<String> permissions = getPermissionsFromAuth(authentication);
+        return registry.getForPermissions(permissions);
     }
 
-    private Set<String> extractRoles(Collection<? extends GrantedAuthority> authorities) {
-        return authorities.stream()
+    private Collection<String> getPermissionsFromAuth(Authentication authentication) {
+        return Optional.ofNullable(authentication)
+                .map(Authentication::getAuthorities)
+                .orElse(Set.of())
+                .stream()
                 .map(GrantedAuthority::getAuthority)
-                .map(r -> r.startsWith("ROLE_") ? r.substring(5) : r)
                 .collect(Collectors.toSet());
     }
 }

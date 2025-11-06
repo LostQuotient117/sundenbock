@@ -11,5 +11,5 @@ public @interface NavItem {
     String label();
     String path();
     String icon() default "";
-    String[] roles() default {};
+    String[] permissions() default {};
 }
