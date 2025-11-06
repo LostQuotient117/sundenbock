@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.user;
 
 import de.nak.iaa.sundenbock.repository.UserRepository;
 
