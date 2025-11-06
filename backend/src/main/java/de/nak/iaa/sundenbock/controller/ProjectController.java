@@ -5,6 +5,7 @@ import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.service.ProjectService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,7 @@ public class ProjectController {
      * @return list of all existing projects as {@link ProjectDTO}
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('PROJECT_READ')")
     public List<ProjectDTO> getAllProjects() {
         return projectService.getProjects();
     }
@@ -52,6 +54,7 @@ public class ProjectController {
      * @return the project with the given id as {@link ProjectDTO}
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PROJECT_READ')")
     public ProjectDTO getProjectById(@PathVariable @Min(1) Long id) {
         return projectService.getProjectById(id);
     }
@@ -63,6 +66,7 @@ public class ProjectController {
      * @return the created project as {@link ProjectDTO}
      */
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('PROJECT_CREATE')")
     public ProjectDTO createProject(@Valid @RequestBody CreateProjectDTO createProjectDTO) {
         return projectService.createProject(createProjectDTO);
     }
@@ -75,6 +79,7 @@ public class ProjectController {
      * @return the updated project as {@link ProjectDTO}
      */
     @PutMapping("/{id}/update")
+    @PreAuthorize("hasAuthority('PROJECT_UPDATE')")
     public ProjectDTO updateProject(@PathVariable @Min(1) Long id ,@Valid @RequestBody ProjectDTO projectDTO) {
         return projectService.updateProject(id, projectDTO);
     }
@@ -85,6 +90,7 @@ public class ProjectController {
      * @param id the id of the project to delete, must be greater than or equal to 1
      */
     @DeleteMapping("/{id}/delete")
+    @PreAuthorize("hasAuthority('PROJECT_DELETE')")
     public void deleteProject(@PathVariable @Min(1) Long id) {
         projectService.deleteProject(id);
     }
