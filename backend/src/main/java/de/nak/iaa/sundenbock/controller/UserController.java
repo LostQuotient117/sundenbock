@@ -1,6 +1,5 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.config.security.CanManageUsers;
 import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
@@ -40,7 +39,7 @@ public class UserController {
      * @return a list of {@link UserDTO} representing all users
      */
     @GetMapping
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
     }
@@ -90,7 +89,7 @@ public class UserController {
      * @return the created {@link UserDetailDTO}
      */
     @PostMapping("/create")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public UserDetailDTO createUser(@Valid @RequestBody CreateUserDTO request) {
         return userService.createUser(request);
     }
@@ -101,7 +100,7 @@ public class UserController {
      * @param username the username of the user to delete
      */
     @DeleteMapping("/{username}/delete")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public void deleteUserByUsername(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
         userService.deleteUserByUsername(username);
     }
@@ -114,7 +113,7 @@ public class UserController {
      * @param request  the DTO containing the new password
      */
     @PutMapping("/{username}/reset-password")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public void adminResetPassword(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
                                    @Valid @RequestBody AdminResetPasswordDTO request) {
         userService.adminResetPassword(username, request);
@@ -127,7 +126,7 @@ public class UserController {
      * @param roleName the role name to assign
      */
     @PutMapping("/{username}/roles/{roleName}")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public void assignRoleToUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
                                  @PathVariable @NotBlank String roleName) {
         userService.assignRoleToUser(username, roleName);
@@ -140,7 +139,7 @@ public class UserController {
      * @param roleName the role name to remove
      */
     @DeleteMapping("/{username}/roles/{roleName}")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public void removeRoleFromUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
                                    @PathVariable @NotBlank String roleName) {
         userService.removeRoleFromUser(username, roleName);
@@ -153,7 +152,7 @@ public class UserController {
      * @param permissionName the permission name to assign
      */
     @PutMapping("/{username}/permissions/{permissionName}")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public void assignPermissionToUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
                                        @PathVariable @NotBlank String permissionName) {
         userService.assignPermissionToUser(username, permissionName);
@@ -166,7 +165,7 @@ public class UserController {
      * @param permissionName the permission name to remove
      */
     @DeleteMapping("/{username}/permissions/{permissionName}")
-    @CanManageUsers
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public void removePermissionFromUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
                                          @PathVariable @NotBlank String permissionName) {
         userService.removePermissionFromUser(username, permissionName);

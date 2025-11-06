@@ -1,6 +1,5 @@
 package de.nak.iaa.sundenbock.navigation;
 
-//import jakarta.persistence.Cacheable;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -20,27 +19,29 @@ public class NavigationRegistry {
                 .stream()
                 .map(Object::getClass)
                 .map(ClassUtils::getUserClass)
-                .map(this::toDescriptor)
+                .map(this::buildNavItemDTO)
                 .sorted(Comparator.comparing(NavItemDTO::label))
                 .toList();
     }
 
-    private NavItemDTO toDescriptor(Class<?> beanClass) {
-        var ann = beanClass.getAnnotation(NavItem.class);
-        var rolesFromAnn = Arrays.stream(ann.roles())
-                .map(RoleExtractor::normalizeRole)
-                .collect(Collectors.toSet());
-        var rolesFromSecurity = RoleExtractor.extractRequiredRoles(beanClass);
+    private NavItemDTO buildNavItemDTO(Class<?> beanClass) {
+        NavItem navItemAnnotation = beanClass.getAnnotation(NavItem.class);
 
-        var merged = new HashSet<String>();
-        merged.addAll(rolesFromAnn);
-        merged.addAll(rolesFromSecurity);
+        Set<String> permissionsFromAnn = Arrays.stream(navItemAnnotation.permissions())
+                .map(RoleExtractor::trimString)
+                .collect(Collectors.toSet());
+
+        Set<String> permissionsFromSecurity = RoleExtractor.extractRequiredPermissions(beanClass);
+
+        Set<String> mergedPermissions = new HashSet<>();
+        mergedPermissions.addAll(permissionsFromAnn);
+        mergedPermissions.addAll(permissionsFromSecurity);
 
         return new NavItemDTO(
-                ann.label(),
-                ann.path(),
-                ann.icon(),
-                Set.copyOf(merged)
+                navItemAnnotation.label(),
+                navItemAnnotation.path(),
+                navItemAnnotation.icon(),
+                Set.copyOf(mergedPermissions)
         );
     }
 
@@ -49,16 +50,21 @@ public class NavigationRegistry {
         return allItems;
     }
 
-    @Cacheable(value = "nav:byRoles", key = "T(java.lang.String).join(',', #roles)")
-    public List<NavItemDTO> getForRoles(Collection<String> roles) {
-        var set = roles.stream().map(RoleExtractor::normalizeRole).collect(Collectors.toSet());
+    @Cacheable(value = "nav:byPermissions", key = "T(java.lang.String).join(',', #permissions)")
+    public List<NavItemDTO> getForPermissions(Collection<String> permissions) {
+        Set<String> userPermissions = Set.copyOf(permissions);
         return allItems.stream()
-                .filter(i -> i.requiredRoles().isEmpty() || intersects(i.requiredRoles(), set))
+                .filter(i -> i.requiredPermissions().isEmpty() ||
+                        hasCommonElements(i.requiredPermissions(), userPermissions))
                 .toList();
     }
 
-    private static boolean intersects(Set<String> a, Set<String> b) {
-        for (var x : a) if (b.contains(x)) return true;
+    private static boolean hasCommonElements(Set<String> requiredPermissions, Set<String> userPermissions) {
+        for (String requiredPerm : requiredPermissions) {
+            if (userPermissions.contains(requiredPerm)) {
+                return true;
+            }
+        }
         return false;
     }
 }

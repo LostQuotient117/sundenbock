@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
-        var mgr = new CaffeineCacheManager("nav:all", "nav:byRoles");
+        var mgr = new CaffeineCacheManager("nav:all", "nav:byPermissions");
         mgr.setCaffeine(Caffeine.newBuilder()
                 .maximumSize(500)
                 .expireAfterWrite(10, TimeUnit.MINUTES));
