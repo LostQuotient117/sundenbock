@@ -6,12 +6,16 @@ import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.project.Project;
+import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
 /**
  * Service class for managing {@link Project} entities.
@@ -36,16 +40,23 @@ public class ProjectService {
         this.projectMapper = projectMapper;
     }
 
-    /**
-     * Returns all existing projects as a list of {@link ProjectDTO}.
-     *
-     * @return list of all projects in DTO representation
-     */
     @Transactional(readOnly = true)
-    public List<ProjectDTO> getProjects() {
-        return projectRepository.findAll().stream()
-                .map(projectMapper::toProjectDTO)
-                .collect(Collectors.toList());
+    public Page<Project> search(String query, Pageable pageable) {
+        Specification<Project> spec = null;
+
+        if (StringUtils.hasText(query)) {
+            String like = "%" + query.toLowerCase() + "%";
+            spec = (root, cq, cb) -> {
+                Join<Project, User> creator = root.join("createdBy", JoinType.LEFT);
+                return cb.or(
+                        cb.like(cb.lower(root.get("title")), like),
+                        cb.like(cb.lower(root.get("description")), like),
+                        cb.like(cb.lower(creator.get("username")), like)
+                );
+            };
+        }
+
+        return projectRepository.findAll(spec, pageable);
     }
 
     /**

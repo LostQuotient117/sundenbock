@@ -5,6 +5,8 @@ import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import org.mapstruct.*;
 
+import java.util.List;
+
 /**
  * MapStruct mapper responsible for converting between {@link Ticket} entities and their DTO
  * representations.
@@ -51,4 +53,6 @@ public interface TicketMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
     void updateTicketFromDTO(TicketDTO ticketDTO, @MappingTarget Ticket existingTicket);
+
+    List<TicketDTO> toTicketDTOs(List<Ticket> ticket);
 }

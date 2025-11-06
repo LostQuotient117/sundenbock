@@ -1,18 +1,25 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.annotation.NavItem;
+import de.nak.iaa.sundenbock.dto.PageDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
-import de.nak.iaa.sundenbock.annotation.NavItem;
+import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
+import de.nak.iaa.sundenbock.pageable.PageableFactory;
+import de.nak.iaa.sundenbock.repository.TicketRepository;
 import de.nak.iaa.sundenbock.service.CommentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * REST controller exposing operations for managing comments that belong to a ticket.
@@ -31,26 +38,45 @@ import java.util.Objects;
 public class CommentController {
 
     private final CommentService commentService;
+    private final PageableFactory pageableFactory;
+    private final TicketRepository  ticketRepository;
+
+    private static final Map<String, String> SORT_ALIAS = Map.of("createdOn", "createdDate",
+                                                                "author", "createdBy.username");
+
+    private static final Set<String> SORT_WHITELIST = Set.of("createdDate", "lastModifiedDate", "likes", "dislikes", "commentText", "createdBy.username");
 
     /**
      * Creates a new instance of the controller.
      *
      * @param commentService service handling the comment business logic
      */
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, PageableFactory pageableFactory, TicketRepository ticketRepository) {
         this.commentService = commentService;
+        this.pageableFactory = pageableFactory;
+        this.ticketRepository = ticketRepository;
     }
 
-    /**
-     * Retrieves all comments for a given ticket.
-     *
-     * @param ticketId the id of the ticket, must be greater than or equal to 1
-     * @return list of comments for the specified ticket as {@link CommentDTO}
-     */
     @GetMapping
     @PreAuthorize("hasAuthority('TICKET_READ_ALL') or @customSecurityService.canAccessTicket(#ticketId, authentication)")
-    public List<CommentDTO> getCommentsByTicket(@PathVariable @Min(1) Long ticketId) {
-         return commentService.getCommentsByTicketId(ticketId);
+    public PageDTO<CommentDTO> getPagedCommentsWithReplies(
+            @PathVariable Long ticketId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String sort
+    ) {
+        if (!ticketRepository.existsById(ticketId)) {
+            throw new ResourceNotFoundException("Associated ticket not found with id " + ticketId);
+        }
+        Pageable pageable = pageableFactory.createPageable(page, pageSize, sort, SORT_WHITELIST, SORT_ALIAS);
+        Page<CommentDTO> commentPage = commentService.getPagedCommentsWithReplies(ticketId, pageable);
+
+        return PageDTO.of(
+                commentPage.getContent(),
+                commentPage.getTotalElements(),
+                page,
+                pageSize
+        );
     }
 
     /**

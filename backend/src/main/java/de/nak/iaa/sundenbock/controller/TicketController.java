@@ -1,18 +1,25 @@
 package de.nak.iaa.sundenbock.controller;
 
+import de.nak.iaa.sundenbock.dto.PageDTO;
+import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
+import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
+import de.nak.iaa.sundenbock.pageable.PageableFactory;
 import de.nak.iaa.sundenbock.service.TicketService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * REST controller exposing CRUD operations for tickets.
@@ -30,25 +37,35 @@ import java.util.Objects;
 @Validated
 public class TicketController {
     private final TicketService ticketService;
+    private final TicketMapper ticketMapper;
+    private final PageableFactory pageableFactory;
+
+    private static final Map<String,String> SORT_ALIAS = Map.of("createdOn","createdDate",
+                                                                    "creator", "createdBy.username");
+    private static final Set<String> SORT_WHITELIST = Set.of("createdDate","lastModifiedDate","title","status", "createdBy.username");
 
     /**
      * Creates a new instance of the controller.
      *
      * @param ticketService service handling the ticket business logic
      */
-    public TicketController(TicketService ticketService) {
+    public TicketController(TicketService ticketService, TicketMapper ticketMapper, PageableFactory pageableFactory) {
         this.ticketService = ticketService;
+        this.ticketMapper = ticketMapper;
+        this.pageableFactory = pageableFactory;
     }
 
-    /**
-     * Retrieves all tickets.
-     *
-     * @return list of all existing tickets as {@link TicketDTO}
-     */
     @GetMapping
     @PreAuthorize("hasAuthority('TICKET_READ_ALL')")
-    public List<TicketDTO> getTickets() {
-        return ticketService.getTickets();
+    public PageDTO<TicketDTO> getTickets(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String sort
+    ) {
+        Pageable pageable = pageableFactory.createPageable(page, pageSize, sort, SORT_WHITELIST, SORT_ALIAS);
+        Page<Ticket> p = ticketService.search(search, pageable);
+        return PageDTO.of(ticketMapper.toTicketDTOs(p.getContent()), p.getTotalElements(), page, pageSize);
     }
 
     /**

@@ -5,6 +5,8 @@ import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.model.project.Project;
 import org.mapstruct.Mapper;
 
+import java.util.List;
+
 /**
  * MapStruct mapper for converting between {@link Project} entities and their DTO representations.
  * <p>
@@ -32,4 +34,6 @@ public interface ProjectMapper {
      * @return a new {@link Project} populated from the DTO or {@code null} if the input was {@code null}
      */
     Project toProjectForCreate(CreateProjectDTO createProjectDTO);
+
+    List<ProjectDTO> toProjectDTOs(List<Project> projects);
 }
