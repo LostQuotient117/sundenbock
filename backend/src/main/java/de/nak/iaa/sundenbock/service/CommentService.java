@@ -8,13 +8,15 @@ import de.nak.iaa.sundenbock.model.comment.Comment;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.repository.CommentRepository;
 import de.nak.iaa.sundenbock.repository.TicketRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing {@link Comment} entities and their hierarchy.
@@ -109,35 +111,25 @@ public class CommentService{
         return commentMapper.toCommentDTO(existingComment);
     }
 
-    /**
-     * Returns all comments for a given ticket as a nested structure.
-     * <p>
-     * Only top-level comments (without a parent) are returned directly; their reply trees
-     * are populated recursively so that the mapping to DTOs contains full hierarchies.
-     * </p>
-     *
-     * @param ticketId the ID of the ticket whose comments should be retrieved
-     * @return a list of top-level comments as {@link CommentDTO}s with populated replies
-     * @throws ResourceNotFoundException if no ticket exists with the given ID
-     */
     @Transactional(readOnly = true)
-    public List<CommentDTO> getCommentsByTicketId(Long ticketId) {
+    public Page<CommentDTO> getPagedCommentsWithReplies(Long ticketId, Pageable pageable) {
         if (!ticketRepository.existsById(ticketId)) {
-            throw new ResourceNotFoundException("Associated ticket not found with id " + ticketId);
+            throw new ResourceNotFoundException("Ticket not found with id " + ticketId);
         }
-        List<Comment> allComments = commentRepository.findByTicketId(ticketId);
 
-        List<Comment> topLevelComments = allComments.stream()
-                .filter(c -> c.getParentComment() == null)
-                .toList();
+        Page<Comment> topLevelPage = commentRepository.findByTicketIdAndParentCommentIsNull(ticketId, pageable);
 
+        List<Comment> topLevelComments = topLevelPage.getContent();
         Set<Long> visited = new HashSet<>();
         topLevelComments.forEach(c -> buildRepliesTree(c, visited));
 
-        return topLevelComments.stream()
+        List<CommentDTO> dtos = topLevelComments.stream()
                 .map(commentMapper::toCommentDTO)
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, topLevelPage.getTotalElements());
     }
+
 
     private void buildRepliesTree(Comment comment, Set<Long> visited) {
         if (!visited.add(comment.getId())) return;
