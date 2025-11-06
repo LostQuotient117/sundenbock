@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
+import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.CommentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * REST controller exposing operations for managing comments that belong to a ticket.
@@ -69,8 +71,12 @@ public class CommentController {
      */
     @PutMapping("/{commentId}/update")
     @PreAuthorize("hasAuthority('COMMENT_UPDATE') or @customSecurityService.isCommentOwner(#commentId, authentication)")
-    public CommentDTO updateComment(@Valid @RequestBody CommentDTO commentDTO){
-        return commentService.updateComment(commentDTO);
+    public CommentDTO updateComment(@PathVariable @Min(1) Long commentId, @Valid @RequestBody CommentDTO commentDTO){
+        if (Objects.equals(commentId, commentDTO.id())) {
+            return commentService.updateComment(commentDTO);
+        } else {
+            throw new MismatchedIdException("Path variable 'commentId' = " + commentId + " does not match 'id' = " + commentDTO.id() +" in request body");
+        }
     }
 
     /**

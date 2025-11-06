@@ -3,8 +3,7 @@ package de.nak.iaa.sundenbock.dto.mapper;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 /**
  * MapStruct mapper responsible for converting between {@link Ticket} entities and their DTO
@@ -45,5 +44,11 @@ public interface TicketMapper {
      * @param ticketDTO      the source DTO (may be {@code null})
      * @param existingTicket the target entity to update; must not be {@code null}
      */
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
     void updateTicketFromDTO(TicketDTO ticketDTO, @MappingTarget Ticket existingTicket);
 }

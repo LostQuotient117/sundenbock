@@ -3,9 +3,7 @@ package de.nak.iaa.sundenbock.dto.mapper;
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.model.comment.Comment;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 /**
  * MapStruct mapper for converting between {@link Comment} entities and DTOs.
@@ -54,6 +52,15 @@ public interface CommentMapper {
      * @param dto    the source DTO (may be {@code null})
      * @param entity the target entity to update; must not be {@code null}
      */
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "ticket", ignore = true)
+    @Mapping(target = "parentComment", ignore = true)
+    @Mapping(target = "childComments", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
     void updateCommentFromDTO(CommentDTO dto, @MappingTarget Comment entity);
 
 }
