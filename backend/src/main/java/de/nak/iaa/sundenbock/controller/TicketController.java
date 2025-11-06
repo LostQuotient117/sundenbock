@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
+import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.TicketService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * REST controller exposing CRUD operations for tickets.
@@ -81,7 +83,11 @@ public class TicketController {
     @PutMapping("/{id}/update")
     @PreAuthorize("@customSecurityService.canUpdateTicket(#id, authentication)")
     public TicketDTO updateTicket(@PathVariable @Min(1) Long id, @Valid @RequestBody TicketDTO ticketDTO) {
-        return ticketService.updateTicket(id, ticketDTO);
+        if (Objects.equals(ticketDTO.id(), id)) {
+            return ticketService.updateTicket(id, ticketDTO);
+        } else {
+            throw new MismatchedIdException("Path variable 'id' = " + id + " does not match 'id' = " + ticketDTO.id() + "in request body");
+        }
     }
 
     /**

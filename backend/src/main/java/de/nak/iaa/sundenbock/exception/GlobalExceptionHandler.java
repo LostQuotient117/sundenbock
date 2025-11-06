@@ -265,4 +265,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Handles {@link MismatchedIdException} (HTTP 400).
+     * <p>
+     * Thrown when the resource identifier in the URL/path does not match the identifier
+     * provided in the request body or parameters. This safeguards against accidental or
+     * malicious updates by enforcing ID consistency across request components.
+     *
+     * @param ex the caught {@link MismatchedIdException}
+     * @return a {@link ResponseEntity} with HTTP 400 (Bad Request) and a descriptive error body
+     */
+    @ExceptionHandler(MismatchedIdException.class)
+    public ResponseEntity<Object> handleMismatchedIdException(MismatchedIdException ex) {
+        Map<String, Object> body = Map.of(
+                "timestamp", System.currentTimeMillis(),
+                "status", HttpStatus.BAD_REQUEST.value(),
+                "error", "Bad Request",
+                "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
 }

@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
+import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.ProjectService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * REST controller exposing CRUD operations for projects.
@@ -81,7 +83,11 @@ public class ProjectController {
     @PutMapping("/{id}/update")
     @PreAuthorize("hasAuthority('PROJECT_UPDATE')")
     public ProjectDTO updateProject(@PathVariable @Min(1) Long id ,@Valid @RequestBody ProjectDTO projectDTO) {
-        return projectService.updateProject(id, projectDTO);
+        if (Objects.equals(projectDTO.id(), id)) {
+            return projectService.updateProject(id, projectDTO);
+        } else {
+            throw new MismatchedIdException("Path variable 'id' = " + id + " does not match 'id' = " + projectDTO.id() +" in request body");
+        }
     }
 
     /**
