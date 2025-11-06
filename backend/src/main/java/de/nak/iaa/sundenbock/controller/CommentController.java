@@ -2,7 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
-import de.nak.iaa.sundenbock.navigation.NavItem;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.CommentService;
 import jakarta.validation.Valid;

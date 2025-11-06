@@ -5,7 +5,7 @@ import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
-import de.nak.iaa.sundenbock.navigation.NavItem;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.service.AuthenticationService;
 import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;

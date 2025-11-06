@@ -4,7 +4,7 @@ import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
-import de.nak.iaa.sundenbock.navigation.NavItem;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

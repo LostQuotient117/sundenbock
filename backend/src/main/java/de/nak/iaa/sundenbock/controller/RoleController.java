@@ -2,7 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
-import de.nak.iaa.sundenbock.navigation.NavItem;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.service.RoleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

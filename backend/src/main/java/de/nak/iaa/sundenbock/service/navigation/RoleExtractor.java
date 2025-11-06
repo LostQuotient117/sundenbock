@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.navigation;
+package de.nak.iaa.sundenbock.service.navigation;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;

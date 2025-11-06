@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
-import de.nak.iaa.sundenbock.navigation.NavItem;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.service.PermissionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

@@ -2,7 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
-import de.nak.iaa.sundenbock.navigation.NavItem;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.TicketService;
 import jakarta.validation.Valid;
