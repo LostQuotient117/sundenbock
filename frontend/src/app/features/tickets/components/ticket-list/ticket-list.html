@@ -6,7 +6,7 @@
         <th>Titel</th>
         <th>Status</th>
         <th>Projekt</th>
-        <th>Autor</th>
+        <th>Responsible</th>
         <th>Erstellt am</th>
       </tr>
     </thead>
@@ -28,7 +28,7 @@
             </span>
           </td>
           <td>{{ t.project?.title || '-' }}</td>
-          <td>{{ t.author?.username || '-' }}</td>
+          <td>{{ t.responsiblePerson?.username || '-' }}</td>
           <td>{{ t.createdOn | date: 'short' }}</td>
         </tr>
       }
