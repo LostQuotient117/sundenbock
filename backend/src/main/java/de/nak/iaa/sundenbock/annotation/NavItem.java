@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.navigation;
+package de.nak.iaa.sundenbock.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
