@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UpdateUserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
@@ -69,17 +70,19 @@ public class UserController {
     }
 
     /**
-     * Updates a user's details.
+     * Updates an existing user (partial update).
+     * Only fields provided in the request body will be updated (email / enabled).
+     * The 'username' cannot be changed.
      *
-     * @param username      the username of the user to update
-     * @param userDetailDTO the new user details
-     * @return the updated {@link UserDetailDTO}
+     * @param username  The username of the user to update.
+     * @param updateDto The DTO with fields to update.
+     * @return The fully updated UserDetailDTO.
      */
     @PutMapping("/{username}/update")
-    @PreAuthorize("@customSecurityService.canAccessUser(#username, authentication)")
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
     public UserDetailDTO updateUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username,
-                                    @Valid  @RequestBody UserDetailDTO userDetailDTO) {
-        return userService.updateUser(username, userDetailDTO);
+                                    @Valid @RequestBody UpdateUserDTO updateDto) {
+        return userService.updateUser(username, updateDto);
     }
 
     /**
