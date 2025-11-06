@@ -4,6 +4,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TokenService } from '../../../core/auth/token.service';
+//import { TranslocoPipe } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -14,8 +16,8 @@ import { TokenService } from '../../../core/auth/token.service';
 export class Login {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
-  private tokenService = inject(TokenService);
   private router = inject(Router);
+  currentYear = new Date().getFullYear();
 
   submitting = signal(false);
   serverError = signal<string | null>(null);
@@ -34,11 +36,18 @@ export class Login {
     const { username, password, rememberMe } = this.form.getRawValue();
 
     try {
-      const res = await this.auth.login({ username: username!, password: password! }).toPromise();
-      if (!res?.token) throw new Error('Kein Token erhalten.');
-      this.tokenService.setToken(res.token, !!rememberMe);
+      const res = await firstValueFrom(
+        this.auth.login({ username: username!, password: password! })
+      );
+
+      const token = res.accessToken ?? (res as any).token;
+      if (!token) throw new Error('Kein Token erhalten.');
+
+      this.auth.setToken(token); // nutzt jetzt zentral den AuthService
+
       await this.router.navigateByUrl('/');
     } catch (err: any) {
+      console.error('[Login Error]', err);
       this.serverError.set(err?.error?.message || err?.message || 'Login fehlgeschlagen');
     } finally {
       this.submitting.set(false);

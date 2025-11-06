@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiBaseUrl: '/api', 
+  apiBaseUrl: '/api/v1', 
   featureFlags: { debug: true }
 };
