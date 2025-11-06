@@ -40,6 +40,11 @@ public class RoleService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Retrieves all existing roles as a list of {@link RoleDTO}.
+     *
+     * @return a list of all roles
+     */
     @Transactional(readOnly = true)
     public List<RoleDTO> getAllRoles() {
         return roleRepository.findAll().stream()
@@ -47,6 +52,16 @@ public class RoleService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates a new role with the specified permissions.
+     * <p>
+     * Throws {@link DuplicateResourceException} if a role with the same name already exists.
+     * Throws {@link ResourceNotFoundException} if any specified permission does not exist.
+     * </p>
+     *
+     * @param createRoleDTO the DTO containing role name and permissions
+     * @return the created {@link RoleDTO}
+     */
     @Transactional
     public RoleDTO createRole(CreateRoleDTO createRoleDTO) {
 
@@ -65,6 +80,15 @@ public class RoleService {
         return roleMapper.toRoleDTO(savedRole);
     }
 
+    /**
+     * Updates the permissions assigned to an existing role.
+     * <p>
+     * Throws {@link ResourceNotFoundException} if the role or any specified permission does not exist.
+     * </p>
+     *
+     * @param roleId          the ID of the role to update
+     * @param permissionNames the set of permission names to assign to the role
+     */
     @Transactional
     public void updateRolePermissions(Long roleId, Set<String> permissionNames) {
         Role role = roleRepository.findById(roleId)
@@ -78,14 +102,14 @@ public class RoleService {
     }
 
     /**
-     * Deletes a role by its ID, only if it is not currently in use.
+     * Deletes a role by its ID, only if it is not currently in use and not a core system role.
      * <p>
-     * Prevents deletion of the "ROLE_ADMIN" and "ROLE_USER" to protect system integrity.
+     * Throws {@link ResourceNotFoundException} if the role does not exist.
+     * Throws {@link RoleInUseException} if the role is assigned to any users.
+     * Throws {@link SelfActionException} if an attempt is made to delete core roles like ROLE_ADMIN or ROLE_USER.
+     * </p>
      *
-     * @param roleId The ID of the role to delete.
-     * @throws ResourceNotFoundException if the role does not exist.
-     * @throws RoleInUseException        if the role is assigned to any Users.
-     * @throws SelfActionException       if an attempt is made to delete core roles.
+     * @param roleId the ID of the role to delete
      */
     @Transactional
     public void deleteRole(Long roleId) {

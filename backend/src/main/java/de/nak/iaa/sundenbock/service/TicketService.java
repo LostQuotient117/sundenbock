@@ -49,6 +49,19 @@ public class TicketService {
         this.projectRepository = projectRepository;
     }
 
+    /**
+     * Searches tickets by a free-text query across multiple fields.
+     * <p>
+     * If {@code query} is provided (non-null and non-empty), a case-insensitive LIKE
+     * filter is applied to the following attributes: ticket title, description, status,
+     * responsible person's username, project's title, and creator's username. If the
+     * {@code query} is blank, all tickets are returned paginated.
+     * </p>
+     *
+     * @param query    optional free-text filter; when blank, no filtering is applied
+     * @param pageable pagination and sorting information
+     * @return a {@link Page} of {@link Ticket} entities matching the filter
+     */
     @Transactional(readOnly = true)
     public Page<Ticket> search(String query, Pageable pageable) {
         Specification<Ticket> spec = null;

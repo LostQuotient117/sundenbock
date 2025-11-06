@@ -11,9 +11,33 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Factory for creating validated {@link Pageable} instances from request parameters.
+ * <p>
+ * Applies basic validation (page/size bounds) and a whitelist for sortable fields.
+ * Also supports simple aliasing of sort fields and direction parsing (asc/desc).
+ * </p>
+ */
 @Component
 public class PageableFactory {
 
+    /**
+     * Builds a {@link Pageable} from paging/sorting inputs.
+     * <p>
+     * If no sort is provided, sorts by {@code createdDate} descending. Validates that the requested
+     * sort field is in the provided whitelist (after alias resolution) and that the direction is
+     * either {@code asc} or {@code desc}. Throws {@link ResponseStatusException} with 400 status on
+     * invalid inputs.
+     * </p>
+     *
+     * @param page          zero-based page index (must be >= 0)
+     * @param size          page size (1..100)
+     * @param sort          optional sort string in the form {@code <field>:<asc|desc>}
+     * @param sortWhitelist set of allowed sort fields (after alias mapping)
+     * @param sortAlias     mapping of client-facing field names to entity property names
+     * @return a {@link Pageable} applying the requested paging and sorting
+     * @throws ResponseStatusException if inputs are invalid
+     */
     public Pageable createPageable(int page, int size, String sort,
                                    Set<String> sortWhitelist,
                                    Map<String, String> sortAlias) {

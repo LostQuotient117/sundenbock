@@ -13,6 +13,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
+/**
+ * Abstract base class for entities that need auditing information.
+ * <p>
+ * Tracks the creation and last modification timestamps, as well as
+ * the users responsible for creating and last modifying the entity.
+ * This class is meant to be extended by JPA entities that require auditing.
+ * </p>
+ */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @Getter

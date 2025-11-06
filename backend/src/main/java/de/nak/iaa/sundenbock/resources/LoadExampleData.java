@@ -4,6 +4,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+/**
+ * Component responsible for loading example data into the application.
+ * <p>
+ * This class implements CommandLineRunner and executes data loading
+ * routines on application startup, but only when the datasource URL
+ * is configured for an in-memory H2 database.
+ * </p>
+ */
 @Component
 @ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:h2:mem:mydb")
 public class LoadExampleData implements CommandLineRunner {

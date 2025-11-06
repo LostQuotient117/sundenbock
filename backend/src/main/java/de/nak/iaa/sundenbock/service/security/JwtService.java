@@ -111,14 +111,32 @@ public class JwtService {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
+    /**
+     * Checks if the given JWT token has expired.
+     *
+     * @param token the JWT token to check
+     * @return true if the token is expired, false otherwise
+     */
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
+    /**
+     * Extracts the expiration date from the given JWT token.
+     *
+     * @param token the JWT token
+     * @return the expiration date of the token
+     */
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    /**
+     * Extracts all claims from the given JWT token.
+     *
+     * @param token the JWT token
+     * @return all claims contained in the token
+     */
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignInKey())
@@ -127,6 +145,11 @@ public class JwtService {
                 .getPayload();
     }
 
+    /**
+     * Returns the secret key used for signing and verifying JWT tokens.
+     *
+     * @return the secret key
+     */
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secretKey());
         return Keys.hmacShaKeyFor(keyBytes);

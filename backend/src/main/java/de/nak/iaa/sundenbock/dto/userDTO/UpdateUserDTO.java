@@ -4,8 +4,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO for updating a User via PUT.
- * Converted to a record for consistency and immutability.
+ * Data Transfer Object (DTO) used for updating a user's information.
+ * <p>
+ * Contains the user's email and enabled status. The email must be valid
+ * and no longer than 255 characters.
+ * </p>
  */
 public record UpdateUserDTO(
         @Email(message = "Email should be valid")

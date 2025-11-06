@@ -47,11 +47,21 @@ public class NavigationRegistry {
         );
     }
 
+    /**
+     * Returns the full navigation tree (cached).
+     * @return immutable list of all navigation items
+     */
     @Cacheable("nav:all")
     public List<NavItemDTO> getAll() {
         return allItems;
     }
 
+    /**
+     * Returns navigation items visible for the given set of permissions (cached per key).
+     *
+     * @param permissions caller permissions; used to filter required permissions
+     * @return immutable list of allowed navigation items
+     */
     @Cacheable(value = "nav:byPermissions", key = "T(java.lang.String).join(',', #permissions)")
     public List<NavItemDTO> getForPermissions(Collection<String> permissions) {
         Set<String> userPermissions = Set.copyOf(permissions);
