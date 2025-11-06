@@ -81,7 +81,7 @@ public final class RoleExtractor {
         return Stream.concat(roleStream, authorityStream).collect(toSet());
     }
 
-    public static Set<String> extractFromMethods(Class<?> type) {
+    private static Set<String> extractFromMethods(Class<?> type) {
         return Stream.of(type.getDeclaredMethods())
                 .flatMap(method -> {
                     Stream<String> permissionsFromPre = extractFromPreAuthorize(method.getAnnotation(PreAuthorize.class)).stream();
@@ -102,7 +102,7 @@ public final class RoleExtractor {
         return text.replaceAll("^['\"]|['\"]$", "");
     }
 
-    public static String normalizeRole(String roleString) {
+    private static String normalizeRole(String roleString) {
         String role = roleString.trim();
         if (role.startsWith("ROLE_")) role = role.substring(5);
         return role;
