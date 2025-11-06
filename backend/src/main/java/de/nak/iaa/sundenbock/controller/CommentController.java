@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
+import de.nak.iaa.sundenbock.navigation.NavItem;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.CommentService;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.Objects;
  * {@link Min} ensure positive identifiers.
  * </p>
  */
+@NavItem(label = "Comments", path = "/comments", icon = "comment")
 @RestController
 @RequestMapping("/api/v1/tickets/{ticketId}/comments")
 @Validated

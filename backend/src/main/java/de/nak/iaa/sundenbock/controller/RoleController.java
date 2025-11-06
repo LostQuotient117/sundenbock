@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.controller;
 import de.nak.iaa.sundenbock.config.security.CanManageRoles;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
+import de.nak.iaa.sundenbock.navigation.NavItem;
 import de.nak.iaa.sundenbock.service.RoleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -17,6 +18,7 @@ import java.util.Set;
  * <p>
  * Exposes endpoints to list roles, create new roles and update a role's permissions.
  */
+@NavItem(label = "Roles", path = "/roles", icon = "role")
 @RestController
 @RequestMapping("/api/v1/roles")
 @Validated

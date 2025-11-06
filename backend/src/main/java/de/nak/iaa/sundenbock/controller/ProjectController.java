@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
+import de.nak.iaa.sundenbock.navigation.NavItem;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.ProjectService;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.Objects;
  * {@link Min} ensure positive identifiers.
  * </p>
  */
+@NavItem(label = "Projects", path = "/projects", icon = "project")
 @RestController
 @RequestMapping("api/v1/projects")
 @Validated

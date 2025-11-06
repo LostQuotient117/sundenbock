@@ -5,6 +5,7 @@ import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
+import de.nak.iaa.sundenbock.navigation.NavItem;
 import de.nak.iaa.sundenbock.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +22,7 @@ import java.util.List;
  * Includes endpoints for listing users, retrieving details, creating, updating, deleting users,
  * and managing roles/permissions assigned to users.
  */
+@NavItem(label = "Users", path = "/users", icon = "User")
 @RestController
 @RequestMapping("/api/v1/users")
 @Validated
