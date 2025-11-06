@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UpdateUserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
@@ -65,42 +66,33 @@ public class UserService {
     }
 
     /**
-     * Updates an existing user's details.
-     * This method resolves the sets of role and permission *names* (Strings) from the DTO
-     * into managed JPA entities and overwrites the user's associations.
+     * Updates an existing user specified by username.
+     * This method performs a partial update (a "merge") of mutable fields.
+     * Only non-null fields (email, enabled) from the updateDto will be applied.
+     * The 'username' is immutable and cannot be changed.
      *
-     * @param username      The username of the user to update.
-     * @param userDetailDTO The DTO containing the new data (email, enabled, roles, permissions).
-     * @return The updated UserDetailDTO.
-     * @throws ResourceNotFoundException if the user, a role, or a permission is not found.
+     * @param username  The username of the user to update.
+     * @param updateDto The DTO containing the fields to update.
+     * @return The updated, saved User as a UserDetailDTO.
      */
     @Transactional
-    public UserDetailDTO updateUser(String username, UserDetailDTO userDetailDTO) {
+    public UserDetailDTO updateUser(String username, UpdateUserDTO updateDto) {
+
         User user = findUserByUsername(username);
 
-        user.setEmail(userDetailDTO.email());
-        user.setEnabled(userDetailDTO.enabled());
-
-        if (isCurrentUser(username) && userDetailDTO.roles().isEmpty()) {
-            throw new SelfActionException("You cannot remove all roles from your own account.");
+        if (updateDto.getEmail() != null && !updateDto.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(updateDto.getEmail())) {
+                throw new DuplicateResourceException("Email " + updateDto.getEmail() + " is already in use.");
+            }
+            user.setEmail(updateDto.getEmail());
         }
 
-        Set<Role> roles = userDetailDTO.roles().stream()
-                .map(this::findRoleByName)
-                .collect(Collectors.toSet());
-        user.setRoles(roles);
-
-        Set<Permission> permissions = userDetailDTO.permissions().stream()
-                .map(this::findPermissionByName)
-                .collect(Collectors.toSet());
-        user.setPermissions(permissions);
-
-        if (user.getRoles().isEmpty()) {
-            user.getRoles().add(getDefaultUserRole());
+        if (updateDto.getEnabled() != null) {
+            user.setEnabled(updateDto.getEnabled());
         }
 
-        User updatedUser = userRepository.save(user);
-        return userMapper.toUserDetailDTO(updatedUser);
+        User savedUser = userRepository.save(user);
+        return userMapper.toUserDetailDTO(savedUser);
     }
 
     /**
