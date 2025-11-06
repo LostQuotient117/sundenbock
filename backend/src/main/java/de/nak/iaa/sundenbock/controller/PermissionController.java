@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.config.security.CanManageRoles;
 import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
+import de.nak.iaa.sundenbock.navigation.NavItem;
 import de.nak.iaa.sundenbock.service.PermissionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +16,7 @@ import java.util.List;
  * <p>
  * Exposes endpoints to list all permissions and to create new permissions.
  */
+@NavItem(label = "Permissions", path = "/permissions", icon = "permission")
 @RestController
 @RequestMapping("/api/v1/permissions")
 @Validated

@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
+import de.nak.iaa.sundenbock.navigation.NavItem;
 import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.service.TicketService;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.Objects;
  * {@link Min} ensure positive identifiers.
  * </p>
  */
+@NavItem(label = "Tickets", path = "/tickets", icon = "ticket")
 @RestController
 @RequestMapping("/api/v1/tickets")
 @Validated
