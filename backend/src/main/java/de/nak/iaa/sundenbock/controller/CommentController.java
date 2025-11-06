@@ -59,8 +59,12 @@ public class CommentController {
      */
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('COMMENT_CREATE') or @customSecurityService.canAccessTicket(#ticketId, authentication)")
-    public CommentDTO createComment(@Valid @RequestBody CreateCommentDTO createCommentDTO) {
-        return commentService.createComment(createCommentDTO);
+    public CommentDTO createComment(@PathVariable @Min(1) Long ticketId,@Valid @RequestBody CreateCommentDTO createCommentDTO) {
+        if (Objects.equals(ticketId, createCommentDTO.ticketId())) {
+            return commentService.createComment(createCommentDTO);
+        } else {
+            throw new MismatchedIdException("Path variable 'ticketId' = " + ticketId + "does not match 'ticketId = " + createCommentDTO.ticketId() + " in request body");
+        }
     }
 
     /**
