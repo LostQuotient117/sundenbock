@@ -9,6 +9,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+/**
+ * Repository for {@link Comment} entities.
+ * <p>
+ * Provides CRUD operations, Specifications for filtering, and several native
+ * queries to manage hierarchical comment relations.
+ * </p>
+ */
 public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
 
     /**
@@ -35,5 +42,12 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
     @Query(value = "DELETE FROM comment WHERE id = :id", nativeQuery = true)
     void deleteByIdQuery(@Param("id") Long id);
 
+    /**
+     * Retrieves a page of top-level comments (no parent) for the given ticket.
+     *
+     * @param ticketId the ID of the ticket
+     * @param pageable pagination information
+     * @return a page of top-level comments for the ticket
+     */
     Page<Comment> findByTicketIdAndParentCommentIsNull(Long ticketId, Pageable pageable);
 }

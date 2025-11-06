@@ -111,6 +111,16 @@ public class CommentService{
         return commentMapper.toCommentDTO(existingComment);
     }
 
+    /**
+     * Retrieves a paged list of top-level comments for a given ticket, including their nested replies.
+     * <p>
+     * Throws {@link ResourceNotFoundException} if the ticket with the specified ID does not exist.
+     * </p>
+     *
+     * @param ticketId the ID of the ticket
+     * @param pageable pagination information
+     * @return a page of {@link CommentDTO} objects representing top-level comments and their replies
+     */
     @Transactional(readOnly = true)
     public Page<CommentDTO> getPagedCommentsWithReplies(Long ticketId, Pageable pageable) {
         if (!ticketRepository.existsById(ticketId)) {
@@ -130,7 +140,12 @@ public class CommentService{
         return new PageImpl<>(dtos, pageable, topLevelPage.getTotalElements());
     }
 
-
+    /**
+     * Recursively builds the tree of replies for a given comment, avoiding cycles.
+     *
+     * @param comment the comment to process
+     * @param visited a set of comment IDs already visited to prevent infinite recursion
+     */
     private void buildRepliesTree(Comment comment, Set<Long> visited) {
         if (!visited.add(comment.getId())) return;
 

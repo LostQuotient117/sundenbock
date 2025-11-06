@@ -6,6 +6,14 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
+/**
+ * Data Transfer Object (DTO) used for creating a new user.
+ * <p>
+ * Contains the username, email, password, and a set of roles for the new user.
+ * The username must be between 3 and 50 characters, the email must be valid,
+ * and the password must be at least 6 characters long.
+ * </p>
+ */
 public record CreateUserDTO(
         @NotBlank(message = "Username must not be empty")
         @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")

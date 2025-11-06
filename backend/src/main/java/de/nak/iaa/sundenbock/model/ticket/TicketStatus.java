@@ -16,21 +16,10 @@ package de.nak.iaa.sundenbock.model.ticket;
  * </p>
  */
 public enum TicketStatus {
-    /** Newly created, not yet triaged. */
     CREATED,
-
-    /** Reopened after being resolved or closed. */
     REOPENED,
-
-    /** Actively being worked on. */
     IN_PROGRESS,
-
-    /** Solution implemented; pending verification (e.g., QA or reviewer). */
     RESOLVED,
-
-    /** Marked as won't fix or invalid. */
     REJECTED,
-
-    /** Verified and finalized; no further work planned. */
     CLOSED
 }

@@ -40,6 +40,17 @@ public class ProjectService {
         this.projectMapper = projectMapper;
     }
 
+    /**
+     * Searches projects by a free-text query across multiple fields.
+     * <p>
+     * If {@code query} is non-blank, applies a case-insensitive LIKE filter on title,
+     * description, and creator username. Otherwise returns all projects paginated.
+     * </p>
+     *
+     * @param query    optional free-text filter; when blank, no filtering is applied
+     * @param pageable pagination and sorting information
+     * @return a {@link Page} of {@link Project} entities matching the filter
+     */
     @Transactional(readOnly = true)
     public Page<Project> search(String query, Pageable pageable) {
         Specification<Project> spec = null;

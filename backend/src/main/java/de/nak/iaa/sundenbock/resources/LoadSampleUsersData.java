@@ -20,7 +20,7 @@ import java.util.Set;
  * It should run *after* the baseline security data is loaded.
  */
 @Component
-public class LoadSampleUsersData {
+class LoadSampleUsersData {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;

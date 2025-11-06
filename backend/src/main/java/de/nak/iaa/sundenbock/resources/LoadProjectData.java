@@ -5,6 +5,13 @@ import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Component responsible for loading example project data into the database.
+ * <p>
+ * Checks if any projects exist and, if none are found, creates and saves
+ * a set of example projects with predefined titles and descriptions.
+ * </p>
+ */
 @Component
 public class LoadProjectData {
 

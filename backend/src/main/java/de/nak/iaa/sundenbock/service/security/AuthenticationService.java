@@ -106,6 +106,16 @@ public class AuthenticationService {
         return new AuthenticationResponse(jwtToken);
     }
 
+    /**
+     * Changes the password of the currently authenticated user.
+     * <p>
+     * Verifies the provided old password, encodes the new password, and persists the change.
+     * </p>
+     *
+     * @param request contains the old and new password
+     * @throws BadCredentialsException if the old password does not match
+     * @throws ResourceNotFoundException if the currently authenticated user cannot be found
+     */
     @Transactional
     public void changePassword(ChangePasswordRequest request) {
 

@@ -14,6 +14,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * REST endpoint exposing the UI navigation tree filtered by the caller's permissions.
+ */
 @RestController
 @RequestMapping("/api/v1/ui/navigation")
 public class NavigationController {
@@ -24,12 +27,21 @@ public class NavigationController {
         this.registry = registry;
     }
 
+    /**
+     * Returns the navigation items visible to the authenticated user.
+     *
+     * @param authentication Spring Security authentication (used to derive permissions)
+     * @return a list of navigation items allowed for the user
+     */
     @GetMapping
     public List<NavItemDTO> getNavItems(Authentication authentication) {
         Collection<String> permissions = getPermissionsFromAuth(authentication);
         return registry.getForPermissions(permissions);
     }
 
+    /**
+     * Extracts permission strings from the current authentication.
+     */
     private Collection<String> getPermissionsFromAuth(Authentication authentication) {
         return Optional.ofNullable(authentication)
                 .map(Authentication::getAuthorities)
