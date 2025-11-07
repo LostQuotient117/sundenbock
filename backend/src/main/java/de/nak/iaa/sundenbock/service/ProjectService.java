@@ -62,7 +62,8 @@ public class ProjectService {
                 return cb.or(
                         cb.like(cb.lower(root.get("title")), like),
                         cb.like(cb.lower(root.get("description")), like),
-                        cb.like(cb.lower(creator.get("username")), like)
+                        cb.like(cb.lower(creator.get("username")), like),
+                        cb.like(cb.lower(root.get("abbreviation")), like)
                 );
             };
         }

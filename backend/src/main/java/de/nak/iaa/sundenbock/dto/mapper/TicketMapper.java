@@ -47,6 +47,7 @@ public interface TicketMapper {
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "responsiblePerson", ignore = true)
     @Mapping(target = "project", ignore = true)
+    @Mapping(target = "ticketKey", ignore = true)
     Ticket toTicketFromCreate(CreateTicketDTO createTicketDTO);
 
     /**
@@ -61,6 +62,7 @@ public interface TicketMapper {
      */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "ticketKey", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "createdBy", ignore = true)

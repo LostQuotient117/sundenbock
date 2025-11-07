@@ -48,8 +48,8 @@ class LoadTicketAndCommentData {
             t2.setResponsiblePerson(userRepository.findByUsername("OG-Developer").orElseThrow(() -> new RuntimeException("user not found for sample data")));
             t2.setProject(projectRepository.findByTitle("Ticket System").orElseThrow(() -> new RuntimeException("project not found for sample data")));
 
-            ticketRepository.save(t1);
-            ticketRepository.save(t2);
+            t1 = saveWithTicketKey(t1);
+            t2 = saveWithTicketKey(t2);
 
             Comment c1 = new Comment();
             c1.setTicket(t1);
@@ -89,5 +89,13 @@ class LoadTicketAndCommentData {
 
             System.out.println("Example tickets created!");
         }
+    }
+    private Ticket saveWithTicketKey(Ticket ticket) {
+        // Temporärer Key, falls nullable=false in der DB
+        ticket.setTicketKey(ticket.getProject().getAbbreviation() + "-" + java.util.UUID.randomUUID().toString().substring(0, 8));
+        Ticket saved = ticketRepository.save(ticket);
+        // Finalen Key mit DB-ID setzen
+        saved.setTicketKey(saved.getProject().getAbbreviation() + "-" + saved.getId());
+        return ticketRepository.save(saved);
     }
 }
