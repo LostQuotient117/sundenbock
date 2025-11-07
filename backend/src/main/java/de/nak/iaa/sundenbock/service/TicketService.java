@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
+import de.nak.iaa.sundenbock.exception.InvalidStatusTransitionException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.TicketAlreadyClosedException;
 import de.nak.iaa.sundenbock.model.project.Project;
@@ -16,6 +17,8 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -142,10 +145,43 @@ public class TicketService {
         Ticket existingTicket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
-        if (existingTicket.getStatus() == TicketStatus.CLOSED){
+        TicketStatus currentStatus = existingTicket.getStatus();
+        TicketStatus nextStatus = ticketDTO.status();
+
+        if (currentStatus == TicketStatus.CLOSED){
             throw new TicketAlreadyClosedException("Ticket with id " + existingTicket.getId() + " is already closed");
         }
-        ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isDeveloper = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_DEVELOPER"));
+        boolean isAuthor = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(existingTicket.getCreatedBy().getUsername()));
+
+        boolean valid = isAdmin ||
+                (isDeveloper && currentStatus.getAllowedTransitionsForDeveloper().contains(nextStatus)) ||
+                (isAuthor && currentStatus.getAllowedTransitionsForAuthor().contains(nextStatus)) ||
+                (currentStatus == nextStatus);
+
+        if (!valid) {
+            throw new InvalidStatusTransitionException(String.format("Transition from %s to %s not allowed", currentStatus, nextStatus));
+        }
+
+        if (ticketDTO.responsiblePerson() != null && ticketDTO.responsiblePerson().username() != null) {
+            User responsible = userRepository.findByUsername(ticketDTO.responsiblePerson().username())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with username " + ticketDTO.responsiblePerson().username()));
+            existingTicket.setResponsiblePerson(responsible);
+        }
+
+        if (ticketDTO.project() != null && ticketDTO.project().id() != null) {
+            Project project = projectRepository.findById(ticketDTO.project().id())
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + ticketDTO.project().id()));
+            existingTicket.setProject(project);
+        }
+
+        ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket, userRepository);
         return ticketMapper.toTicketDTO(existingTicket);
     }
 
