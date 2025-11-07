@@ -72,8 +72,36 @@ public interface TicketMapper {
     @Mapping(target = "responsiblePerson", source = "responsiblePerson", qualifiedByName = "mapUser")
     void updateTicketFromDTO(TicketDTO ticketDTO, @MappingTarget Ticket existingTicket, @Context UserRepository userRepository);
 
+    /**
+     * Converts a list of {@link Ticket} entities into a list of {@link TicketDTO} objects.
+     * <p>
+     * MapStruct will automatically implement this method by iterating over the source
+     * list and applying the {@code toTicketDTO(Ticket)} mapping (defined elsewhere
+     * in this mapper) to each element.
+     *
+     * @param ticket The list of {@link Ticket} entities to be converted.
+     * @return A list of the corresponding {@link TicketDTO} objects.
+     */
     List<TicketDTO> toTicketDTOs(List<Ticket> ticket);
 
+    /**
+     * A custom MapStruct qualifier method to resolve a {@link UserDTO} into a
+     * managed {@link User} entity by fetching it from the database.
+     * <p>
+     * This method is intended to be used via {@code qualifiedByName = "mapUser"}
+     * in other {@code @Mapping} annotations. It allows the mapper to
+     * convert a simple DTO reference (containing just a username) into a
+     * complete entity that can be associated with another entity (e.g., setting
+     * a {@code Ticket}'s responsible person).
+     *
+     * @param userDTO        The input DTO, used to retrieve the {@code username}.
+     * @param userRepository The {@link UserRepository} injected by MapStruct via
+     * {@code @Context} to perform the database lookup.
+     * @return The found {@link User} entity, or {@code null} if the input {@code userDTO}
+     * or its {@code username} was {@code null}.
+     * @throws ResourceNotFoundException if the {@code username} is provided but no
+     * matching user exists in the repository.
+     */
     @Named("mapUser")
     default User mapUser(UserDTO userDTO, @Context UserRepository userRepository) {
         if (userDTO == null) return null;
