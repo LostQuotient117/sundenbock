@@ -20,6 +20,7 @@ import java.time.Instant;
  */
 public record TicketDTO(
         Long id,
+        String ticketKey,
         @NotBlank(message = "Title must not be empty")
         @Size(max = 200, message = "The title must not exceed 200 characters.")
         String title,

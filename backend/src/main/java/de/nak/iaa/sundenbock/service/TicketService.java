@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
+import java.util.UUID;
+
 /**
  * Service class for managing {@link Ticket} entities.
  * <p>
@@ -83,7 +85,8 @@ public class TicketService {
                         cb.like(cb.lower(root.get("status").as(String.class)), like),
                         cb.like(cb.lower(resp.get("username")), like),
                         cb.like(cb.lower(proj.get("title")), like),
-                        cb.like(cb.lower(creator.get("username")), like)
+                        cb.like(cb.lower(creator.get("username")), like),
+                        cb.like(cb.lower(root.get("ticketKey")), like)
                 );
             };
         }
@@ -128,8 +131,15 @@ public class TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + ticketDTO.projectId()));
         ticket.setProject(project);
 
-        Ticket savedTicket = ticketRepository.save(ticket);
+        Ticket savedTicket = saveWithTicketKey(ticket);
         return ticketMapper.toTicketDTO(savedTicket);
+    }
+
+    private  Ticket saveWithTicketKey(Ticket ticket) {
+        ticket.setTicketKey(ticket.getProject().getAbbreviation() + "-" + UUID.randomUUID().toString().substring(0, 8));
+        Ticket saved = ticketRepository.save(ticket);
+        saved.setTicketKey(saved.getProject().getAbbreviation() + "-" + saved.getId());
+        return ticketRepository.save(saved);
     }
 
     /**

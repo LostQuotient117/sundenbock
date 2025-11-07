@@ -43,31 +43,27 @@ public class JpaConfig {
      */
     @Bean
     public AuditorAware<User> auditorAware() {
-        return () -> {
-            var auth =  SecurityContextHolder.getContext().getAuthentication();
+        User systemUser = userRepository.findByUsername("system")
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setUsername("system");
+                    u.setEmail("system@local");
+                    u.setPassword(passwordEncoder.encode("systemPassword-LE"));
+                    u.setFirstName("System");
+                    u.setLastName("User");
+                    u.setEnabled(false);
+                    return userRepository.save(u);
+                });
 
-            if (auth != null && auth.isAuthenticated()){
+        return () -> {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
                 Object principal = auth.getPrincipal();
                 if (principal instanceof User) {
                     return Optional.of((User) principal);
                 }
-
             }
-
-            return userRepository.findByUsername("system")
-                    .or(() -> userRepository.findByUsername("admin"))
-                    .or(() -> {
-                        User systemUser = new User();
-                        systemUser.setUsername("system");
-                        systemUser.setEmail("system@local");
-                        systemUser.setPassword(passwordEncoder.encode("systemPassword-LE"));
-                        systemUser.setFirstName("System");
-                        systemUser.setLastName("User");
-                        systemUser.setEnabled(false);
-                        User savedSystemUser = userRepository.save(systemUser);
-                        return Optional.of(savedSystemUser);
-                    });
-
+            return Optional.of(systemUser);
         };
     }
 }

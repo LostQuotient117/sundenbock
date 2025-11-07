@@ -82,8 +82,8 @@ class TicketServiceTest {
         ticket.setLastModifiedBy(createdByUser);
 
         UserDTO userDTO = new UserDTO(1L, "user1", "Test", "User");
-        ProjectDTO projectDTO = new ProjectDTO(1L, "Demo Project", "Demo Project for Mockito", Instant.now(), Instant.now(), userDTO, userDTO);
-        ticketDTO = new TicketDTO(1L, "Test Ticket", "Description", TicketStatus.CREATED, userDTO, projectDTO, Instant.now(), Instant.now(), userDTO, userDTO
+        ProjectDTO projectDTO = new ProjectDTO(1L, "Demo Project", "Demo Project for Mockito", "DEP",Instant.now(), Instant.now(), userDTO, userDTO);
+        ticketDTO = new TicketDTO(1L,"DEP-1", "Test Ticket", "Description", TicketStatus.CREATED, userDTO, projectDTO, Instant.now(), Instant.now(), userDTO, userDTO
         );
     }
 
@@ -215,6 +215,7 @@ class TicketServiceTest {
         TicketDTO updatedDTO = new TicketDTO(
                 ticketDTO.id(),
                 ticketDTO.title(),
+                ticketDTO.ticketKey(),
                 ticketDTO.description(),
                 TicketStatus.IN_PROGRESS, // Statusänderung
                 ticketDTO.responsiblePerson(),
