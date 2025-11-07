@@ -84,22 +84,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles {@link UserDisabledException} (HTTP 401).
+     * Handles {@link UserDisabledException} (HTTP 403).
      * <p>
-     * Thrown when a disabled user attempts to authenticate.
+     * Thrown when a user attempts to log in but their account is disabled.
      *
      * @param ex The caught exception.
-     * @return A 401 Unauthorized response entity with a specific message.
+     * @return A 403 Forbidden response entity.
      */
     @ExceptionHandler(UserDisabledException.class)
     public ResponseEntity<Object> handleUserDisabledException(UserDisabledException ex) {
         Map<String, Object> body = Map.of(
                 "timestamp", System.currentTimeMillis(),
-                "status", HttpStatus.UNAUTHORIZED.value(),
-                "error", "Unauthorized",
+                "status", HttpStatus.FORBIDDEN.value(),
+                "error", "Forbidden",
                 "message", ex.getMessage()
         );
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
     /**
@@ -128,11 +128,10 @@ public class GlobalExceptionHandler {
      * Thrown by @PreAuthorize when a user is authenticated but lacks
      * the required authority (role or permission) to access an endpoint.
      *
-     * @param ex The caught AccessDeniedException.
      * @return A 403 Forbidden response entity.
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<Object> handleAccessDeniedException() {
         Map<String, Object> body = Map.of(
                 "timestamp", System.currentTimeMillis(),
                 "status", HttpStatus.FORBIDDEN.value(),
@@ -143,25 +142,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles {@link SelfActionException} (HTTP 400).
+     * Handles {@link SelfActionException} (HTTP 409).
      * <p>
-     * This exception is thrown when a user attempts an action that is not allowed
-     * on their own account or resources (e.g., self-deletion).
+     * This exception is thrown when a user attempts to perform an action
+     * that is not allowed on their own account or entity.
      * Constructs a structured response body containing a timestamp, HTTP status,
      * error type, and a detailed message from the exception.
      *
-     * @param ex the caught {@link SelfActionException}
-     * @return a {@link ResponseEntity} with HTTP 400 (Bad Request) and a body describing the error
+     * @param ex The caught {@link SelfActionException}.
+     * @return A {@link ResponseEntity} with HTTP 409 (Conflict) and a descriptive error body.
      */
     @ExceptionHandler(SelfActionException.class)
     public ResponseEntity<Object> handleSelfActionException(SelfActionException ex) {
         Map<String, Object> body = Map.of(
                 "timestamp", System.currentTimeMillis(),
-                "status", HttpStatus.BAD_REQUEST.value(),
-                "error", "Bad Request",
+                "status", HttpStatus.CONFLICT.value(),
+                "error", "Conflict",
                 "message", ex.getMessage()
         );
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     /**
