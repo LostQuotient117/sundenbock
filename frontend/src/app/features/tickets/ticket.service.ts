@@ -13,8 +13,8 @@ export class TicketsService extends ResourceClient<Ticket> {
   constructor() { super(inject(ApiService), '/tickets'); }
 
   override list(q?: PageQuery<Ticket>): Observable<Page<HydratedTicket>> {
-    return of(MOCK_TICKETS);
-    /*return super.list(q).pipe(
+    //return of(MOCK_TICKETS);
+    return super.list(q).pipe(
       map(p => ({
         ...p,
         items: p.items.map(t => ({
@@ -23,6 +23,6 @@ export class TicketsService extends ResourceClient<Ticket> {
           lastChange: new Date(t.lastChange),
         }))
       }))
-    );*/
+    );
   }
 }
