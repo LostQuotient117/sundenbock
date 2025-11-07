@@ -2,8 +2,14 @@ package de.nak.iaa.sundenbock.dto.mapper;
 
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
+import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.user.User;
+import de.nak.iaa.sundenbock.repository.UserRepository;
 import org.mapstruct.*;
+
+import java.util.List;
 
 /**
  * MapStruct mapper responsible for converting between {@link Ticket} entities and their DTO
@@ -13,7 +19,7 @@ import org.mapstruct.*;
  * where needed. This mapper delegates user conversions to {@link UserMapper} when applicable.
  * </p>
  */
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class})
 public interface TicketMapper {
 
     /**
@@ -22,6 +28,7 @@ public interface TicketMapper {
      * @param ticket the entity to map; may be {@code null}
      * @return the mapped DTO or {@code null} if the input was {@code null}
      */
+    @Mapping(target = "project", source = "project", qualifiedByName = "toProjectWithoutTicketsDTO")
     TicketDTO toTicketDTO(Ticket ticket);
 
     /**
@@ -32,6 +39,15 @@ public interface TicketMapper {
      * @param createTicketDTO the DTO carrying the data for a new ticket; may be {@code null}
      * @return a new {@link Ticket} populated from the DTO or {@code null} if the input was {@code null}
      */
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "responsiblePerson", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "ticketKey", ignore = true)
     Ticket toTicketFromCreate(CreateTicketDTO createTicketDTO);
 
     /**
@@ -46,9 +62,25 @@ public interface TicketMapper {
      */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "ticketKey", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
-    void updateTicketFromDTO(TicketDTO ticketDTO, @MappingTarget Ticket existingTicket);
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "responsiblePerson", source = "responsiblePerson", qualifiedByName = "mapUser")
+    void updateTicketFromDTO(TicketDTO ticketDTO, @MappingTarget Ticket existingTicket, @Context UserRepository userRepository);
+
+    List<TicketDTO> toTicketDTOs(List<Ticket> ticket);
+
+    @Named("mapUser")
+    default User mapUser(UserDTO userDTO, @Context UserRepository userRepository) {
+        if (userDTO == null) return null;
+        if (userDTO.username() != null) {
+            return userRepository.findByUsername(userDTO.username())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with username " + userDTO.username()));
+        }
+        return null;
+    }
 }

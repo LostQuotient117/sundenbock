@@ -1,5 +1,7 @@
 package de.nak.iaa.sundenbock.model.ticket;
 
+import java.util.EnumSet;
+import java.util.Set;
 /**
  * Workflow states for a {@link de.nak.iaa.sundenbock.model.ticket.Ticket}.
  * <p>
@@ -16,21 +18,25 @@ package de.nak.iaa.sundenbock.model.ticket;
  * </p>
  */
 public enum TicketStatus {
-    /** Newly created, not yet triaged. */
     CREATED,
-
-    /** Reopened after being resolved or closed. */
     REOPENED,
-
-    /** Actively being worked on. */
     IN_PROGRESS,
-
-    /** Solution implemented; pending verification (e.g., QA or reviewer). */
     RESOLVED,
-
-    /** Marked as won't fix or invalid. */
     REJECTED,
+    CLOSED;
 
-    /** Verified and finalized; no further work planned. */
-    CLOSED
+    public Set<TicketStatus> getAllowedTransitionsForDeveloper() {
+        return switch (this) {
+            case CREATED, REOPENED -> EnumSet.of(IN_PROGRESS);
+            case IN_PROGRESS -> EnumSet.of(RESOLVED, REJECTED);
+            default -> EnumSet.noneOf(TicketStatus.class);
+        };
+    }
+
+    public Set<TicketStatus> getAllowedTransitionsForAuthor() {
+        return switch (this) {
+            case RESOLVED, REJECTED -> EnumSet.of(REOPENED, CLOSED);
+            default -> EnumSet.noneOf(TicketStatus.class);
+        };
+    }
 }

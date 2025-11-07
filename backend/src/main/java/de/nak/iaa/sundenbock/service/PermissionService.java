@@ -35,6 +35,11 @@ public class PermissionService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Retrieves all existing permissions as a list of {@link PermissionDTO}.
+     *
+     * @return a list of all permissions
+     */
     @Transactional(readOnly = true)
     public List<PermissionDTO> getAllPermissions() {
         return permissionRepository.findAll().stream()
@@ -42,30 +47,43 @@ public class PermissionService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates a new permission based on the provided {@link PermissionDTO}.
+     * <p>
+     * Throws {@link DuplicateResourceException} if a permission with the same name already exists.
+     * </p>
+     *
+     * @param permissionDTO the DTO containing the permission data
+     * @return the created {@link PermissionDTO}
+     */
     @Transactional
     public PermissionDTO createPermission(PermissionDTO permissionDTO) {
 
-        if (permissionRepository.existsById(permissionDTO.name())) {
-            throw new DuplicateResourceException("Permission already exists: " + permissionDTO.name());
+        String trimmedName = permissionDTO.name().trim();
+
+        if (permissionRepository.existsById(trimmedName)) {
+            throw new DuplicateResourceException("Permission already exists: " + trimmedName);
         }
 
         Permission permission = new Permission();
-        permission.setName(permissionDTO.name());
+        permission.setName(trimmedName);
         Permission savedPermission = permissionRepository.save(permission);
         return permissionMapper.toPermissionDTO(savedPermission);
     }
 
     /**
      * Deletes a permission by its name, only if it is not currently in use.
+     * <p>
+     * Throws {@link ResourceNotFoundException} if the permission does not exist.
+     * Throws {@link PermissionInUseException} if the permission is assigned to any roles or users.
+     * </p>
      *
-     * @param permissionName The name of the permission to delete.
-     * @throws ResourceNotFoundException if the permission does not exist.
-     * @throws PermissionInUseException  if the permission is assigned to any Roles or Users.
+     * @param permissionName the name of the permission to delete
      */
     @Transactional
     public void deletePermission(String permissionName) {
-        if (!permissionRepository.existsById(permissionName)) {
-            throw new ResourceNotFoundException("Permission not found: " + permissionName);
+        if (!permissionRepository.existsById(permissionName.trim())) {
+            throw new ResourceNotFoundException("Permission not found: " + permissionName.trim());
         }
 
         long rolesCount = roleRepository.countByPermissions_Name(permissionName);

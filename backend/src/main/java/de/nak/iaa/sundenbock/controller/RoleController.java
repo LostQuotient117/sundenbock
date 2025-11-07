@@ -1,11 +1,12 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.config.security.CanManageRoles;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.service.RoleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.Set;
  * <p>
  * Exposes endpoints to list roles, create new roles and update a role's permissions.
  */
+@NavItem(label = "Roles", path = "/roles", icon = "role")
 @RestController
 @RequestMapping("/api/v1/roles")
 @Validated
@@ -34,7 +36,7 @@ public class RoleController {
      * @return a list of {@link RoleDTO} representing all roles
      */
     @GetMapping
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public List<RoleDTO> getAllRoles() {
         return roleService.getAllRoles();
     }
@@ -46,7 +48,7 @@ public class RoleController {
      * @return the created {@link RoleDTO}
      */
     @PostMapping
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public RoleDTO createRole(@Valid @RequestBody CreateRoleDTO createRoleDTO) {
         return roleService.createRole(createRoleDTO);
     }
@@ -58,7 +60,7 @@ public class RoleController {
      * @param permissionNames a set of permission names to assign to the role
      */
     @PutMapping("/{roleId}/update-permissions")
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public void updateRolePermissions(@PathVariable @Min(1) Long roleId,
                                       @RequestBody Set<String> permissionNames) {
         roleService.updateRolePermissions(roleId, permissionNames);
@@ -72,7 +74,7 @@ public class RoleController {
      * @param roleId The ID of the role to delete.
      */
     @DeleteMapping("/{roleId}/delete")
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public void deleteRole(@PathVariable @Min(1) Long roleId) {
         roleService.deleteRole(roleId);
     }

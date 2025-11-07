@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.config;
 
-import de.nak.iaa.sundenbock.service.JwtService;
+import de.nak.iaa.sundenbock.service.security.JwtService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,9 +55,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         final String jwt = authHeader.substring(7);
-        final String username = jwtService.extractUsername(jwt);
+        final String username;
+
+        try {
+            username = jwtService.extractUsername(jwt);
+        } catch (JwtException e) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()

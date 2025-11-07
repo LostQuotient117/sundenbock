@@ -1,6 +1,5 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.security;
 
-import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationRequest;
 import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
@@ -60,25 +59,37 @@ public class AuthenticationService {
      * @return An AuthenticationResponse containing the generated JWT.
      */
     public AuthenticationResponse register(CreateUserDTO request) {
+
+        CreateUserDTO trimmedRequest = new CreateUserDTO(
+                request.username().trim(),
+                request.firstName().trim(),
+                request.lastName().trim(),
+                request.email().trim(),
+                request.password(),
+                request.roles()
+        );
+
         Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
                 .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
 
-        if (userRepository.findByUsername(request.username()).isPresent()) {
-            throw new DuplicateResourceException("Username already exists: " + request.username());
+        if (userRepository.findByUsername(trimmedRequest.username()).isPresent()) {
+            throw new DuplicateResourceException("Username already exists: " + trimmedRequest.username());
         }
 
-        if (userRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("Email already in use: " + request.email());
+        if (userRepository.existsByEmail(trimmedRequest.email())) {
+            throw new DuplicateResourceException("Email already in use: " + trimmedRequest.email());
         }
 
         User user = new User();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setUsername(trimmedRequest.username());
+        user.setEmail(trimmedRequest.email());
+        user.setFirstName(trimmedRequest.firstName());
+        user.setLastName(trimmedRequest.lastName());
+        user.setPassword(passwordEncoder.encode(trimmedRequest.password()));
         user.setRoles(Set.of(defaultRole));
         userRepository.save(user);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(trimmedRequest.username());
         String jwtToken = jwtService.generateToken(userDetails);
         return new AuthenticationResponse(jwtToken);
     }
@@ -94,19 +105,31 @@ public class AuthenticationService {
      */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
+        String trimmedUsername = request.username().trim();
+
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+                    new UsernamePasswordAuthenticationToken(trimmedUsername, request.password())
             );
         } catch (DisabledException e) {
             throw new UserDisabledException("Your account is disabled. Please contact an administrator.");
         }
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(trimmedUsername);
         String jwtToken = jwtService.generateToken(userDetails);
         return new AuthenticationResponse(jwtToken);
     }
 
+    /**
+     * Changes the password of the currently authenticated user.
+     * <p>
+     * Verifies the provided old password, encodes the new password, and persists the change.
+     * </p>
+     *
+     * @param request contains the old and new password
+     * @throws BadCredentialsException if the old password does not match
+     * @throws ResourceNotFoundException if the currently authenticated user cannot be found
+     */
     @Transactional
     public void changePassword(ChangePasswordRequest request) {
 

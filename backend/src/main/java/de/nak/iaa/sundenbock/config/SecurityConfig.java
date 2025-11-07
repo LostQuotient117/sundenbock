@@ -1,10 +1,10 @@
 package de.nak.iaa.sundenbock.config;
 
+import de.nak.iaa.sundenbock.exception.CustomAccessDeniedHandler;
+import de.nak.iaa.sundenbock.exception.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,11 +30,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsService userDetailsService) {
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, CustomAuthenticationEntryPoint authenticationEntryPoint, CustomAccessDeniedHandler accessDeniedHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
-        this.userDetailsService = userDetailsService;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     /**
@@ -51,28 +54,16 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**", "/api/health").permitAll()
+                        .requestMatchers("/api/v1/auth/authenticate", "/api/v1/auth/register", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**", "/api/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler));
         return http.build();
-    }
-
-    /**
-     * Creates a DaoAuthenticationProvider using the configured {@link UserDetailsService}
-     * and a BCrypt password encoder.
-     *
-     * @return configured {@link AuthenticationProvider}
-     */
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
     }
 
     /**
@@ -86,7 +77,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Exposes the {@link AuthenticationManager} bean from the auto-configuration.
+     * Exposes the {@link AuthenticationManager} bean from the autoconfiguration.
      *
      * @param config the {@link AuthenticationConfiguration}
      * @return the {@link AuthenticationManager}

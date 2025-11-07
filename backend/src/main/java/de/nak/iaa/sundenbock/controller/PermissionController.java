@@ -1,10 +1,11 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.config.security.CanManageRoles;
 import de.nak.iaa.sundenbock.dto.permissionDTO.PermissionDTO;
+import de.nak.iaa.sundenbock.annotation.NavItem;
 import de.nak.iaa.sundenbock.service.PermissionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
  * <p>
  * Exposes endpoints to list all permissions and to create new permissions.
  */
+@NavItem(label = "Permissions", path = "/permissions", icon = "permission")
 @RestController
 @RequestMapping("/api/v1/permissions")
 @Validated
@@ -32,7 +34,7 @@ public class PermissionController {
      * @return a list of {@link PermissionDTO} representing all permissions
      */
     @GetMapping
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public List<PermissionDTO> getAllPermissions() {
         return permissionService.getAllPermissions();
     }
@@ -44,7 +46,7 @@ public class PermissionController {
      * @return the created {@link PermissionDTO}
      */
     @PostMapping("/create")
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public PermissionDTO createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
     }
@@ -57,7 +59,7 @@ public class PermissionController {
      * @param permissionName The name of the permission to delete.
      */
     @DeleteMapping("/{permissionName}/delete")
-    @CanManageRoles
+    @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public void deletePermission(
             @PathVariable @NotBlank String permissionName) {
         permissionService.deletePermission(permissionName);

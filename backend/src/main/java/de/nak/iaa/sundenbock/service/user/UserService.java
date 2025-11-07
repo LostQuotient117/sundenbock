@@ -1,6 +1,7 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.user;
 
 import de.nak.iaa.sundenbock.dto.auth.AdminResetPasswordDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UpdateUserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
@@ -65,42 +66,44 @@ public class UserService {
     }
 
     /**
-     * Updates an existing user's details.
-     * This method resolves the sets of role and permission *names* (Strings) from the DTO
-     * into managed JPA entities and overwrites the user's associations.
+     * Updates an existing user specified by username.
+     * This method performs a partial update (a "merge") of mutable fields.
+     * Only non-null fields (email, enabled) from the updateDto will be applied.
+     * The 'username' is immutable and cannot be changed.
      *
-     * @param username      The username of the user to update.
-     * @param userDetailDTO The DTO containing the new data (email, enabled, roles, permissions).
-     * @return The updated UserDetailDTO.
-     * @throws ResourceNotFoundException if the user, a role, or a permission is not found.
+     * @param username  The username of the user to update.
+     * @param updateDto The DTO containing the fields to update.
+     * @return The updated, saved User as a UserDetailDTO.
      */
     @Transactional
-    public UserDetailDTO updateUser(String username, UserDetailDTO userDetailDTO) {
+    public UserDetailDTO updateUser(String username, UpdateUserDTO updateDto) {
         User user = findUserByUsername(username);
 
-        user.setEmail(userDetailDTO.email());
-        user.setEnabled(userDetailDTO.enabled());
+        String trimmedEmail = (updateDto.email() != null) ? updateDto.email().trim() : null;
+        String trimmedFirstName = (updateDto.firstName() != null) ? updateDto.firstName().trim() : null;
+        String trimmedLastName = (updateDto.lastName() != null) ? updateDto.lastName().trim() : null;
 
-        if (isCurrentUser(username) && userDetailDTO.roles().isEmpty()) {
-            throw new SelfActionException("You cannot remove all roles from your own account.");
+        if (trimmedEmail != null && !trimmedEmail.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(trimmedEmail)) {
+                throw new DuplicateResourceException("Email " + trimmedEmail + " is already in use.");
+            }
+            user.setEmail(trimmedEmail);
         }
 
-        Set<Role> roles = userDetailDTO.roles().stream()
-                .map(this::findRoleByName)
-                .collect(Collectors.toSet());
-        user.setRoles(roles);
-
-        Set<Permission> permissions = userDetailDTO.permissions().stream()
-                .map(this::findPermissionByName)
-                .collect(Collectors.toSet());
-        user.setPermissions(permissions);
-
-        if (user.getRoles().isEmpty()) {
-            user.getRoles().add(getDefaultUserRole());
+        if (trimmedFirstName != null) {
+            user.setFirstName(trimmedFirstName);
         }
 
-        User updatedUser = userRepository.save(user);
-        return userMapper.toUserDetailDTO(updatedUser);
+        if (trimmedLastName != null) {
+            user.setLastName(trimmedLastName);
+        }
+
+        if (updateDto.enabled() != null) {
+            user.setEnabled(updateDto.enabled());
+        }
+
+        User savedUser = userRepository.save(user);
+        return userMapper.toUserDetailDTO(savedUser);
     }
 
     /**
@@ -116,25 +119,36 @@ public class UserService {
      */
     @Transactional
     public UserDetailDTO createUser(CreateUserDTO request) {
-        if (userRepository.findByUsername(request.username()).isPresent()) {
-            throw new DuplicateResourceException("Username already exists: " + request.username());
+
+        CreateUserDTO trimmedRequest = new CreateUserDTO(
+                request.username().trim(),
+                request.firstName().trim(),
+                request.lastName().trim(),
+                request.email().trim(),
+                request.password(),
+                (request.roles() != null) ? request.roles().stream().map(String::trim).collect(Collectors.toSet()) : Set.of());
+
+        if (userRepository.findByUsername(trimmedRequest.username()).isPresent()) {
+            throw new DuplicateResourceException("Username already exists: " + trimmedRequest.username());
         }
 
-        if (userRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("Email already in use: " + request.email());
+        if (userRepository.existsByEmail(trimmedRequest.email())) {
+            throw new DuplicateResourceException("Email already in use: " + trimmedRequest.email());
         }
 
         User user = new User();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setUsername(trimmedRequest.username());
+        user.setEmail(trimmedRequest.email());
+        user.setPassword(passwordEncoder.encode(trimmedRequest.password()));
+        user.setFirstName(trimmedRequest.firstName());
+        user.setLastName(trimmedRequest.lastName());
         user.setEnabled(true);
 
         Set<Role> rolesToAssign;
-        if (request.roles() == null || request.roles().isEmpty()) {
+        if (trimmedRequest.roles() == null || trimmedRequest.roles().isEmpty()) {
             rolesToAssign = Set.of(getDefaultUserRole());
         } else {
-            rolesToAssign = request.roles().stream()
+            rolesToAssign = trimmedRequest.roles().stream()
                     .map(this::findRoleByName)
                     .collect(Collectors.toSet());
         }

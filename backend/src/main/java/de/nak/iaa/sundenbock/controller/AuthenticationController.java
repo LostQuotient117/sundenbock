@@ -5,8 +5,9 @@ import de.nak.iaa.sundenbock.dto.auth.AuthenticationResponse;
 import de.nak.iaa.sundenbock.dto.auth.ChangePasswordRequest;
 import de.nak.iaa.sundenbock.dto.userDTO.CreateUserDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDetailDTO;
-import de.nak.iaa.sundenbock.service.AuthenticationService;
-import de.nak.iaa.sundenbock.service.UserService;
+import de.nak.iaa.sundenbock.annotation.NavItem;
+import de.nak.iaa.sundenbock.service.security.AuthenticationService;
+import de.nak.iaa.sundenbock.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * Controller responsible for user authentication and registration endpoints.
  * Exposes public endpoints for user self-registration and login (authentication).
  */
+@NavItem(label = "Authentication", path = "/auth", icon = "auth")
 @RestController
 @RequestMapping("/api/v1/auth")
 @Validated

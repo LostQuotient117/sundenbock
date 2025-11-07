@@ -1,15 +1,17 @@
-package de.nak.iaa.sundenbock.service;
+package de.nak.iaa.sundenbock.service.security;
 
+import de.nak.iaa.sundenbock.config.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Jwts.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +27,11 @@ import javax.crypto.SecretKey;
 @Service
 public class JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
-    private String secretKey;
-    @Value("${application.security.jwt.expiration}")
-    private long jwtExpiration;
+    private final JwtProperties jwtProperties;
+
+    public JwtService(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
 
     /**
      * Extracts the username (subject) from the given JWT token.
@@ -48,7 +51,7 @@ public class JwtService {
      * @param <T>            the type of the returned claim
      * @return the resolved claim value
      */
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -71,11 +74,26 @@ public class JwtService {
      * @return a signed JWT token string containing the provided claims
      */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+        long expiration = jwtProperties.expiration();
+        return buildToken(extraClaims, userDetails, expiration);
+    }
+
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
+    ) {
+        String authorities = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        extraClaims.put("auth", authorities);
+
+        return Jwts
+                .builder()
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -89,18 +107,20 @@ public class JwtService {
      * @return true if the token is valid, false otherwise
      */
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            return (username.equals(userDetails.getUsername()));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
+    /**
+     * Extracts all claims from the given JWT token.
+     *
+     * @param token the JWT token
+     * @return all claims contained in the token
+     */
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSignInKey())
@@ -109,8 +129,13 @@ public class JwtService {
                 .getPayload();
     }
 
+    /**
+     * Returns the secret key used for signing and verifying JWT tokens.
+     *
+     * @return the secret key
+     */
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

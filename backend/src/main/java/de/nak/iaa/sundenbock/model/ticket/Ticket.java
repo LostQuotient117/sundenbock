@@ -28,6 +28,8 @@ public class Ticket extends AuditedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true, nullable = false)
+    private String ticketKey;
     @Column(nullable = false)
     private String title;
     private String description;

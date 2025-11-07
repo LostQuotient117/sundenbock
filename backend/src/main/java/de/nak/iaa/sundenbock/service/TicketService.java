@@ -3,18 +3,28 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
+import de.nak.iaa.sundenbock.exception.InvalidStatusTransitionException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
+import de.nak.iaa.sundenbock.exception.TicketAlreadyClosedException;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import de.nak.iaa.sundenbock.repository.TicketRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 /**
  * Service class for managing {@link Ticket} entities.
@@ -47,15 +57,41 @@ public class TicketService {
     }
 
     /**
-     * Returns all existing tickets as a list of {@link TicketDTO}.
+     * Searches tickets by a free-text query across multiple fields.
+     * <p>
+     * If {@code query} is provided (non-null and non-empty), a case-insensitive LIKE
+     * filter is applied to the following attributes: ticket title, description, status,
+     * responsible person's username, project's title, and creator's username. If the
+     * {@code query} is blank, all tickets are returned paginated.
+     * </p>
      *
-     * @return list of all tickets in DTO representation
+     * @param query    optional free-text filter; when blank, no filtering is applied
+     * @param pageable pagination and sorting information
+     * @return a {@link Page} of {@link Ticket} entities matching the filter
      */
     @Transactional(readOnly = true)
-    public List<TicketDTO> getTickets() {
-        return ticketRepository.findAll().stream()
-                .map(ticketMapper::toTicketDTO)
-                .collect(Collectors.toList());
+    public Page<Ticket> search(String query, Pageable pageable) {
+        Specification<Ticket> spec = null;
+
+        if (StringUtils.hasText(query)) {
+            String like = "%" + query.toLowerCase() + "%";
+            spec = (root, cq, cb) -> {
+                Join<Ticket, User> resp = root.join("responsiblePerson", JoinType.LEFT);
+                Join<Ticket, User> creator = root.join("createdBy", JoinType.LEFT);
+                Join<Ticket, Project> proj = root.join("project", JoinType.LEFT);
+                return cb.or(
+                        cb.like(cb.lower(root.get("title")), like),
+                        cb.like(cb.lower(root.get("description")), like),
+                        cb.like(cb.lower(root.get("status").as(String.class)), like),
+                        cb.like(cb.lower(resp.get("username")), like),
+                        cb.like(cb.lower(proj.get("title")), like),
+                        cb.like(cb.lower(creator.get("username")), like),
+                        cb.like(cb.lower(root.get("ticketKey")), like)
+                );
+            };
+        }
+
+        return ticketRepository.findAll(spec, pageable);
     }
 
     /**
@@ -95,8 +131,15 @@ public class TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + ticketDTO.projectId()));
         ticket.setProject(project);
 
-        Ticket savedTicket = ticketRepository.save(ticket);
+        Ticket savedTicket = saveWithTicketKey(ticket);
         return ticketMapper.toTicketDTO(savedTicket);
+    }
+
+    private  Ticket saveWithTicketKey(Ticket ticket) {
+        ticket.setTicketKey(ticket.getProject().getAbbreviation() + "-" + UUID.randomUUID().toString().substring(0, 8));
+        Ticket saved = ticketRepository.save(ticket);
+        saved.setTicketKey(saved.getProject().getAbbreviation() + "-" + saved.getId());
+        return ticketRepository.save(saved);
     }
 
     /**
@@ -112,7 +155,43 @@ public class TicketService {
         Ticket existingTicket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
-        ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket);
+        TicketStatus currentStatus = existingTicket.getStatus();
+        TicketStatus nextStatus = ticketDTO.status();
+
+        if (currentStatus == TicketStatus.CLOSED){
+            throw new TicketAlreadyClosedException("Ticket with id " + existingTicket.getId() + " is already closed");
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isDeveloper = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_DEVELOPER"));
+        boolean isAuthor = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(existingTicket.getCreatedBy().getUsername()));
+
+        boolean valid = isAdmin ||
+                (isDeveloper && currentStatus.getAllowedTransitionsForDeveloper().contains(nextStatus)) ||
+                (isAuthor && currentStatus.getAllowedTransitionsForAuthor().contains(nextStatus)) ||
+                (currentStatus == nextStatus);
+
+        if (!valid) {
+            throw new InvalidStatusTransitionException(String.format("Transition from %s to %s not allowed", currentStatus, nextStatus));
+        }
+
+        if (ticketDTO.responsiblePerson() != null && ticketDTO.responsiblePerson().username() != null) {
+            User responsible = userRepository.findByUsername(ticketDTO.responsiblePerson().username())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with username " + ticketDTO.responsiblePerson().username()));
+            existingTicket.setResponsiblePerson(responsible);
+        }
+
+        if (ticketDTO.project() != null && ticketDTO.project().id() != null) {
+            Project project = projectRepository.findById(ticketDTO.project().id())
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + ticketDTO.project().id()));
+            existingTicket.setProject(project);
+        }
+
+        ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket, userRepository);
         return ticketMapper.toTicketDTO(existingTicket);
     }
 

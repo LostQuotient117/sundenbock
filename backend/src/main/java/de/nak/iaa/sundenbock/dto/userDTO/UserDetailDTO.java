@@ -7,9 +7,19 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+/**
+ * Data Transfer Object (DTO) representing detailed information about a user.
+ * <p>
+ * Contains the user's ID, username, email, creation and update timestamps,
+ * enabled status, and sets of roles and permissions. Email must be valid
+ * and not blank, while roles and permissions sets cannot be null.
+ * </p>
+ */
 public record UserDetailDTO(
         Long id,
         String username,
+        String firstName,
+        String lastName,
 
         @NotBlank(message = "Email must not be empty")
         @Email(message = "Email should be valid")

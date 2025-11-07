@@ -4,6 +4,10 @@ import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.model.project.Project;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.List;
 
 /**
  * MapStruct mapper for converting between {@link Project} entities and their DTO representations.
@@ -14,7 +18,6 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface ProjectMapper {
-
     /**
      * Maps a {@link Project} entity to a {@link ProjectDTO}.
      *
@@ -31,5 +34,16 @@ public interface ProjectMapper {
      * @param createProjectDTO the DTO carrying the data for a new project; may be {@code null}
      * @return a new {@link Project} populated from the DTO or {@code null} if the input was {@code null}
      */
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tickets", ignore = true)
     Project toProjectForCreate(CreateProjectDTO createProjectDTO);
+
+    List<ProjectDTO> toProjectDTOs(List<Project> projects);
+
+    @Named("toProjectWithoutTicketsDTO")
+    ProjectDTO toProjectWithoutTickets(Project project);
 }

@@ -22,6 +22,9 @@ public record ProjectDTO(
      @NotBlank(message = "Description must not be empty")
      @Size(max = 2000, message = "Description must not exceed 2000 characters")
      String description,
+     @NotBlank(message = "Abbreviation must not be empty")
+     @Size(min = 3, max = 3)
+     String abbreviation,
      //!-- from AuditedEntity --!
      Instant createdDate,
      Instant lastModifiedDate,

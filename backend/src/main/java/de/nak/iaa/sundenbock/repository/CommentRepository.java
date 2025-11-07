@@ -2,25 +2,21 @@ package de.nak.iaa.sundenbock.repository;
 
 import de.nak.iaa.sundenbock.model.comment.Comment;
 import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
-
-    /**
-     * Finds all comments for the given ticket and eagerly loads their direct child comments
-     * via an {@link EntityGraph} on the {@code childComments} association.
-     *
-     * @param ticketId the ID of the ticket whose comments should be retrieved
-     * @return a list of comments associated with the ticket, with child comments initialized
-     */
-    @EntityGraph(attributePaths = {"childComments"})
-    List<Comment> findByTicketId(Long ticketId);
+/**
+ * Repository for {@link Comment} entities.
+ * <p>
+ * Provides CRUD operations, Specifications for filtering, and several native
+ * queries to manage hierarchical comment relations.
+ * </p>
+ */
+public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
 
     /**
      * Returns the IDs of the direct child comments for the given parent comment ID.
@@ -45,4 +41,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Transactional
     @Query(value = "DELETE FROM comment WHERE id = :id", nativeQuery = true)
     void deleteByIdQuery(@Param("id") Long id);
+
+    /**
+     * Retrieves a page of top-level comments (no parent) for the given ticket.
+     *
+     * @param ticketId the ID of the ticket
+     * @param pageable pagination information
+     * @return a page of top-level comments for the ticket
+     */
+    Page<Comment> findByTicketIdAndParentCommentIsNull(Long ticketId, Pageable pageable);
 }
