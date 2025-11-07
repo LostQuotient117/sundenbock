@@ -24,6 +24,30 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Provides the core business logic for user management.
+ * <p>
+ * This service class acts as an intermediary between the controllers and the data layer
+ * (repositories), encapsulating all business rules related to users, roles, and permissions.
+ *
+ * <h3>Key Responsibilities:</h3>
+ * <ul>
+ * <li><b>User CRUD:</b> Handles the creation, retrieval, updating, and deletion of {@link User} entities.</li>
+ * <li><b>Data Validation:</b> Ensures data integrity, such as checking for duplicate usernames or emails
+ * (throwing {@link DuplicateResourceException}).</li>
+ * <li><b>DTO Mapping:</b> Uses {@link UserMapper} to convert between persistence entities ({@link User})
+ * and data transfer objects ({@link UserDTO}, {@link UserDetailDTO}, etc.).</li>
+ * <li><b>Role & Permission Management:</b> Provides methods to assign and revoke roles and permissions
+ * from users.</li>
+ * <li><b>Security Operations:</b> Includes security-sensitive logic like password encoding
+ * (via {@link PasswordEncoder}) and administrative password resets.</li>
+ * <li><b>Safeguards:</b> Implements checks to prevent users from performing harmful operations on
+ * their own accounts, such as self-deletion or removing their own admin rights
+ * (throwing {@link SelfActionException}).</li>
+ * </ul>
+ * <p>
+ * All data-modifying operations are transactional.
+ */
 @Service
 public class UserService {
 
