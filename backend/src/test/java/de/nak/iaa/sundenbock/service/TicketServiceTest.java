@@ -67,6 +67,7 @@ class TicketServiceTest {
 
         project = new Project();
         project.setTitle("Demo Project");
+        project.setAbbreviation("DEP");
 
         User createdByUser = new User();
         createdByUser.setUsername("creator");
@@ -115,18 +116,20 @@ class TicketServiceTest {
         CreateTicketDTO createDTO = new CreateTicketDTO("New Ticket", "Description", TicketStatus.CREATED, "user1", 1L);
 
         Ticket mappedTicket = new Ticket();
-        Ticket savedTicket = new Ticket();
+        // Ticket savedTicket = new Ticket(); // Nicht mehr benötigt
 
         when(ticketMapper.toTicketFromCreate(createDTO)).thenReturn(mappedTicket);
         when(userRepository.findByUsername("user1")).thenReturn(Optional.of(user));
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
-        when(ticketRepository.save(mappedTicket)).thenReturn(savedTicket);
-        when(ticketMapper.toTicketDTO(savedTicket)).thenReturn(ticketDTO);
+
+        when(ticketRepository.save(any(Ticket.class))).thenReturn(mappedTicket);
+
+        when(ticketMapper.toTicketDTO(mappedTicket)).thenReturn(ticketDTO);
 
         TicketDTO result = ticketService.createTicket(createDTO);
 
         assertEquals(ticketDTO, result);
-        verify(ticketRepository).save(mappedTicket);
+        verify(ticketRepository, times(2)).save(any(Ticket.class));
     }
 
     @Test
@@ -205,7 +208,6 @@ class TicketServiceTest {
 
         when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
 
-        // User-Objekt manuell erstellen
         User wrongUser = new User();
         wrongUser.setUsername("wrongUser");
 
