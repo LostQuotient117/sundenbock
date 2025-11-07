@@ -4,8 +4,10 @@ import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
+import de.nak.iaa.sundenbock.exception.TicketAlreadyClosedException;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import de.nak.iaa.sundenbock.repository.TicketRepository;
@@ -140,6 +142,9 @@ public class TicketService {
         Ticket existingTicket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id " + id));
 
+        if (existingTicket.getStatus() == TicketStatus.CLOSED){
+            throw new TicketAlreadyClosedException("Ticket with id " + existingTicket.getId() + " is already closed");
+        }
         ticketMapper.updateTicketFromDTO(ticketDTO, existingTicket);
         return ticketMapper.toTicketDTO(existingTicket);
     }

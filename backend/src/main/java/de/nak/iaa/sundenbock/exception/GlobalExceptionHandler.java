@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * Centralized exception handler for controller-level exceptions.
- *
+ * <p>
  * Translates exceptions into meaningful HTTP responses with structured bodies,
  * including timestamps, status codes and error messages.
  */
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link MethodArgumentNotValidException} (HTTP 400).
-     *
+     * <p>
      * Thrown by the @Valid annotation when DTO validation fails.
      * Collects all field-specific errors into a structured response.
      *
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link ConstraintViolationException} (HTTP 400).
-     *
+     * <p>
      * This exception is typically thrown when a validation constraint is violated
      * (e.g., invalid input data). The method extracts all constraint violations,
      * maps them to their respective fields, and constructs a structured response body.
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link UserDisabledException} (HTTP 401).
-     *
+     * <p>
      * Thrown when a disabled user attempts to authenticate.
      *
      * @param ex The caught exception.
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link BadCredentialsException} (HTTP 401).
-     *
+     * <p>
      * Thrown by Spring Security on login failure (e.g., wrong password).
      *
      * @param ex The caught exception.
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
     // TODO implement @PreAuthorize
     /**
      * Handles {@link AccessDeniedException} (HTTP 403).
-     *
+     * <p>
      * Thrown by @PreAuthorize when a user is authenticated but lacks
      * the required authority (role or permission) to access an endpoint.
      *
@@ -144,7 +144,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link SelfActionException} (HTTP 400).
-     *
+     * <p>
      * This exception is thrown when a user attempts an action that is not allowed
      * on their own account or resources (e.g., self-deletion).
      * Constructs a structured response body containing a timestamp, HTTP status,
@@ -183,7 +183,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link DuplicateResourceException} (HTTP 409).
-     *
+     * <p>
      * Thrown when attempting to create a resource that already exists (e.g., duplicate username).
      *
      * @param ex The caught exception.
@@ -202,7 +202,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link RoleInUseException} (HTTP 409).
-     *
+     * <p>
      * Thrown when attempting to delete a role that is still in use by users.
      *
      * @param ex The caught RoleInUseException.
@@ -221,7 +221,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link PermissionInUseException} (HTTP 409).
-     *
+     * <p>
      * Thrown when attempting to delete a permission that is still in use.
      *
      * @param ex The caught PermissionInUseException.
@@ -240,7 +240,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link DataIntegrityViolationException} (HTTP 409).
-     *
+     * <p>
      * Typically thrown when a database constraint is violated (e.g. unique constraint, foreign key).
      * Constructs a structured response body containing a timestamp, HTTP status, error type and a
      * detailed message using the exception's most specific cause.
@@ -261,7 +261,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link IllegalArgumentException} (HTTP 400).
-     *
+     * <p>
      * Thrown when a method receives an argument that is invalid,
      * such as a bad enum value or a logically incorrect parameter
      * not caught by DTO validation.
@@ -282,7 +282,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles all other uncaught {@link Exception}s (HTTP 500).
-     *
+     * <p>
      * @param ex The caught exception.
      * @return A 500 Internal Server Error response entity.
      */
@@ -300,7 +300,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles {@link MismatchedIdException} (HTTP 400).
-     *
+     * <p>
      * Thrown when the resource identifier in the URL/path does not match the identifier
      * provided in the request body or parameters. This safeguards against accidental or
      * malicious updates by enforcing ID consistency across request components.
@@ -319,4 +319,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles {@link TicketAlreadyClosedException} (HTTP 409).
+     * <p>
+     * Thrown when an operation is attempted on a ticket that has already been closed.
+     *
+     * @param ex The caught exception.
+     * @return A 409 Conflict response entity.
+     */
+    @ExceptionHandler(TicketAlreadyClosedException.class)
+    public ResponseEntity<Object> handleTicketAlreadyClosedException(TicketAlreadyClosedException ex) {
+        Map<String, Object> body = Map.of(
+                "timestamp", System.currentTimeMillis(),
+                "status", HttpStatus.CONFLICT.value(),
+                "error", "Conflict",
+                "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
 }
