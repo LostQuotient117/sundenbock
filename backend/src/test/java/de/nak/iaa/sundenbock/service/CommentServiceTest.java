@@ -154,12 +154,15 @@ class CommentServiceTest {
 
     @Test
     void deleteCommentWithChildren_shouldDeleteRecursively() {
-        when(commentRepository.existsById(1L)).thenReturn(true);
-        when(commentRepository.existsById(2L)).thenReturn(true);
+        when(commentRepository.findById(1L)).thenReturn(Optional.of(comment1));
+        when(commentRepository.findById(2L)).thenReturn(Optional.of(comment2));
+
         when(commentRepository.findChildIdsByParentId(1L)).thenReturn(List.of(2L));
         when(commentRepository.findChildIdsByParentId(2L)).thenReturn(List.of());
 
-        commentService.deleteCommentWithChildren(1L);
+        doNothing().when(commentRepository).deleteByIdQuery(anyLong());
+
+        commentService.deleteCommentWithChildren(1L, 1L);
 
         verify(commentRepository).deleteByIdQuery(1L);
         verify(commentRepository).deleteByIdQuery(2L);
@@ -168,11 +171,10 @@ class CommentServiceTest {
 
     @Test
     void deleteCommentWithChildren_shouldThrowException_whenCommentNotFound() {
-        when(commentRepository.findChildIdsByParentId(1L)).thenReturn(List.of());
-        when(commentRepository.existsById(1L)).thenReturn(false);
+        when(commentRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> commentService.deleteCommentWithChildren(1L));
+                () -> commentService.deleteCommentWithChildren(1L, 1L));
 
         verify(commentRepository, never()).deleteByIdQuery(anyLong());
     }

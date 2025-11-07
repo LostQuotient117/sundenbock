@@ -292,7 +292,7 @@ class CommentControllerTest {
     @WithMockUser
     void deleteComment_shouldReturn200_ifOwner() throws Exception {
         when(customSecurityService.isCommentOwner(eq(1L), any())).thenReturn(true);
-        doNothing().when(commentService).deleteCommentWithChildren(1L);
+        doNothing().when(commentService).deleteCommentWithChildren(1L, 1L);
 
         mockMvc.perform(delete("/api/v1/tickets/1/comments/1/delete")
                         .with(csrf()))
@@ -302,7 +302,7 @@ class CommentControllerTest {
     @Test
     @WithMockUser(authorities = "COMMENT_DELETE")
     void deleteComment_shouldReturn200_withPermission() throws Exception {
-        doNothing().when(commentService).deleteCommentWithChildren(1L);
+        doNothing().when(commentService).deleteCommentWithChildren(1L, 1L);
 
         mockMvc.perform(delete("/api/v1/tickets/1/comments/1/delete")
                         .with(csrf()))
