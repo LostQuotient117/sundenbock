@@ -10,6 +10,7 @@ import de.nak.iaa.sundenbock.service.user.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -92,6 +93,7 @@ public class UserController {
      * @return the created {@link UserDetailDTO}
      */
     @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('USER_MANAGE')")
     public UserDetailDTO createUser(@Valid @RequestBody CreateUserDTO request) {
         return userService.createUser(request);
