@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.dto.mapper.CommentMapper;
+import de.nak.iaa.sundenbock.exception.MismatchedIdException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.comment.Comment;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
@@ -52,14 +53,27 @@ public class CommentService{
      * @throws ResourceNotFoundException if the comment with the given ID does not exist
      */
     @Transactional
-    public void deleteCommentWithChildren(Long commentId) {
+    public void deleteCommentWithChildren(Long commentId, Long ticketId) {
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment with id " + commentId + " not found"));
+
+        Long commentReferenceTicketId = comment.getTicket().getId();
+
+        if (commentReferenceTicketId == null) {
+            throw new ResourceNotFoundException("Comment with id " + commentId + " is not associated with any ticket.");
+        }
+
+        if (!commentReferenceTicketId.equals(ticketId)) {
+            throw new MismatchedIdException("Path variable 'ticketId' = " + ticketId
+                    + " does not match 'ticketId' of original Comment = " + commentReferenceTicketId);
+        }
+
         List<Long> childIds = commentRepository.findChildIdsByParentId(commentId);
         for (Long childId : childIds) {
-            deleteCommentWithChildren(childId);
+            this.deleteCommentWithChildren(childId, ticketId);
         }
-        if (!commentRepository.existsById(commentId)) {
-            throw new ResourceNotFoundException("Comment with id " + commentId + " not found");
-        }
+
         commentRepository.deleteByIdQuery(commentId);
     }
 

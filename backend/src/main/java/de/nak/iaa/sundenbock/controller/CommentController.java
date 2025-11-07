@@ -148,7 +148,7 @@ public class CommentController {
      */
     @DeleteMapping("/{commentId}/delete")
     @PreAuthorize("hasAuthority('COMMENT_DELETE') or @customSecurityService.isCommentOwner(#commentId, authentication)")
-    public void deleteComment(@PathVariable @Min(1) Long commentId) {
-        commentService.deleteCommentWithChildren(commentId);
+    public void deleteComment(@PathVariable @Min(1) Long commentId, @PathVariable @Min(1) Long ticketId) {
+        commentService.deleteCommentWithChildren(commentId, ticketId);
     }
 }
