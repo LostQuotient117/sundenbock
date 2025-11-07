@@ -15,7 +15,7 @@ import java.util.List;
  * where needed. This mapper delegates user conversions to {@link UserMapper} when applicable.
  * </p>
  */
-@Mapper(componentModel = "spring", uses = {UserMapper.class})
+@Mapper(componentModel = "spring", uses = {UserMapper.class, ProjectMapper.class})
 public interface TicketMapper {
 
     /**
@@ -24,6 +24,11 @@ public interface TicketMapper {
      * @param ticket the entity to map; may be {@code null}
      * @return the mapped DTO or {@code null} if the input was {@code null}
      */
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "project", source = "project", qualifiedByName = "toProjectWithoutTickets")
     TicketDTO toTicketDTO(Ticket ticket);
 
     /**
@@ -34,6 +39,14 @@ public interface TicketMapper {
      * @param createTicketDTO the DTO carrying the data for a new ticket; may be {@code null}
      * @return a new {@link Ticket} populated from the DTO or {@code null} if the input was {@code null}
      */
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "responsiblePerson", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     Ticket toTicketFromCreate(CreateTicketDTO createTicketDTO);
 
     /**
@@ -52,6 +65,7 @@ public interface TicketMapper {
     @Mapping(target = "lastModifiedDate", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     void updateTicketFromDTO(TicketDTO ticketDTO, @MappingTarget Ticket existingTicket);
 
     List<TicketDTO> toTicketDTOs(List<Ticket> ticket);

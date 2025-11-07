@@ -17,6 +17,8 @@ public interface UserMapper {
 
     UserDTO toUserDTO(User user);
 
+    User toEntity(UserDTO userDTO); //needed for TicketMapper
+
     @Mapping(target = "permissions", expression = "java(mapAllPermissions(user))")
     @Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")
     @Mapping(source = "createdAt", target = "createdAt")
