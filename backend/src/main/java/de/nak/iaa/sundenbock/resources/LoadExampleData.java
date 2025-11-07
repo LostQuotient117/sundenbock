@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * </p>
  */
 @Component
-@ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:h2:mem:mydb")
+// @ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:h2:mem:mydb")
 public class LoadExampleData implements CommandLineRunner {
 
     private final LoadBaselineSecurityData loadBaselineSecurityData;
