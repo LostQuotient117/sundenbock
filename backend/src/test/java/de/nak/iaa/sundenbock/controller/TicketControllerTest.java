@@ -23,7 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,22 +62,22 @@ class TicketControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private TicketService ticketService;
 
-    @MockBean
+    @MockitoBean
     private TicketMapper ticketMapper;
 
-    @MockBean
+    @MockitoBean
     private PageableFactory pageableFactory;
 
-    @MockBean
+    @MockitoBean
     private JwtService jwtService;
 
-    @MockBean
+    @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
 
-    @MockBean
+    @MockitoBean
     private CustomSecurityService customSecurityService;
 
     private TicketDTO testTicketDTO;
@@ -96,19 +96,16 @@ class TicketControllerTest {
                 Instant.now(), Instant.now(), testUserDTO, testUserDTO
         );
 
-        // Mock-Objekt für die Rückgabe des TicketService
         testTicket = new Ticket();
         testTicket.setId(1L);
         testTicket.setTitle("Test Ticket");
         testTicket.setTicketKey("TPJ-1");
 
-        // Standard-Pageable mocken
         testPageable = PageRequest.of(0, 20);
         when(pageableFactory.createPageable(eq(0), eq(20), any(), any(), any()))
                 .thenReturn(testPageable);
     }
 
-    // --- Security Tests (Anonymous) ---
 
     @Test
     @DisplayName("GET /api/v1/tickets should return 401 for anonymous user")
@@ -139,8 +136,6 @@ class TicketControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    // --- Security Tests (Forbidden) ---
-
     @Test
     @DisplayName("GET /api/v1/tickets should return 403 for user without TICKET_READ_ALL")
     @WithMockUser(username = "user", authorities = {"ROLE_USER"})
@@ -154,7 +149,6 @@ class TicketControllerTest {
     @DisplayName("GET /api/v1/tickets/1 should return 403 if not owner and no TICKET_READ_ALL")
     @WithMockUser(username = "otheruser", authorities = {"ROLE_USER"})
     void getTicketById_shouldReturn403_ifNotOwner() throws Exception {
-        // Explizit mocken, dass der CustomSecurityService den Zugriff verweigert
         when(customSecurityService.canAccessTicket(eq(1L), any())).thenReturn(false);
 
         mockMvc.perform(get("/api/v1/tickets/1"))
@@ -194,8 +188,6 @@ class TicketControllerTest {
                         .content(objectMapper.writeValueAsString(testTicketDTO)))
                 .andExpect(status().isForbidden());
     }
-
-    // --- GET Endpoints (Authorized) ---
 
     @Test
     @DisplayName("GET /api/v1/tickets should return paged list for admin")
@@ -239,15 +231,12 @@ class TicketControllerTest {
                 .andExpect(jsonPath("$.id").value(1));
     }
 
-    // --- POST/PUT/DELETE Endpoints (Authorized) ---
-
     @Test
     @DisplayName("POST /api/v1/tickets/create should return 200 OK and created ticket")
     @WithMockUser(authorities = "TICKET_CREATE")
     void createTicket_shouldReturnOk_andTicket() throws Exception {
         CreateTicketDTO createDTO = new CreateTicketDTO("New Ticket", "Desc", TicketStatus.CREATED, "testuser", 1L);
 
-        // Mocken, dass der Service das DTO zurückgibt
         when(ticketService.createTicket(any(CreateTicketDTO.class))).thenReturn(testTicketDTO);
 
         mockMvc.perform(post("/api/v1/tickets/create")
@@ -284,8 +273,6 @@ class TicketControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // --- Error and Validation Tests (4xx) ---
-
     @Test
     @DisplayName("GET /api/v1/tickets/99 should return 404 if not found")
     @WithMockUser(authorities = "TICKET_READ_ALL")
@@ -301,7 +288,6 @@ class TicketControllerTest {
     @DisplayName("GET /api/v1/tickets/0 should return 400 for invalid path variable")
     @WithMockUser(authorities = "TICKET_READ_ALL")
     void getTicketById_shouldReturn400_forInvalidId() throws Exception {
-        // Die @Min(1) Validierung sollte fehlschlagen
         mockMvc.perform(get("/api/v1/tickets/0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Bad Request"));
@@ -311,7 +297,6 @@ class TicketControllerTest {
     @DisplayName("POST /api/v1/tickets/create should return 400 for invalid DTO")
     @WithMockUser(authorities = "TICKET_CREATE")
     void createTicket_shouldReturn400_forInvalidDTO() throws Exception {
-        // Titel ist leer, Status ist null -> verletzt @NotBlank und @NotNull
         CreateTicketDTO badDTO = new CreateTicketDTO("", "Desc", null, null, null);
 
         mockMvc.perform(post("/api/v1/tickets/create")
@@ -329,14 +314,12 @@ class TicketControllerTest {
     void updateTicket_shouldReturn400_forIdMismatch() throws Exception {
         when(customSecurityService.canUpdateTicket(eq(1L), any())).thenReturn(true);
 
-        // DTO hat ID 2L, aber Path Variable ist 1L
         TicketDTO mismatchDTO = new TicketDTO(
                 2L, "TPJ-2", "Other Ticket", "Desc",
                 TicketStatus.CREATED, testUserDTO, testProjectDTO,
                 Instant.now(), Instant.now(), testUserDTO, testUserDTO
         );
 
-        // Service wird nicht aufgerufen, der Controller wirft MismatchedIdException
         mockMvc.perform(put("/api/v1/tickets/1/update")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
