@@ -42,6 +42,16 @@ public interface CommentMapper {
      * @param createCommentDTO the DTO carrying the data for a new comment; may be {@code null}
      * @return a new {@link Comment} populated from the DTO or {@code null} if the input was {@code null}
      */
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "ticket", ignore = true)
+    @Mapping(target = "childComments", ignore = true)
+    @Mapping(target = "parentComment", ignore = true)
+    @Mapping(target = "likes", ignore = true)
+    @Mapping(target = "dislikes", ignore = true)
     Comment toCommentForCreate(CreateCommentDTO createCommentDTO);
 
     /**
