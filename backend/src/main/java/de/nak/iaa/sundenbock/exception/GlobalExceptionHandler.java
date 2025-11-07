@@ -337,4 +337,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidStatusTransition(InvalidStatusTransitionException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "timestamp", System.currentTimeMillis(),
+                        "status", HttpStatus.BAD_REQUEST.value(),
+                        "error", "Invalid Ticket Status Transition",
+                        "message", ex.getMessage()
+                ));
+    }
 }

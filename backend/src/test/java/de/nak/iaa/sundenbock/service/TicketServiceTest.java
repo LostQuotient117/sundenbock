@@ -1,11 +1,14 @@
 package de.nak.iaa.sundenbock.service;
 
+
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
+import de.nak.iaa.sundenbock.exception.InvalidStatusTransitionException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
+import de.nak.iaa.sundenbock.exception.TicketAlreadyClosedException;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
@@ -20,6 +23,8 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +68,9 @@ class TicketServiceTest {
         project = new Project();
         project.setTitle("Demo Project");
 
+        User createdByUser = new User();
+        createdByUser.setUsername("creator");
+
         ticket = new Ticket();
         ticket.setId(1L);
         ticket.setTitle("Test Ticket");
@@ -70,6 +78,8 @@ class TicketServiceTest {
         ticket.setStatus(TicketStatus.CREATED);
         ticket.setResponsiblePerson(user);
         ticket.setProject(project);
+        ticket.setCreatedBy(createdByUser);
+        ticket.setLastModifiedBy(createdByUser);
 
         UserDTO userDTO = new UserDTO(1L, "user1", "Test", "User");
         ProjectDTO projectDTO = new ProjectDTO(1L, "Demo Project", "Demo Project for Mockito", Instant.now(), Instant.now(), userDTO, userDTO);
@@ -157,5 +167,65 @@ class TicketServiceTest {
 
         assertEquals(1, result.getTotalElements());
         verify(ticketRepository).findAll(ArgumentMatchers.<Specification<Ticket>>any(), any(Pageable.class));
+    }
+
+    @Test
+    void updateTicket_successful() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("user1", null, "ROLE_DEVELOPER");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        doNothing().when(ticketMapper).updateTicketFromDTO(ticketDTO, ticket, userRepository);
+        when(ticketMapper.toTicketDTO(ticket)).thenReturn(ticketDTO);
+
+        TicketDTO result = ticketService.updateTicket(1L, ticketDTO);
+
+        assertEquals(ticketDTO, result);
+        verify(ticketMapper).updateTicketFromDTO(ticketDTO, ticket, userRepository);
+    }
+
+    @Test
+    void updateTicket_throwsException_whenClosed() {
+        ticket.setStatus(TicketStatus.CLOSED);
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("user1", null, "ROLE_DEVELOPER");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        assertThrows(TicketAlreadyClosedException.class,
+                () -> ticketService.updateTicket(1L, ticketDTO));
+    }
+
+    @Test
+    void updateTicket_throwsException_whenInvalidUser() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("wrongUser", null, "ROLE_USER");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
+        // User-Objekt manuell erstellen
+        User wrongUser = new User();
+        wrongUser.setUsername("wrongUser");
+
+        lenient().when(userRepository.findByUsername("wrongUser")).thenReturn(Optional.of(wrongUser));
+        lenient().when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        TicketDTO updatedDTO = new TicketDTO(
+                ticketDTO.id(),
+                ticketDTO.title(),
+                ticketDTO.description(),
+                TicketStatus.IN_PROGRESS, // Statusänderung
+                ticketDTO.responsiblePerson(),
+                ticketDTO.project(),
+                ticketDTO.createdDate(),
+                ticketDTO.lastModifiedDate(),
+                ticketDTO.createdBy(),
+                ticketDTO.lastModifiedBy()
+        );
+
+        assertThrows(InvalidStatusTransitionException.class,
+                () -> ticketService.updateTicket(1L, updatedDTO));
     }
 }

@@ -1,5 +1,7 @@
 package de.nak.iaa.sundenbock.model.ticket;
 
+import java.util.EnumSet;
+import java.util.Set;
 /**
  * Workflow states for a {@link de.nak.iaa.sundenbock.model.ticket.Ticket}.
  * <p>
@@ -21,5 +23,20 @@ public enum TicketStatus {
     IN_PROGRESS,
     RESOLVED,
     REJECTED,
-    CLOSED
+    CLOSED;
+
+    public Set<TicketStatus> getAllowedTransitionsForDeveloper() {
+        return switch (this) {
+            case CREATED, REOPENED -> EnumSet.of(IN_PROGRESS);
+            case IN_PROGRESS -> EnumSet.of(RESOLVED, REJECTED);
+            default -> EnumSet.noneOf(TicketStatus.class);
+        };
+    }
+
+    public Set<TicketStatus> getAllowedTransitionsForAuthor() {
+        return switch (this) {
+            case RESOLVED, REJECTED -> EnumSet.of(REOPENED, CLOSED);
+            default -> EnumSet.noneOf(TicketStatus.class);
+        };
+    }
 }

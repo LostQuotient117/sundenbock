@@ -18,7 +18,6 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface ProjectMapper {
-
     /**
      * Maps a {@link Project} entity to a {@link ProjectDTO}.
      *
@@ -45,6 +44,6 @@ public interface ProjectMapper {
 
     List<ProjectDTO> toProjectDTOs(List<Project> projects);
 
-    @Named("toProjectWithoutTickets")
+    @Named("toProjectWithoutTicketsDTO")
     ProjectDTO toProjectWithoutTickets(Project project);
 }
