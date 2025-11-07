@@ -19,14 +19,15 @@ spring:
     activate:
       on-profile: dev #run dev: mvn spring-boot:run
   datasource:
-    url: jdbc:h2:mem:mydb
+    url: jdbc:h2:file:./data/sundenbock-db
     driver-class-name: org.h2.Driver
     username: sa
     password:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop #database will be created at every start
+      # ddl-auto: create-drop #database will be created at every start
+        ddl-auto: update
     show-sql: false # use true if console logs of db are wanted
     properties:
       hibernate:
