@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.annotation.NavItem;
-import de.nak.iaa.sundenbock.dto.PageDTO;
+import de.nak.iaa.sundenbock.dto.frontendArchitectureDTO.PageDTO;
 import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
 import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;

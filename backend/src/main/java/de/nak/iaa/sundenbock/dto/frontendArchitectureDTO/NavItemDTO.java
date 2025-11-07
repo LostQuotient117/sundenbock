@@ -1,4 +1,4 @@
-package de.nak.iaa.sundenbock.dto.navigationDTO;
+package de.nak.iaa.sundenbock.dto.frontendArchitectureDTO;
 
 import java.util.Set;
 

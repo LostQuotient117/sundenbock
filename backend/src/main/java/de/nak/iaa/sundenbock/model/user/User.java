@@ -30,7 +30,7 @@ import java.util.Set;
  * transactional auto-flushing.
  */
 @Entity
-@Table(name = "users") // "user" ist oft reserviert
+@Table(name = "users")
 @Getter
 @Setter
 public class User implements UserDetails {
@@ -44,6 +44,12 @@ public class User implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
 
     @Column(nullable = false)
     private String password;

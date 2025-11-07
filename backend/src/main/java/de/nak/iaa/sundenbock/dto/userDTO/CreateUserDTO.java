@@ -19,6 +19,12 @@ public record CreateUserDTO(
         @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
         String username,
 
+        @NotBlank(message = "First name must not be empty")
+        String firstName,
+
+        @NotBlank(message = "Last name must not be empty")
+        String lastName,
+
         @NotBlank(message = "Email must not be empty")
         @Email(message = "Email should be valid")
         String email,

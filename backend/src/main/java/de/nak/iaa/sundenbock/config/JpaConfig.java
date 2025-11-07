@@ -49,7 +49,6 @@ public class JpaConfig {
             if (auth != null && auth.isAuthenticated()){
                 Object principal = auth.getPrincipal();
                 if (principal instanceof User) {
-                    // KEINE DB-ABFRAGE MEHR NÖTIG!
                     return Optional.of((User) principal);
                 }
 
@@ -61,8 +60,10 @@ public class JpaConfig {
                         User systemUser = new User();
                         systemUser.setUsername("system");
                         systemUser.setEmail("system@local");
-                        systemUser.setPassword(passwordEncoder.encode("systemPassword-LE")); // Braucht ein PW
-                        systemUser.setEnabled(false); // Deaktiviert
+                        systemUser.setPassword(passwordEncoder.encode("systemPassword-LE"));
+                        systemUser.setFirstName("System");
+                        systemUser.setLastName("User");
+                        systemUser.setEnabled(false);
                         User savedSystemUser = userRepository.save(systemUser);
                         return Optional.of(savedSystemUser);
                     });

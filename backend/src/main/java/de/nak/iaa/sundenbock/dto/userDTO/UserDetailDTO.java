@@ -18,6 +18,8 @@ import java.util.Set;
 public record UserDetailDTO(
         Long id,
         String username,
+        String firstName,
+        String lastName,
 
         @NotBlank(message = "Email must not be empty")
         @Email(message = "Email should be valid")

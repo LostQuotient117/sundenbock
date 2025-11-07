@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.service.navigation;
 
 import de.nak.iaa.sundenbock.annotation.NavItem;
-import de.nak.iaa.sundenbock.dto.navigationDTO.NavItemDTO;
+import de.nak.iaa.sundenbock.dto.frontendArchitectureDTO.NavItemDTO;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

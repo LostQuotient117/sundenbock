@@ -77,14 +77,25 @@ public class UserService {
      */
     @Transactional
     public UserDetailDTO updateUser(String username, UpdateUserDTO updateDto) {
-
         User user = findUserByUsername(username);
 
-        if (updateDto.email() != null && !updateDto.email().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(updateDto.email())) {
-                throw new DuplicateResourceException("Email " + updateDto.email() + " is already in use.");
+        String trimmedEmail = (updateDto.email() != null) ? updateDto.email().trim() : null;
+        String trimmedFirstName = (updateDto.firstName() != null) ? updateDto.firstName().trim() : null;
+        String trimmedLastName = (updateDto.lastName() != null) ? updateDto.lastName().trim() : null;
+
+        if (trimmedEmail != null && !trimmedEmail.equals(user.getEmail())) {
+            if (userRepository.existsByEmail(trimmedEmail)) {
+                throw new DuplicateResourceException("Email " + trimmedEmail + " is already in use.");
             }
-            user.setEmail(updateDto.email());
+            user.setEmail(trimmedEmail);
+        }
+
+        if (trimmedFirstName != null) {
+            user.setFirstName(trimmedFirstName);
+        }
+
+        if (trimmedLastName != null) {
+            user.setLastName(trimmedLastName);
         }
 
         if (updateDto.enabled() != null) {
@@ -108,25 +119,36 @@ public class UserService {
      */
     @Transactional
     public UserDetailDTO createUser(CreateUserDTO request) {
-        if (userRepository.findByUsername(request.username()).isPresent()) {
-            throw new DuplicateResourceException("Username already exists: " + request.username());
+
+        CreateUserDTO trimmedRequest = new CreateUserDTO(
+                request.username().trim(),
+                request.firstName().trim(),
+                request.lastName().trim(),
+                request.email().trim(),
+                request.password(),
+                (request.roles() != null) ? request.roles().stream().map(String::trim).collect(Collectors.toSet()) : Set.of());
+
+        if (userRepository.findByUsername(trimmedRequest.username()).isPresent()) {
+            throw new DuplicateResourceException("Username already exists: " + trimmedRequest.username());
         }
 
-        if (userRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("Email already in use: " + request.email());
+        if (userRepository.existsByEmail(trimmedRequest.email())) {
+            throw new DuplicateResourceException("Email already in use: " + trimmedRequest.email());
         }
 
         User user = new User();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setUsername(trimmedRequest.username());
+        user.setEmail(trimmedRequest.email());
+        user.setPassword(passwordEncoder.encode(trimmedRequest.password()));
+        user.setFirstName(trimmedRequest.firstName());
+        user.setLastName(trimmedRequest.lastName());
         user.setEnabled(true);
 
         Set<Role> rolesToAssign;
-        if (request.roles() == null || request.roles().isEmpty()) {
+        if (trimmedRequest.roles() == null || trimmedRequest.roles().isEmpty()) {
             rolesToAssign = Set.of(getDefaultUserRole());
         } else {
-            rolesToAssign = request.roles().stream()
+            rolesToAssign = trimmedRequest.roles().stream()
                     .map(this::findRoleByName)
                     .collect(Collectors.toSet());
         }
