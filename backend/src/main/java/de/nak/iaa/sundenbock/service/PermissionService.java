@@ -59,12 +59,14 @@ public class PermissionService {
     @Transactional
     public PermissionDTO createPermission(PermissionDTO permissionDTO) {
 
-        if (permissionRepository.existsById(permissionDTO.name())) {
-            throw new DuplicateResourceException("Permission already exists: " + permissionDTO.name());
+        String trimmedName = permissionDTO.name().trim();
+
+        if (permissionRepository.existsById(trimmedName)) {
+            throw new DuplicateResourceException("Permission already exists: " + trimmedName);
         }
 
         Permission permission = new Permission();
-        permission.setName(permissionDTO.name());
+        permission.setName(trimmedName);
         Permission savedPermission = permissionRepository.save(permission);
         return permissionMapper.toPermissionDTO(savedPermission);
     }
@@ -80,8 +82,8 @@ public class PermissionService {
      */
     @Transactional
     public void deletePermission(String permissionName) {
-        if (!permissionRepository.existsById(permissionName)) {
-            throw new ResourceNotFoundException("Permission not found: " + permissionName);
+        if (!permissionRepository.existsById(permissionName.trim())) {
+            throw new ResourceNotFoundException("Permission not found: " + permissionName.trim());
         }
 
         long rolesCount = roleRepository.countByPermissions_Name(permissionName);

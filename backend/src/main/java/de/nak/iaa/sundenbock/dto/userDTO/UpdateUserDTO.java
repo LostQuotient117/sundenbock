@@ -11,6 +11,13 @@ import jakarta.validation.constraints.Size;
  * </p>
  */
 public record UpdateUserDTO(
+
+        @Size(min = 1, max = 100, message = "First name must be between 1 and 100 characters")
+        String firstName,
+
+        @Size(min = 1, max = 100, message = "Last name must be between 1 and 100 characters")
+        String lastName,
+
         @Email(message = "Email should be valid")
         @Size(max = 255, message = "Email must be less than 255 characters")
         String email,

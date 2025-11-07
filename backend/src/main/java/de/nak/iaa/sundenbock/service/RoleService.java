@@ -65,12 +65,14 @@ public class RoleService {
     @Transactional
     public RoleDTO createRole(CreateRoleDTO createRoleDTO) {
 
-        if (roleRepository.findByName(createRoleDTO.name()).isPresent()) {
-            throw new DuplicateResourceException("Role already exists: " + createRoleDTO.name());
+        String trimmedName = createRoleDTO.name().trim();
+
+        if (roleRepository.findByName(trimmedName).isPresent()) {
+            throw new DuplicateResourceException("Role already exists: " + trimmedName);
         }
 
         Role role = new Role();
-        role.setName(createRoleDTO.name());
+        role.setName(trimmedName);
         Set<Permission> permissions = createRoleDTO.permissions().stream()
                 .map(name -> permissionRepository.findById(name)
                         .orElseThrow(() -> new ResourceNotFoundException("Permission not found: " + name)))

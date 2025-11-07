@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.navigationDTO.NavItemDTO;
+import de.nak.iaa.sundenbock.dto.frontendArchitectureDTO.NavItemDTO;
 import de.nak.iaa.sundenbock.service.navigation.NavigationRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

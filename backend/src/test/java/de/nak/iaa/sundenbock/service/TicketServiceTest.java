@@ -57,6 +57,8 @@ class TicketServiceTest {
     void setUp() {
         user = new User();
         user.setUsername("user1");
+        user.setFirstName("Test");
+        user.setLastName("User");
 
         project = new Project();
         project.setTitle("Demo Project");
@@ -69,7 +71,7 @@ class TicketServiceTest {
         ticket.setResponsiblePerson(user);
         ticket.setProject(project);
 
-        UserDTO userDTO = new UserDTO(1L, "user1");
+        UserDTO userDTO = new UserDTO(1L, "user1", "Test", "User");
         ProjectDTO projectDTO = new ProjectDTO(1L, "Demo Project", "Demo Project for Mockito", Instant.now(), Instant.now(), userDTO, userDTO);
         ticketDTO = new TicketDTO(1L, "Test Ticket", "Description", TicketStatus.CREATED, userDTO, projectDTO, Instant.now(), Instant.now(), userDTO, userDTO
         );

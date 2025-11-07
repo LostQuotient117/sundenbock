@@ -1,6 +1,6 @@
 package de.nak.iaa.sundenbock.controller;
 
-import de.nak.iaa.sundenbock.dto.PageDTO;
+import de.nak.iaa.sundenbock.dto.frontendArchitectureDTO.PageDTO;
 import de.nak.iaa.sundenbock.dto.mapper.TicketMapper;
 import de.nak.iaa.sundenbock.dto.ticketDTO.CreateTicketDTO;
 import de.nak.iaa.sundenbock.dto.ticketDTO.TicketDTO;
@@ -50,6 +50,8 @@ class TicketControllerTest {
     void setUp() {
         User user = new User();
         user.setUsername("user1");
+        user.setFirstName("Test");
+        user.setLastName("User");
 
         Project project = new Project();
         project.setTitle("Demo Project");

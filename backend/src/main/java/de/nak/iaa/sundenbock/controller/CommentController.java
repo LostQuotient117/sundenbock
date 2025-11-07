@@ -1,7 +1,7 @@
 package de.nak.iaa.sundenbock.controller;
 
 import de.nak.iaa.sundenbock.annotation.NavItem;
-import de.nak.iaa.sundenbock.dto.PageDTO;
+import de.nak.iaa.sundenbock.dto.frontendArchitectureDTO.PageDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CommentDTO;
 import de.nak.iaa.sundenbock.dto.commentDTO.CreateCommentDTO;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
