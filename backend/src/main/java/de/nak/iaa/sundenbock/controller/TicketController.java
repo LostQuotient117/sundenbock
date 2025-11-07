@@ -55,6 +55,30 @@ public class TicketController {
         this.pageableFactory = pageableFactory;
     }
 
+    /**
+     * Retrieves a paginated and sortable list of all tickets, optionally filtered
+     * by a search term.
+     * <p>
+     * This endpoint supports pagination via {@code page} and {@code pageSize} parameters
+     * and sorting via the {@code sort} parameter. The search term is applied
+     * across multiple fields as defined in the {@code TicketService}.
+     * <p>
+     * Access to this endpoint is restricted to users who possess the
+     * 'TICKET_READ_ALL' authority.
+     *
+     * @param search   (Optional) A search term used to filter tickets. The search
+     * is typically applied to fields like title, description, etc.
+     * If null or empty, all tickets are considered.
+     * @param page     (Optional) The page number to retrieve, 0-indexed.
+     * Defaults to 0.
+     * @param pageSize (Optional) The number of tickets to retrieve per page.
+     * Defaults to 20.
+     * @param sort     (Optional) A string defining the sorting criteria, e.g.,
+     * "title,asc" or "status,desc". The fields must be
+     * present in the {@code SORT_WHITELIST}.
+     * @return A {@link PageDTO} containing the list of {@link TicketDTO}s for the
+     * requested page, along with total element count and pagination details.
+     */
     @GetMapping
     @PreAuthorize("hasAuthority('TICKET_READ_ALL')")
     public PageDTO<TicketDTO> getTickets(

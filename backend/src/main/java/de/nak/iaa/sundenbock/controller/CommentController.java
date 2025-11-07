@@ -57,6 +57,36 @@ public class CommentController {
         this.ticketRepository = ticketRepository;
     }
 
+    /**
+     * Retrieves a paginated list of comments, including their nested replies,
+     * for a specific ticket.
+     * <p>
+     * This endpoint fetches comments in a structured, paginated, and sortable manner.
+     * The resulting {@link CommentDTO} objects contain their respective replies.
+     *
+     * <h3>Security:</h3>
+     * Access is granted based on two conditions:
+     * <ol>
+     * <li>The user has the global {@code TICKET_READ_ALL} authority.</li>
+     * <li>OR, the {@code @customSecurityService} determines that the current
+     * authenticated user has permission to access the specific {@code ticketId}
+     * (e.g., they are the author, assignee, etc.).</li>
+     * </ol>
+     *
+     * @param ticketId The unique identifier (from the URL path) of the ticket
+     * for which to retrieve comments.
+     * @param page     (Optional) The page number of comments to retrieve,
+     * 0-indexed. Defaults to 0.
+     * @param pageSize (Optional) The number of comments to retrieve per
+     * page. Defaults to 20.
+     * @param sort     (Optional) A string defining the sorting criteria for the
+     * comments (e.g., "createdAt,desc"). Must adhere
+     * to the {@code SORT_WHITELIST}.
+     * @return A {@link PageDTO} containing the requested page of {@link CommentDTO}s
+     * (which include their replies), along with pagination metadata.
+     * @throws ResourceNotFoundException if the ticket specified by {@code ticketId}
+     * does not exist.
+     */
     @GetMapping
     @PreAuthorize("hasAuthority('TICKET_READ_ALL') or @customSecurityService.canAccessTicket(#ticketId, authentication)")
     public PageDTO<CommentDTO> getPagedCommentsWithReplies(

@@ -42,8 +42,32 @@ public interface ProjectMapper {
     @Mapping(target = "tickets", ignore = true)
     Project toProjectForCreate(CreateProjectDTO createProjectDTO);
 
+    /**
+     * Converts a list of {@link Project} entities into a list of {@link ProjectDTO} objects.
+     * <p>
+     * MapStruct will automatically implement this method by iterating over the source
+     * list and applying the corresponding single-object mapping method (e.g.,
+     * {@code toProjectDTO(Project)}) to each element.
+     *
+     * @param projects The list of {@link Project} entities to be converted.
+     * @return A list containing the corresponding {@link ProjectDTO} objects.
+     */
     List<ProjectDTO> toProjectDTOs(List<Project> projects);
 
+    /**
+     * Converts a {@link Project} entity to a {@link ProjectDTO}, specifically
+     * <strong>omitting</strong> the list of associated tickets.
+     * <p>
+     * This method is registered as a MapStruct qualifier via {@code @Named}
+     * with the name "toProjectWithoutTicketsDTO".
+     * <p>
+     * Its primary purpose is to be used by other mappers (e.g., {@code TicketMapper})
+     * when mapping a ticket's associated project reference. This prevents
+     * circular mapping dependencies and infinite recursion (e.g., Ticket -> Project -> Tickets).
+     *
+     * @param project The source {@link Project} entity to convert.
+     * @return The {@link ProjectDTO}, intentionally without the {@code tickets} collection.
+     */
     @Named("toProjectWithoutTicketsDTO")
     ProjectDTO toProjectWithoutTickets(Project project);
 }

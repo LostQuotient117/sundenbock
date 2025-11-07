@@ -143,12 +143,40 @@ public class TicketService {
     }
 
     /**
-     * Updates an existing ticket with the data from the provided {@link TicketDTO}.
+     * Updates an existing ticket identified by its ID, applying new data from the provided DTO.
+     * <p>
+     * This method operates within a transaction and includes several critical business logic checks:
+     * <ul>
+     * <li><b>Status Validation:</b> It verifies that the ticket is not already 'CLOSED'.</li>
+     * <li><b>Role-Based Transition:</b> It validates the requested status transition based on the
+     * authenticated user's roles (ADMIN, DEVELOPER, or AUTHOR).
+     * <ul>
+     * <li>{@code ROLE_ADMIN} can perform any transition.</li>
+     * <li>{@code ROLE_DEVELOPER} can only perform transitions defined in
+     * {@code TicketStatus.getAllowedTransitionsForDeveloper()}.</li>
+     * <li>The <b>Author</b> (original creator) can only perform transitions defined in
+     * {@code TicketStatus.getAllowedTransitionsForAuthor()}.</li>
+     * <li>Staying in the same status is always permitted.</li>
+     * </ul>
+     * </li>
+     * <li><b>Entity Updates:</b> It updates the responsible person and/or the associated project
+     * if they are provided in the DTO, fetching and validating their existence.</li>
+     * <li><b>Data Mapping:</b> It uses a mapper to apply all other updates from the DTO to the
+     * ticket entity before persistence.</li>
+     * </ul>
      *
-     * @param id        the ID of the ticket to update
-     * @param ticketDTO the new values for the ticket
-     * @return the updated ticket as {@link TicketDTO}
-     * @throws ResourceNotFoundException if no ticket exists with the given ID
+     * @param id        The unique identifier of the ticket to update.
+     * @param ticketDTO A {@link TicketDTO} containing the new data for the ticket, including the
+     * desired {@code nextStatus}.
+     * @return The updated {@link TicketDTO} after the changes have been persisted.
+     * @throws ResourceNotFoundException      if the ticket with the specified {@code id} is not found,
+     * or if the responsible user or project specified in the
+     * DTO cannot be found by their respective identifiers.
+     * @throws TicketAlreadyClosedException   if an update is attempted on a ticket that is already
+     * in the {@code CLOSED} status.
+     * @throws InvalidStatusTransitionException if the transition from the ticket's current status
+     * to the new status is not allowed for the
+     * authenticated user's role.
      */
     @Transactional
     public TicketDTO updateTicket(Long id, TicketDTO ticketDTO) {

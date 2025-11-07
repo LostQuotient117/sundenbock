@@ -12,12 +12,49 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A MapStruct mapper interface responsible for converting between the {@link User}
+ * persistence entity and its various Data Transfer Object (DTO) representations,
+ * such as {@link UserDTO} and {@link UserDetailDTO}.
+ * <p>
+ * This mapper is configured as a Spring component and can be injected into
+ * services.
+ *
+ * <h3>Key Logic: Permission Aggregation</h3>
+ * A critical feature of this mapper is its ability to aggregate permissions.
+ * When mapping to {@link UserDetailDTO}, it uses the {@link #mapAllPermissions(User)}
+ * method to create a comprehensive, flat set of permissions. This set includes
+ * permissions assigned <strong>directly</strong> to the user as well as all permissions
+ * <strong>inherited</strong> from the user's assigned roles.
+ *
+ */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
+    /**
+     * Converts a {@link User} entity to its basic {@link UserDTO} representation.
+     * <p>
+     * This mapping is typically used for overview lists or simple references
+     * where detailed information (like roles, permissions, or full timestamps)
+     * is not required.
+     *
+     * @param user The {@link User} entity to convert.
+     * @return The corresponding {@link UserDTO}.
+     */
     UserDTO toUserDTO(User user);
 
-    User toEntity(UserDTO userDTO); //needed for TicketMapper
+    /**
+     * Converts a basic {@link UserDTO} back into a {@link User} entity.
+     * <p>
+     * <strong>Note:</strong> This method is primarily intended for use within
+     * other mappers (e.g., {@code TicketMapper}) to re-associate entities
+     * based on a simple DTO reference (e.g., setting a ticket's responsible person).
+     * It does not map complex fields like roles, permissions, or passwords.
+     *
+     * @param userDTO The {@link UserDTO} to convert.
+     * @return The corresponding {@link User} entity (likely with partial data).
+     */
+    User toEntity(UserDTO userDTO);
 
     @Mapping(target = "permissions", expression = "java(mapAllPermissions(user))")
     @Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")

@@ -10,6 +10,30 @@ import org.springframework.util.ClassUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * A Spring component that builds and maintains a registry of UI navigation items.
+ * <p>
+ * This class is initialized once when the Spring {@link ApplicationContext} starts.
+ * It eagerly scans the context for all beans annotated with {@link NavItem}. For each
+ * discovered bean, it constructs a {@link NavItemDTO} that represents a link
+ * in the application's navigation menu.
+ *
+ * <h3>Core Responsibilities:</h3>
+ * <ul>
+ * <li><b>Discovery:</b> Finds all navigation-related components (beans with {@link NavItem})
+ * at application startup.</li>
+ * <li><b>Permission Aggregation:</b> Gathers security requirements (permissions/roles)
+ * for each item. It intelligently merges permissions defined directly in the
+ * {@link NavItem} annotation with those programmatically extracted from other security
+ * annotations on the component (via {@code RoleExtractor}).</li>
+ * <li><b>Filtering & Caching:</b> Provides high-performance, cached methods to retrieve
+ * either the complete navigation list ({@link #getAll()}) or a list filtered
+ * according to a user's specific set of permissions ({@link #getForPermissions(Collection)}).</li>
+ * </ul>
+ * <p>
+ * The resulting list of all navigation items is immutable and sorted alphabetically
+ * by label.
+ */
 @Component
 public class NavigationRegistry {
 
