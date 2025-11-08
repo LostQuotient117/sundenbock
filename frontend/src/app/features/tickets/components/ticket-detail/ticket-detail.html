@@ -7,7 +7,7 @@
 <div class="card bg-base-100 shadow-xl border border-base-200">
   <div class="card-body">
     <h2 class="card-title text-xl font-bold">{{ t.title }}</h2>
-
+    <p><strong>Ticket-Key:</strong> {{ t.ticketKey }}</p>
     <div class="flex flex-col gap-2">
       <p><strong>Status:</strong> {{ t.status }}</p>
       <p><strong>Responsible:</strong> {{ t.responsiblePerson?.username }}</p>

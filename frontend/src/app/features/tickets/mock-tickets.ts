@@ -5,6 +5,7 @@ export const MOCK_TICKETS: Page<HydratedTicket> = {
   items: [
     {
       id: 1,
+      ticketKey: 'TCK-001',
       title: 'Login-Fehler auf Prod',
       status: 'IN_PROGRESS',
       createdOn: new Date('2025-11-01T10:12:00'),
@@ -12,6 +13,7 @@ export const MOCK_TICKETS: Page<HydratedTicket> = {
     },
     {
       id: 2,
+      ticketKey: 'TCK-002',
       title: 'Fehlerhafte Summenanzeige',
       status: 'CREATED',
       createdOn: new Date('2025-10-28T09:30:00'),
@@ -19,6 +21,7 @@ export const MOCK_TICKETS: Page<HydratedTicket> = {
     },
     {
       id: 3,
+      ticketKey: 'TCK-003',
       title: 'Falsche Fehlermeldung bei Passwort-Reset',
       status: 'REOPENED',
       createdOn: new Date('2025-10-15T14:45:00'),
@@ -26,6 +29,7 @@ export const MOCK_TICKETS: Page<HydratedTicket> = {
     },
     {
       id: 4,
+      ticketKey: 'TCK-004',
       title: 'Layout-Anpassung für Dark Mode',
       status: 'RESOLVED',
       createdOn: new Date('2025-10-10T11:22:00'),
@@ -33,6 +37,7 @@ export const MOCK_TICKETS: Page<HydratedTicket> = {
     },
     {
       id: 5,
+      ticketKey: 'TCK-005',
       title: 'Button "Abbrechen" reagiert nicht',
       status: 'REJECTED',
       createdOn: new Date('2025-09-30T08:00:00'),
@@ -40,6 +45,7 @@ export const MOCK_TICKETS: Page<HydratedTicket> = {
     },
     {
       id: 6,
+      ticketKey: 'TCK-006',
       title: 'API-Dokumentation aktualisieren',
       status: 'CLOSED',
       createdOn: new Date('2025-09-20T13:30:00'),
