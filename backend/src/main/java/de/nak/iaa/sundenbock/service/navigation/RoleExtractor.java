@@ -1,6 +1,5 @@
 package de.nak.iaa.sundenbock.service.navigation;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 
@@ -14,7 +13,7 @@ import static java.util.stream.Collectors.toSet;
 /**
  * Utility class for extracting roles and authorities from Spring Security annotations.
  * <p>
- * Supports extraction from {@link Secured} and {@link PreAuthorize} annotations
+ * Supports extraction from {@link PreAuthorize} annotations
  * at both class and method levels.
  * </p>
  */
@@ -34,25 +33,9 @@ public final class RoleExtractor {
      * @return a set of required permissions
      */
     public static Set<String> extractRequiredPermissions(Class<?> type) {
-        Stream<String> classPermissions = Stream.concat(
-                extractFromSecured(type.getAnnotation(Secured.class)).stream(),
-                extractFromPreAuthorize(type.getAnnotation(PreAuthorize.class)).stream()
-        );
+        Stream<String> classPermissions = extractFromPreAuthorize(type.getAnnotation(PreAuthorize.class)).stream();
         Stream<String> methodPermissions = extractFromMethods(type).stream();
         return Stream.concat(classPermissions, methodPermissions).collect(toSet());
-    }
-
-    /**
-     * Extracts permissions from a {@link Secured} annotation.
-     *
-     * @param secured the Secured annotation to extract roles from
-     * @return a set of normalized roles
-     */
-    private static Set<String> extractFromSecured(Secured secured) {
-        if (secured == null) return Set.of();
-        return Stream.of(secured.value())
-                .map(RoleExtractor::normalizeRole)
-                .collect(toSet());
     }
 
     /**
@@ -66,18 +49,10 @@ public final class RoleExtractor {
 
         String expressionString = preAuthorizeAnnotation.value();
 
-        Stream<String> atomicExpressions = Stream.of(
-                        Stream.of(expressionString.split(" or ")),
-                        Stream.of(expressionString.split(" and "))
+        Stream<String> roleStream = Stream.concat(
+                        findAllMatches(HAS_ROLE, expressionString),
+                        findAllMatches(HAS_ANY_ROLE, expressionString)
                 )
-                .flatMap(stringStream -> stringStream);
-
-
-        Stream<String> roleStream = atomicExpressions
-                .flatMap(expressionPart -> Stream.concat(
-                        findAllMatches(HAS_ROLE, expressionPart),
-                        findAllMatches(HAS_ANY_ROLE, expressionPart)
-                ))
                 .flatMap(matchedGroup -> matchedGroup.contains(",") ?
                         Stream.of(matchedGroup.split(",")) : Stream.of(matchedGroup))
                 .map(String::trim)
@@ -85,17 +60,10 @@ public final class RoleExtractor {
                 .filter(StringUtils::hasText)
                 .map(RoleExtractor::normalizeRole);
 
-        Stream<String> atomicExpressionsForAuthorities = Stream.of(
-                        Stream.of(expressionString.split(" or ")),
-                        Stream.of(expressionString.split(" and "))
+        Stream<String> authorityStream = Stream.concat(
+                        findAllMatches(HAS_AUTHORITY, expressionString),
+                        findAllMatches(HAS_ANY_AUTHORITY, expressionString)
                 )
-                .flatMap(stringStream -> stringStream);
-
-        Stream<String> authorityStream = atomicExpressionsForAuthorities
-                .flatMap(expressionPart -> Stream.concat(
-                        findAllMatches(HAS_AUTHORITY, expressionPart),
-                        findAllMatches(HAS_ANY_AUTHORITY, expressionPart)
-                ))
                 .flatMap(matchedGroup -> matchedGroup.contains(",") ?
                         Stream.of(matchedGroup.split(",")) : Stream.of(matchedGroup))
                 .map(String::trim)
@@ -114,11 +82,7 @@ public final class RoleExtractor {
      */
     private static Set<String> extractFromMethods(Class<?> type) {
         return Stream.of(type.getDeclaredMethods())
-                .flatMap(method -> {
-                    Stream<String> permissionsFromPre = extractFromPreAuthorize(method.getAnnotation(PreAuthorize.class)).stream();
-                    Stream<String> permissionsFromSecured = extractFromSecured(method.getAnnotation(Secured.class)).stream();
-                    return Stream.concat(permissionsFromPre, permissionsFromSecured);
-                })
+                .flatMap(method -> extractFromPreAuthorize(method.getAnnotation(PreAuthorize.class)).stream())
                 .collect(toSet());
     }
 

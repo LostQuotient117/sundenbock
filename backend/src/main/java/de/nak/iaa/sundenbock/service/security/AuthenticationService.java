@@ -69,7 +69,7 @@ public class AuthenticationService {
                 request.roles()
         );
 
-        Role defaultRole = roleRepository.findByName("ROLE_DEVELOPER")
+        Role defaultRole = roleRepository.findByName(Role.DEVELOPER)
                 .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
 
         if (userRepository.findByUsername(trimmedRequest.username()).isPresent()) {

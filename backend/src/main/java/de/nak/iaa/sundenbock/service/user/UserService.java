@@ -270,7 +270,7 @@ public class UserService {
     @Transactional
     public void removeRoleFromUser(String username, String roleName) {
 
-        if (isCurrentUser(username) && roleName.equals("ROLE_ADMIN")) {
+        if (isCurrentUser(username) && roleName.equals(Role.ADMIN)) {
             throw new SelfActionException("You cannot remove the ADMIN role from your own account.");
         }
 
@@ -305,7 +305,7 @@ public class UserService {
     @Transactional
     public void removePermissionFromUser(String username, String permissionName) {
         if (isCurrentUser(username) &&
-                (permissionName.equals("USER_MANAGE") || permissionName.equals("ROLE_MANAGE"))) {
+                (permissionName.equals(Permission.USER_MANAGE) || permissionName.equals(Permission.ROLE_MANAGE))) {
             throw new SelfActionException("You cannot remove core administrative permissions from their own account.");
         }
 
@@ -345,7 +345,7 @@ public class UserService {
      * Holt die Standard-Benutzerrolle ("ROLE_USER").
      */
     private Role getDefaultUserRole() {
-        return roleRepository.findByName("ROLE_USER")
+        return roleRepository.findByName(Role.USER)
                 .orElseThrow(() -> new ResourceNotFoundException("Default role ROLE_USER not found"));
     }
 

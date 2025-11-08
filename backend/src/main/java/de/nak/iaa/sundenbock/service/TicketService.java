@@ -7,6 +7,7 @@ import de.nak.iaa.sundenbock.exception.InvalidStatusTransitionException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.TicketAlreadyClosedException;
 import de.nak.iaa.sundenbock.model.project.Project;
+import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.ticket.Ticket;
 import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import de.nak.iaa.sundenbock.model.user.User;
@@ -192,9 +193,9 @@ public class TicketService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals(Role.ADMIN));
         boolean isDeveloper = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_DEVELOPER"));
+                .anyMatch(a -> a.getAuthority().equals(Role.DEVELOPER));
         boolean isAuthor = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(existingTicket.getCreatedBy().getUsername()));
 

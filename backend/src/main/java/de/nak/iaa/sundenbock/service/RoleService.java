@@ -118,7 +118,7 @@ public class RoleService {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
 
-        if (role.getName().equals("ROLE_ADMIN") || role.getName().equals("ROLE_USER")) {
+        if (role.getName().equals(Role.ADMIN) || role.getName().equals(Role.USER)) {
             throw new SelfActionException("Cannot delete core system role: " + role.getName());
         }
 

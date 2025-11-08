@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.service.security;
 
 
+import de.nak.iaa.sundenbock.model.permission.Permission;
 import de.nak.iaa.sundenbock.repository.CommentRepository;
 import de.nak.iaa.sundenbock.repository.TicketRepository;
 import org.springframework.security.core.Authentication;
@@ -89,7 +90,7 @@ public class CustomSecurityService {
     public boolean canAccessUser(String username, Authentication authentication) {
         if (authentication == null) return false;
 
-        if (hasAuthority(authentication, "USER_MANAGE")) {
+        if (hasAuthority(authentication, Permission.USER_MANAGE)) {
             return true;
         }
 
