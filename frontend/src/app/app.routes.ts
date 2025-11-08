@@ -6,15 +6,15 @@ export const routes: Routes = [
   // Öffentliche Routen
   {
     path: 'auth',
-    loadComponent: () => import('./features/auth/auth-shell/auth-shell').then(m => m.AuthShell),
+    loadComponent: () => import('./features/auth/ui/auth-shell/auth-shell').then(m => m.AuthShell),
     children: [
       {
         path: 'login',
-        loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+        loadComponent: () => import('./features/auth/ui/login/login').then(m => m.Login)
       },
       {
         path: 'register',
-        loadComponent: () => import('./features/auth/register/register').then(m => m.RegisterComponent)
+        loadComponent: () => import('./features/auth/ui//register/register').then(m => m.RegisterComponent)
       },
       { path: '', pathMatch: 'full', redirectTo: 'login' } // Standard: /auth → /auth/login
     ]
@@ -29,19 +29,15 @@ export const routes: Routes = [
     children: [
       {
         path: 'tickets',
-        loadComponent: () => import('./features/tickets/pages/ticket.page').then(m => m.TicketsPage)
+        loadComponent: () => import('./features/tickets/ui/pages/ticket.page').then(m => m.TicketsPage)
       },
       {
         path: 'tickets/:id',
-        loadComponent: () => import('./features/tickets/components/ticket-detail/ticket-detail').then(m => m.TicketDetail)
+        loadComponent: () => import('./features/tickets/ui/components/ticket-detail/ticket-detail').then(m => m.TicketDetail)
       },
       {
         path: 'projects',
         loadComponent: () => import('./features/projects/project.page').then(m => m.ProjectsPage)
-      },
-      {
-        path: 'health',
-        loadComponent: () => import('./features/health/health').then(m => m.Health)
       },
       { path: '', pathMatch: 'full', redirectTo: 'tickets' }
     ]

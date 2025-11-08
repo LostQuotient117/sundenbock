@@ -20,27 +20,24 @@
 
   @for (t of tickets; track t.id) {
   <div class="font-mono text-sm">{{ t.id }}</div>
-  <a [routerLink]="['/tickets', t.id]"
-    class="font-semibold text-base-content hover:text-primary hover:underline hover:cursor-pointer transition">
-    {{ t.title }}
+    <a
+      [routerLink]="['/tickets', t.id]"
+      class="font-semibold text-base-content hover:text-primary hover:underline hover:cursor-pointer transition"
+    >
+      {{ t.title }}
+    </a>
   </a>
   <div class="dropdown">
-    <label tabindex="0" class="badge gap-2 text-sm font-medium cursor-pointer" [ngClass]="{
-               'badge-info': t.status === 'CREATED' || t.status === 'REOPENED',
-               'badge-warning': t.status === 'IN_PROGRESS',
-               'badge-success': t.status === 'RESOLVED',
-               'badge-error': t.status === 'REJECTED',
-               'badge-neutral': t.status === 'CLOSED'
-             }">
-      {{ statusLabelMap[t.status] }}
+    <label class="badge" [ngClass]="badge[t.status]">
+      {{ t.status | ticketStatusLabel }}
     </label>
-    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-      <li><a>CREATED</a></li>
-      <li><a>REOPENED</a></li>
-      <li><a>IN_PROGRESS</a></li>
-      <li><a>RESOLVED</a></li>
-      <li><a>REJECTED</a></li>
-      <li><a>CLOSED</a></li>
+    <ul
+      tabindex="0"
+      class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+    >
+      @for (s of allStatuses; track s) {
+        <li><a>{{ s | ticketStatusLabel }}</a></li>
+      }
     </ul>
   </div>
   <div>{{ t.project?.title || '-' }}</div>

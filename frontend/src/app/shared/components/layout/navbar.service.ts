@@ -1,6 +1,6 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { NavItem } from './nav-item.model';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class NavbarService {
