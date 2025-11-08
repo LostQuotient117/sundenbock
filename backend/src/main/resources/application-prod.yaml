@@ -1,0 +1,30 @@
+# =======================================================
+#      APPLICATION-PROD.YAML (Production Profile)
+#    - Forces ddl-auto to 'validate' or 'none' (CRITICAL FIX).
+#    - Explicitly disables the H2 console (SECURITY FIX).
+# =======================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ticketsystem
+    driver-class-name: org.postgresql.Driver
+    username: ticketuser
+    password: geheim
+
+  jpa:
+    hibernate:
+      # Wichtig: Never use 'update' or 'create-drop' in production!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  h2:
+    console:
+      enabled: false # SECURITY FIX: Explicitly disable H2 console in production
+
+server:
+  port: 8080

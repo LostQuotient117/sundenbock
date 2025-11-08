@@ -56,11 +56,11 @@ public class LoadBaselineSecurityData{
         Permission roleManage = createPermissionIfNotFound("ROLE_MANAGE");
 
         // ========== Base Roles ==========
-        createRoleIfNotFound("ROLE_USER", Set.of(
+        createRoleIfNotFound(Role.USER, Set.of(
                 ticketCreate, ticketReadAll, ticketChangeStatus, commentCreate, commentDelete
         ));
 
-        createRoleIfNotFound("ROLE_DEVELOPER", Set.of(
+        createRoleIfNotFound(Role.DEVELOPER, Set.of(
                 projectRead, ticketCreate, ticketReadAll, ticketUpdate,
                 ticketAssign, ticketChangeStatus, commentCreate, commentUpdate,
                 commentDelete
@@ -73,7 +73,7 @@ public class LoadBaselineSecurityData{
                 commentCreate, commentUpdate, commentDelete
         ));
 
-        createRoleIfNotFound("ROLE_ADMIN", Set.of(
+        createRoleIfNotFound(Role.ADMIN, Set.of(
                 projectCreate, projectRead, projectUpdate, projectDelete,
                 ticketCreate, ticketReadAll, ticketUpdate, ticketDelete,
                 ticketAssign, ticketChangeStatus,

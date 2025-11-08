@@ -18,6 +18,9 @@ import lombok.Setter;
 @Setter
 public class Permission extends AuditedEntity {
 
+    public static final String USER_MANAGE = "USER_MANAGE";
+    public static final String ROLE_MANAGE = "ROLE_MANAGE";
+
     @Id
     private String name;
 }

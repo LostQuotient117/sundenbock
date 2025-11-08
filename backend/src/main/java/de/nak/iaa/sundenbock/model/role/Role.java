@@ -18,12 +18,16 @@ import java.util.Set;
 @Setter
 public class Role extends AuditedEntity {
 
+    public static final String ADMIN = "ROLE_ADMIN";
+    public static final String USER = "ROLE_USER";
+    public static final String DEVELOPER = "ROLE_DEVELOPER";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name; // zB "DEVELOPER"
+    private String name;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
