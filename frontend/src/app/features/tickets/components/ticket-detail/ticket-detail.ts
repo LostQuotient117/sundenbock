@@ -1,5 +1,5 @@
 import { Component, inject  } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLinkWithHref, RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { TicketsService } from '../../ticket.service';
@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   standalone: true,
   selector: 'app-ticket-detail',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './ticket-detail.html',
 })
 export class TicketDetail {
