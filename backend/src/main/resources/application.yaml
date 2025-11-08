@@ -1,60 +1,20 @@
+# =======================================================
+#      APPLICATION.YAML (Base / Shared Settings)
+#    - Sets the default active profile to 'dev'.
+#    - Contains properties shared by all environments.
+# =======================================================
 logging:
   level:
     org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+    org.hibernate.orm.connections.pooling: WARN
 
 application:
   security:
     jwt:
       secret-key: "pJ3E/WC+7uYs6zvfs27nzxj+kDHC9aOt+FeZVYdqIxg="
-      # expiration: 86400000 # 24 Stunden in Millisekunden
-      expiration: 2592000000 # 30 Tage in Millisekunden
+      expiration: 2592000000 # 30 Tage in Milliseconds
 
 spring:
+  # Set 'dev' as the default profile. If no profile is set, the dev-settings will be loaded.
   profiles:
-    active: dev   # <--- Standardmäßig H2 aktiv, kann später auf prod gesetzt werden
-
----
-spring:
-  config:
-    activate:
-      on-profile: dev #run dev: mvn spring-boot:run
-  datasource:
-    url: jdbc:h2:file:./data/sundenbock-db
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    open-in-view: false
-    hibernate:
-      # ddl-auto: create-drop #database will be created at every start
-        ddl-auto: update
-    show-sql: false # use true if console logs of db are wanted
-    properties:
-      hibernate:
-        format_sql: true
-    defer-datasource-initialization: true
-
-  h2:
-    console:
-      enabled: true
-  server:
-    port: 8080
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod #run prod: mvn spring-boot:run -Dspring-boot.run.profiles=prod
-  datasource:
-    url: jdbc:postgresql://localhost:5432/ticketsystem
-    driver-class-name: org.postgresql.Driver
-    username: ticketuser
-    password: geheim
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  server:
-    port: 8080
+    active: dev

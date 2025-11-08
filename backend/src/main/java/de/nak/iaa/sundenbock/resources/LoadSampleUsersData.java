@@ -39,10 +39,10 @@ class LoadSampleUsersData {
     @Transactional
     public void run() {
 
-        Role devRole = roleRepository.findByName("ROLE_DEVELOPER").orElseThrow();
+        Role devRole = roleRepository.findByName(Role.DEVELOPER).orElseThrow();
         Role managerRole = roleRepository.findByName("ROLE_PROJECT_MANAGER").orElseThrow();
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseThrow();
-        Role userRole = roleRepository.findByName("ROLE_USER").orElseThrow();
+        Role adminRole = roleRepository.findByName(Role.ADMIN).orElseThrow();
+        Role userRole = roleRepository.findByName(Role.USER).orElseThrow();
         Role viewerRole = roleRepository.findByName("ROLE_VIEWER").orElseThrow();
 
         Permission ticketAssignPerm = permissionRepository.findById("TICKET_ASSIGN")

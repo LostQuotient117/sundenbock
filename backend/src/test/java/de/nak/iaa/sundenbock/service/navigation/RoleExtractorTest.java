@@ -2,7 +2,6 @@ package de.nak.iaa.sundenbock.service.navigation;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,23 +46,10 @@ class RoleExtractorTest {
     }
 
     @RestController
-    @Secured("ROLE_CLASS_SECURED")
-    private static class ControllerWithSecuredClass {
-        public void testMethod() {}
-    }
-
-    @RestController
-    private static class ControllerWithSecuredMethod {
-        @Secured("ROLE_METHOD_SECURED")
-        public void testMethod() {}
-    }
-
-    @RestController
     private static class ControllerWithMultipleMethods {
         @PreAuthorize("hasAuthority('PERM_A')")
         public void testMethod1() {}
 
-        @Secured("ROLE_PERM_B")
         public void testMethod2() {}
 
         @PreAuthorize("hasAuthority('PERM_A')")
@@ -72,12 +58,10 @@ class RoleExtractorTest {
 
     @RestController
     @PreAuthorize("hasAuthority('CLASS_PERM')")
-    @Secured("ROLE_CLASS_SECURED")
     private static class ControllerWithMixedClassAndMethods {
         @PreAuthorize("hasAuthority('METHOD_PERM_A')")
         public void testMethod1() {}
 
-        @Secured("ROLE_METHOD_PERM_B")
         public void testMethod2() {}
     }
 
@@ -132,31 +116,17 @@ class RoleExtractorTest {
     }
 
     @Test
-    @DisplayName("should extract from Secured on class and normalize")
-    void shouldExtractFromSecuredClass() {
-        Set<String> permissions = RoleExtractor.extractRequiredPermissions(ControllerWithSecuredClass.class);
-        assertThat(permissions).containsExactly("CLASS_SECURED");
-    }
-
-    @Test
-    @DisplayName("should extract from Secured on method and normalize")
-    void shouldExtractFromSecuredMethod() {
-        Set<String> permissions = RoleExtractor.extractRequiredPermissions(ControllerWithSecuredMethod.class);
-        assertThat(permissions).containsExactly("METHOD_SECURED");
-    }
-
-    @Test
     @DisplayName("should merge permissions from multiple methods and remove duplicates")
     void shouldMergePermissionsFromMultipleMethods() {
         Set<String> permissions = RoleExtractor.extractRequiredPermissions(ControllerWithMultipleMethods.class);
-        assertThat(permissions).containsExactlyInAnyOrder("PERM_A", "PERM_B");
+        assertThat(permissions).containsExactlyInAnyOrder("PERM_A");
     }
 
     @Test
     @DisplayName("should merge permissions from class and methods")
     void shouldMergePermissionsFromClassAndMethods() {
         Set<String> permissions = RoleExtractor.extractRequiredPermissions(ControllerWithMixedClassAndMethods.class);
-        assertThat(permissions).containsExactlyInAnyOrder("CLASS_PERM", "CLASS_SECURED", "METHOD_PERM_A", "METHOD_PERM_B");
+        assertThat(permissions).containsExactlyInAnyOrder("CLASS_PERM", "METHOD_PERM_A");
     }
 
     @Test
