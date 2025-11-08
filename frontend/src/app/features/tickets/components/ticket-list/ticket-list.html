@@ -1,36 +1,39 @@
-<div class="overflow-x-auto rounded-xl shadow">
-  <table class="table table-zebra w-full">
-    <thead class="bg-base-200 text-base-content">
-      <tr>
-        <th>ID</th>
-        <th>Titel</th>
-        <th>Status</th>
-        <th>Projekt</th>
-        <th>Responsible</th>
-        <th>Erstellt am</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (t of tickets; track t.id) {
-      <tr>
-        <td class="font-mono text-sm">{{ t.id }}</td>
-        <td class="font-semibold">{{ t.title }}</td>
-        <td>
-          <span class="badge gap-2 text-sm font-medium" [ngClass]="{
-            'badge-info': t.status === 'CREATED' || t.status === 'REOPENED',
-            'badge-warning': t.status === 'IN_PROGRESS',
-            'badge-success': t.status === 'RESOLVED',
-            'badge-error': t.status === 'REJECTED',
-            'badge-neutral': t.status === 'CLOSED'
-          }">
-            {{ statusLabelMap[t.status] }}
-          </span>
-        </td>
-        <td>{{ t.project?.title || '-' }}</td>
-        <td>{{ t.responsiblePerson?.username || '-' }}</td>
-        <td>{{ t.createdOn | date: 'short' }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
+<div class="grid grid-cols-6 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
+  <div class="flex items-center gap-1 font-bold">
+    ID <span class="text-xs cursor-pointer">▲</span>
+  </div>
+  <div class="flex items-center gap-1 font-bold">
+    Titel <span class="text-xs cursor-pointer">▲</span>
+  </div>
+  <div class="flex items-center gap-1 font-bold">
+    Status <span class="text-xs cursor-pointer">▲</span>
+  </div>
+  <div class="flex items-center gap-1 font-bold">
+    Projekt <span class="text-xs cursor-pointer">▲</span>
+  </div>
+  <div class="flex items-center gap-1 font-bold">
+    Responsible <span class="text-xs cursor-pointer">▲</span>
+  </div>
+  <div class="flex items-center gap-1 font-bold">
+    Erstellt am <span class="text-xs cursor-pointer">▲</span>
+  </div>
+
+  @for (t of tickets; track t.id) {
+    <div class="font-mono text-sm">{{ t.id }}</div>
+    <div class="font-semibold">{{ t.title }}</div>
+    <div>
+      <span class="badge gap-2 text-sm font-medium" [ngClass]="{
+        'badge-info': t.status === 'CREATED' || t.status === 'REOPENED',
+        'badge-warning': t.status === 'IN_PROGRESS',
+        'badge-success': t.status === 'RESOLVED',
+        'badge-error': t.status === 'REJECTED',
+        'badge-neutral': t.status === 'CLOSED'
+      }">
+        {{ statusLabelMap[t.status] }}
+      </span>
+    </div>
+    <div>{{ t.project?.title || '-' }}</div>
+    <div>{{ t.responsiblePerson?.username || '-' }}</div>
+    <div>{{ t.createdOn | date: 'short' }}</div>
+  }
 </div>
