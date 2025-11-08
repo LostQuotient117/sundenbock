@@ -1,10 +1,11 @@
 import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HydratedTicket } from '../../../../shared/models/types';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-ticket-list',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './ticket-list.html',
   styleUrl: './ticket-list.css'
 })

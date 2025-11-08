@@ -7,6 +7,7 @@ import { HydratedTicket } from '../../../../shared/models/types';
 import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
   selector: 'app-ticket-detail',
   imports: [CommonModule],
   templateUrl: './ticket-detail.html',
