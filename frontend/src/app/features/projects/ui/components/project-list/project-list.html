@@ -1,0 +1,15 @@
+<div class="grid grid-cols-4 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
+  <div class="font-bold">ID</div>
+  <div class="font-bold">Titel</div>
+  <div class="font-bold">Kürzel</div>
+  <div class="font-bold">Erstellt</div>
+
+  @for (p of items; track p.id) {
+    <div class="font-mono text-sm">{{ p.id }}</div>
+    <a [routerLink]="['/projects', p.id]" class="font-semibold hover:text-primary hover:underline">
+      {{ p.title }}
+    </a>
+    <div>{{ p.abbreviation }}</div>
+    <div>{{ p.createdDate | date:'medium' }}</div>
+  }
+</div>

@@ -1,0 +1,54 @@
+<!-- app/features/projects/ui/pages/projects.page.html -->
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold">Projects</h1>
+
+    <div class="flex items-center gap-2">
+      <div class="join">
+        <input
+          class="input input-bordered join-item"
+          type="text"
+          placeholder="Suche…"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event); onSearchEnter()"
+        />
+        <button class="btn join-item" (click)="clearSearch()">Clear</button>
+      </div>
+
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost">Sort</label>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-56">
+          <li><a (click)="sortByCreatedDesc()">Neueste zuerst</a></li>
+          <li><a (click)="sortByCreatedAsc()">Älteste zuerst</a></li>
+          <li class="disabled opacity-50"><a>Creator (deaktiviert)</a></li>
+        </ul>
+      </div>
+
+      <select
+        class="select select-bordered w-28"
+        [ngModel]="pageSize()"
+        (ngModelChange)="setPageSize($event)"
+      >
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Liste: KEIN TypeScript-Cast im Template -->
+  <project-list [items]="result().items"></project-list>
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-2">
+    <div class="opacity-70 text-sm">
+      Seite {{ result().page + 1 }} / {{ totalPages() }} —
+      {{ result().total }} Einträge
+    </div>
+
+    <div class="join">
+      <button class="btn join-item" (click)="prev()" [disabled]="result().page === 0">«</button>
+      <button class="btn join-item" (click)="next()" [disabled]="result().page + 1 >= totalPages()">»</button>
+    </div>
+  </div>
+</div>
