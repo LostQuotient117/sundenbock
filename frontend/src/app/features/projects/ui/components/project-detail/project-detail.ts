@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Project } from '@features/projects/domain/project.model';
 import { ProjectsService } from '@features/projects/domain/projects.service';
@@ -9,12 +10,13 @@ import { switchMap } from 'rxjs';
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe],
+  imports: [CommonModule, RouterLink, DatePipe, ReactiveFormsModule],
   templateUrl: './project-detail.html',
 })
 export class ProjectDetail {
   private route = inject(ActivatedRoute);
   private svc = inject(ProjectsService);
+  private fb = inject(FormBuilder);
 
   // Projekt laden
   private projectLoaded: Signal<Project | undefined> = toSignal(
@@ -36,16 +38,22 @@ export class ProjectDetail {
   editing = signal(false);
   saving  = signal(false);
   saveError = signal<string | null>(null);
-  form = { title: '', abbreviation: '', description: '' };
+  
+  // Reactive Forms 
+  form = this.fb.nonNullable.group({
+  title:        ['', [Validators.required]],
+  abbreviation: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
+  description:  ['', [Validators.required]],
+});
 
   startEdit() {
     const p = this.project();
     if (!p) return;
-    this.form = {
-      title: p.title ?? '',
-      abbreviation: p.abbreviation ?? '',
-      description: p.description ?? '',
-    };
+    this.form.reset({
+    title:        p.title ?? '',
+    abbreviation: p.abbreviation ?? '',
+    description:  p.description ?? '',
+    });
     this.saveError.set(null);
     this.editing.set(true);
   }
@@ -60,11 +68,13 @@ export class ProjectDetail {
     const p = this.project();
     if (!p || this.saving()) return;
 
-    const { title, abbreviation, description } = this.form;
-    if (!title || !description || !abbreviation || abbreviation.length !== 3) {
+    if (this.form.invalid) {
       this.saveError.set('Bitte alle Felder korrekt ausfüllen (Kürzel = 3 Zeichen).');
+      this.form.markAllAsTouched();
       return;
     }
+
+    const { title, abbreviation, description } = this.form.getRawValue();
 
     this.saving.set(true);
     this.saveError.set(null);
@@ -73,7 +83,7 @@ export class ProjectDetail {
       next: updated => {
         this.saving.set(false);
         this.editing.set(false);
-        this.projectOverride.set(updated); // **ohne Reload** sofort sichtbar
+        this.projectOverride.set(updated);
       },
       error: err => {
         this.saving.set(false);
