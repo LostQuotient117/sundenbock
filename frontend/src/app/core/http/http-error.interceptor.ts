@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { TokenService } from '../auth/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
+import { SUPPRESS_403_REDIRECT } from './http-context';
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -26,15 +27,20 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         console.warn('⚠️ Nicht autorisiert.');
         tokenSvc.clear();
         notify.show('Sitzung abgelaufen – bitte erneut anmelden.');
-        router.navigate(['/login']);
+        router.navigate(['/auth/login']);
       }
 
       // ===================== 3. Forbidden =====================
       else if (error.status === 403) {
+        const suppressed = req.context.get(SUPPRESS_403_REDIRECT);
+        if (!suppressed) {
         console.warn('🚫 Zugriff verweigert.');
+        //globaler Default-Weiterleitung
         notify.show('Keine Berechtigung für diese Aktion.');
         router.navigate(['/forbidden']);
       }
+      //wenn suppressed kein navigieren -> Komponente zeigt eigenen Fehler
+    }
 
       // ===================== 4. Not Found =====================
       else if (error.status === 404) {
