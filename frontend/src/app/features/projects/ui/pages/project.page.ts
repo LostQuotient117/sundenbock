@@ -78,4 +78,57 @@ export class ProjectsPage {
   sortByCreatedDesc() { this.setSort('createdDate', 'desc'); }
   sortByTitleAsc()    { this.setSort('title', 'asc'); }
   sortByTitleDesc()   { this.setSort('title', 'desc'); }
+
+  // Create Project Logik
+  showCreate = signal(false);
+  creating   = signal(false);
+  createError = signal<string | null>(null);
+
+  createModel = {
+    title: '',
+    abbreviation: '',
+    description: '',
+  };
+
+  openCreate() {
+    this.createModel = { title: '', abbreviation: '', description: '' };
+    this.createError.set(null);
+    this.showCreate.set(true);
+  }
+
+  closeCreate() {
+    if (this.creating()) return;
+    this.showCreate.set(false);
+  }
+
+  submitCreate() {
+    // Validierung
+    const { title, abbreviation, description } = this.createModel;
+    if (!title || !description || !abbreviation || abbreviation.length !== 3) return;
+
+    this.creating.set(true);
+    this.createError.set(null);
+
+    this.svc.create({
+      title,
+      description,
+      abbreviation,
+    }).subscribe({
+      next: () => {
+        this.creating.set(false);
+        this.showCreate.set(false);
+        // Liste neu laden nach Anlage
+        this.page.set(this.page() + 1);
+        this.page.set(0);
+      },
+      error: (err) => {
+        this.creating.set(false);
+const msg =
+    err?.status === 403
+      ? 'Keine Berechtigung für diese Aktion.'
+      : (err?.error?.message ?? 'Anlage fehlgeschlagen.');
+
+      this.createError.set(msg);      }
+    });
+  }
 }

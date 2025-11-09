@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ProjectsClient } from '../data/projects.client';
 import { Project } from './project.model';
-import { ProjectDto } from '../data/project.dto';
+import { CreateProjectDTO, ProjectDto } from '../data/project.dto';
 import { Page, PageQuery } from '@shared/models/paging';
 import { mapPage } from '@shared/utils/mapping.base';
 import { mapProject } from './project.mapper';
@@ -12,6 +12,7 @@ import { mapProject } from './project.mapper';
 @Injectable({ providedIn: 'root' })
 export class ProjectsService {
   private api = inject(ProjectsClient);
+  private client = inject(ProjectsClient);
 
   list(q?: PageQuery<ProjectDto>): Observable<Page<Project>> {
     return this.api.list(q).pipe(map(p => mapPage(p, mapProject)));
@@ -21,19 +22,20 @@ export class ProjectsService {
     return this.api.get(id).pipe(map(mapProject));
   }
 
-  create(payload: Partial<ProjectDto>): Observable<Project> {
+  create(payload: CreateProjectDTO): Observable<Project> {
     // Backend-Endpoint ist POST /api/v1/projects/create (laut Controller)
     // ResourceClient.create() postet auf '/projects' – falls dein Backend zwingend '/create' erwartet,
     // kannst du hier einen spezialisierten Call über ApiService bauen.
-    return this.api.create(payload as ProjectDto).pipe(map(mapProject));
+    return this.client.createProject(payload).pipe(map(mapProject));
   }
 
   update(id: number | string, payload: Partial<ProjectDto>): Observable<Project> {
-    // analog Hinweis wie bei create() bzgl. '/{id}/update'
-    return this.api.update(id, payload as ProjectDto).pipe(map(mapProject));
+    // Backend-Endpoint ist PUT /api/v1/projects/{id}/update
+    return this.api.updateProject(id, payload as ProjectDto).pipe(map(mapProject));
   }
 
   delete(id: number | string): Observable<void> {
-    return this.api.delete(id);
+    // Backend-Endpoint ist DELETE /api/v1/projects/{id}/delete
+    return this.client.deleteProject(id);
   }
 }

@@ -39,6 +39,10 @@ export const routes: Routes = [
         path: 'projects',
         loadComponent: () => import('./features/projects/ui/pages/project.page').then(m => m.ProjectsPage)
       },
+      {
+      path: 'projects/:id',
+      loadComponent: () => import('./features/projects/ui/components/project-detail/project-detail').then(m => m.ProjectDetail)
+    },
       { path: '', pathMatch: 'full', redirectTo: 'tickets' }
     ]
   },
