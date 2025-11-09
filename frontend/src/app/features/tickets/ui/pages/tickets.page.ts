@@ -8,11 +8,12 @@ import { Ticket } from '@features/tickets/domain/ticket.model';
 import { CreateTicketDto, TicketDto, TicketStatusDto } from '@features/tickets/data/ticket.dto';
 import { TicketList } from '../components/ticket-list/ticket-list';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ProjectSelectComponent } from '@shared/components/project-select/project-select';
 
 @Component({
   standalone: true,
   selector: 'tickets-page',
-  imports: [TicketList, ReactiveFormsModule],
+  imports: [TicketList, ReactiveFormsModule, ProjectSelectComponent],
   templateUrl: './tickets.page.html',
 })
 export class TicketsPage {

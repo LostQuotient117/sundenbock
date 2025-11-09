@@ -78,11 +78,10 @@
               <!-- Projekt-ID -->
               <label class="form-control md:col-span-2">
                 <div class="label"><span class="label-text">Projekt-ID*</span></div>
-                <input
-                  type="number"
-                  class="input input-bordered"
-                  [formControl]="createForm.controls.projectId"
-                />
+                <project-select [control]="createForm.controls.projectId"></project-select>
+                @if (createForm.controls.projectId.touched && createForm.controls.projectId.invalid) {
+                  <div class="text-error text-xs mt-1">Bitte ein Projekt auswählen.</div>
+                }
               </label>
             </div>
 
