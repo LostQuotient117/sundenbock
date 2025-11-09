@@ -30,18 +30,7 @@
             </h2>
 
             <div class="mt-2 flex items-center gap-2">
-              @if (!editing()) {
-                <span class="badge badge-primary">{{ p.abbreviation }}</span>
-              } @else {
-                <input
-                  class="input input-bordered w-28 font-mono"
-                  type="text"
-                  maxlength="3"
-                  placeholder="ABC"
-                  [formControl]="form.controls.abbreviation"
-                  [disabled]="saving()"
-                />
-              }
+              <span class="badge badge-primary">{{ p.abbreviation }}</span>
               <span class="text-xs opacity-70">ID: {{ p.id }}</span>
             </div>
           </div>
