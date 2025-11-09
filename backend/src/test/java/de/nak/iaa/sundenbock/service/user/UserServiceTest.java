@@ -6,12 +6,11 @@ import de.nak.iaa.sundenbock.dto.userDTO.*;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.SelfActionException;
+import de.nak.iaa.sundenbock.exception.UserInUseException;
 import de.nak.iaa.sundenbock.model.permission.Permission;
 import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.user.User;
-import de.nak.iaa.sundenbock.repository.PermissionRepository;
-import de.nak.iaa.sundenbock.repository.RoleRepository;
-import de.nak.iaa.sundenbock.repository.UserRepository;
+import de.nak.iaa.sundenbock.repository.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,6 +49,12 @@ class UserServiceTest {
     private RoleRepository roleRepository;
     @Mock
     private PermissionRepository permissionRepository;
+    @Mock
+    private ProjectRepository projectRepository;
+    @Mock
+    private TicketRepository ticketRepository;
+    @Mock
+    private CommentRepository commentRepository;
     @Mock
     private UserMapper userMapper;
     @Mock
@@ -290,37 +295,123 @@ class UserServiceTest {
     // --- Delete Methods ---
 
     @Test
-    @DisplayName("deleteUserByUsername should throw SelfActionException when user deletes self")
+    @DisplayName("deleteUserByUsername should throw SelfActionException with hint to deactivate")
     void deleteUserByUsername_shouldThrowSelfActionException_whenUserDeletesSelf() {
         mockSecurityContext("testuser");
 
         assertThatThrownBy(() -> userService.deleteUserByUsername("testuser"))
                 .isInstanceOf(SelfActionException.class)
-                .hasMessageContaining("You cannot delete your own account.");
+                .hasMessageContaining("You cannot delete your own account. You can deactivate it instead.");
 
         verify(userRepository, never()).deleteByUsername(anyString());
     }
 
     @Test
-    @DisplayName("deleteUserByUsername should delete user when user is different")
-    void deleteUserByUsername_shouldDeleteUser_whenUserIsDifferent() {
+    @DisplayName("deleteUserByUsername should throw UserInUseException when user is still referenced")
+    void deleteUserByUsername_shouldThrowUserInUseException_whenUserIsInUse() {
         mockSecurityContext("admin");
-        when(userRepository.existsByUsername("testuser")).thenReturn(true);
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        when(projectRepository.countByCreatedBy(testUser)).thenReturn(1L);
+        when(projectRepository.countByLastModifiedBy(testUser)).thenReturn(0L);
+        when(ticketRepository.countByResponsiblePerson(testUser)).thenReturn(0L);
+        when(ticketRepository.countByCreatedBy(testUser)).thenReturn(0L);
+        when(commentRepository.countByCreatedBy(testUser)).thenReturn(0L);
+
+        assertThatThrownBy(() -> userService.deleteUserByUsername("testuser"))
+                .isInstanceOf(UserInUseException.class)
+                .hasMessageContaining("Cannot delete user 'testuser'. It is still in use:");
+
+        verify(userRepository, never()).delete(any(User.class));
+    }
+
+    @Test
+    @DisplayName("deleteUserByUsername should delete user when user is not in use")
+    void deleteUserByUsername_shouldDeleteUser_whenUserIsNotInUse() {
+        mockSecurityContext("admin");
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        when(projectRepository.countByCreatedBy(testUser)).thenReturn(0L);
+        when(projectRepository.countByLastModifiedBy(testUser)).thenReturn(0L);
+        when(ticketRepository.countByResponsiblePerson(testUser)).thenReturn(0L);
+        when(ticketRepository.countByCreatedBy(testUser)).thenReturn(0L);
+        when(commentRepository.countByCreatedBy(testUser)).thenReturn(0L);
 
         userService.deleteUserByUsername("testuser");
 
-        verify(userRepository, times(1)).deleteByUsername("testuser");
+        verify(userRepository, times(1)).delete(testUser);
     }
 
     @Test
     @DisplayName("deleteUserByUsername should throw RNF when user not exists")
     void deleteUserByUsername_shouldThrowResourceNotFoundException_whenUserNotExists() {
         mockSecurityContext("admin");
-        when(userRepository.existsByUsername("unknown")).thenReturn(false);
+        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteUserByUsername("unknown"))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found with username: unknown");
+    }
+
+    // --- Deactivate Self ---
+
+    @Test
+    @DisplayName("deactivateSelf should set user to disabled")
+    void deactivateSelf_shouldSetEnabledFalse() {
+        mockSecurityContext("testuser");
+        testUser.setEnabled(true);
+
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        userService.deactivateSelf();
+
+        verify(userRepository).save(argThat(user -> !user.isEnabled()));
+    }
+
+    @Test
+    @DisplayName("deactivateSelf should throw SelfActionException for 'system' user")
+    void deactivateSelf_shouldThrowException_forSystemUser() {
+        mockSecurityContext("system");
+
+        assertThatThrownBy(() -> userService.deactivateSelf())
+                .isInstanceOf(SelfActionException.class)
+                .hasMessageContaining("system' user cannot be deactivated");
+
+        verify(userRepository, never()).findByUsername(anyString());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    // --- Activate User (Admin) ---
+
+    @Test
+    @DisplayName("activateUser should set user to enabled")
+    void activateUser_shouldSetEnabledTrue() {
+        testUser.setEnabled(false);
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        userService.activateUser("testuser");
+
+        verify(userRepository).save(argThat(User::isEnabled));
+    }
+
+    @Test
+    @DisplayName("activateUser should throw SelfActionException for 'system' user")
+    void activateUser_shouldThrowSelfActionException_forSystemUser() {
+        assertThatThrownBy(() -> userService.activateUser("system"))
+                .isInstanceOf(SelfActionException.class)
+                .hasMessageContaining("system' user account cannot be re-activated");
+
+        verify(userRepository, never()).findByUsername(anyString());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("activateUser should throw RNF when user not found")
+    void activateUser_shouldThrowRNF_whenUserNotFound() {
+        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.activateUser("unknown"))
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     // --- Role Assignment ---

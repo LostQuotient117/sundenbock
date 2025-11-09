@@ -111,6 +111,29 @@ public class UserController {
     }
 
     /**
+     * Deactivates the currently authenticated user's own account.
+     * This sets the user's 'enabled' flag to false, preventing login.
+     * This action cannot be reversed by the user.
+     */
+    @PutMapping("/deactivate-me")
+    @PreAuthorize("isAuthenticated()")
+    public void deactivateMyAccount() {
+        userService.deactivateSelf();
+    }
+
+    /**
+     * Reactivates a user account (administrative action).
+     * Requires 'USER_MANAGE' authority.
+     *
+     * @param username the username of the user to activate
+     */
+    @PutMapping("/{username}/activate")
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
+    public void activateUser(@PathVariable @NotBlank @Size(min = 3, max = 50) String username) {
+        userService.activateUser(username);
+    }
+
+    /**
      * Resets a user's password (administrative action).
      * Requires 'USER_MANAGE' authority.
      *

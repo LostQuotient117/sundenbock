@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.repository;
 
 import de.nak.iaa.sundenbock.model.project.Project;
+import de.nak.iaa.sundenbock.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -27,4 +28,18 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
      * @return {@code true} if a project exists with this title, otherwise {@code false}
      */
     boolean existsByTitle(String title);
+
+    /**
+     * Counts how many projects list this user as the creator.
+     * @param user the user
+     * @return the number of projects
+     */
+    long countByCreatedBy(User user);
+
+    /**
+     * Counts how many projects list this user as the last modifier.
+     * @param user the user
+     * @return the number of projects
+     */
+    long countByLastModifiedBy(User user);
 }

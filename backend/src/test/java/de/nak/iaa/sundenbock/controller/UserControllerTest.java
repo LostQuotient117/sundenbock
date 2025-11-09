@@ -17,6 +17,7 @@ import de.nak.iaa.sundenbock.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,8 +32,7 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -263,6 +263,65 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("DELETE /api/v1/users/{username}/delete should return 400 for invalid username")
+    @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
+    void deleteUser_shouldReturn400_forInvalidUsername() throws Exception {
+        mockMvc.perform(delete("/api/v1/users/a/delete")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/users/{username}/delete should return 409 for SelfActionException")
+    @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
+    void deleteUser_shouldReturn409_forSelfAction() throws Exception {
+        doThrow(new de.nak.iaa.sundenbock.exception.SelfActionException("You cannot delete your own account. You can deactivate it instead."))
+                .when(userService).deleteUserByUsername("admin");
+
+        mockMvc.perform(delete("/api/v1/users/admin/delete")
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Conflict"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/users/{username}/delete should return 409 for UserInUseException")
+    @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
+    void deleteUser_shouldReturn409_forUserInUse() throws Exception {
+        String exceptionMessage = "Cannot delete user 'testuser'. It is still associated with 1 tickets (Responsible).";
+        doThrow(new de.nak.iaa.sundenbock.exception.UserInUseException(exceptionMessage))
+                .when(userService).deleteUserByUsername("testuser");
+
+        mockMvc.perform(delete("/api/v1/users/testuser/delete")
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value(exceptionMessage));
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/deactivate-me should return 200 for authenticated user")
+    @WithMockUser(username = "testuser")
+    void deactivateMyAccount_shouldReturn200_forAuthenticatedUser() throws Exception {
+        Mockito.doNothing().when(userService).deactivateSelf();
+
+        mockMvc.perform(put("/api/v1/users/deactivate-me")
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).deactivateSelf();
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/deactivate-me should return 401 for anonymous user")
+    @WithAnonymousUser
+    void deactivateMyAccount_shouldReturn401_forAnonymous() throws Exception {
+        mockMvc.perform(put("/api/v1/users/deactivate-me")
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @DisplayName("PUT /api/v1/users/{username}/reset-password should return 200")
     @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
     void adminResetPassword_shouldReturn200() throws Exception {
@@ -273,6 +332,47 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/{username}/activate should return 200 for admin")
+    @WithMockUser(authorities = "USER_MANAGE")
+    void activateUser_shouldReturn200_forAdmin() throws Exception {
+        doNothing().when(userService).activateUser("testuser");
+
+        mockMvc.perform(put("/api/v1/users/testuser/activate")
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).activateUser("testuser");
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/{username}/activate should return 403 for non-admin")
+    @WithMockUser(authorities = "ROLE_DEVELOPER")
+    void activateUser_shouldReturn403_forNonAdmin() throws Exception {
+        mockMvc.perform(put("/api/v1/users/testuser/activate")
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/{username}/activate should return 401 for anonymous")
+    @WithAnonymousUser
+    void activateUser_shouldReturn401_forAnonymous() throws Exception {
+        mockMvc.perform(put("/api/v1/users/testuser/activate")
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("PUT /api/v1/users/{username}/activate should return 400 for invalid username")
+    @WithMockUser(authorities = "USER_MANAGE")
+    void activateUser_shouldReturn400_forInvalidUsername() throws Exception {
+        mockMvc.perform(put("/api/v1/users/a/activate")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Bad Request"));
     }
 
     @Test
@@ -350,15 +450,6 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/v1/users/{username}/delete should return 400 for invalid username")
-    @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
-    void deleteUser_shouldReturn400_forInvalidUsername() throws Exception {
-        mockMvc.perform(delete("/api/v1/users/a/delete")
-                        .with(csrf()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     @DisplayName("PUT /api/v1/users/{username}/reset-password should return 400 for invalid username")
     @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
     void adminResetPassword_shouldReturn400_forInvalidUsername() throws Exception {
@@ -406,19 +497,6 @@ class UserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Conflict"));
-    }
-
-    @Test
-    @DisplayName("DELETE /api/v1/users/{username}/delete should return 409 for SelfActionException")
-    @WithMockUser(username = "admin", authorities = {"USER_MANAGE"})
-    void deleteUser_shouldReturn409_forSelfAction() throws Exception {
-        doThrow(new de.nak.iaa.sundenbock.exception.SelfActionException("Cannot delete self"))
-                .when(userService).deleteUserByUsername("admin");
-
-        mockMvc.perform(delete("/api/v1/users/admin/delete")
-                        .with(csrf()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Conflict"));
     }
