@@ -41,7 +41,6 @@ export class TicketsPage {
   createForm = this.fb.nonNullable.group({
     title: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(200)]),
     description: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(2000)]),
-    status: this.fb.nonNullable.control<TicketStatusDto>('CREATED', [Validators.required]),
     responsiblePersonUserName: this.fb.nonNullable.control('', [Validators.required]),
     projectId: this.fb.nonNullable.control<number>(0, { validators: [Validators.required, Validators.min(1)] }),
   });
@@ -74,7 +73,6 @@ export class TicketsPage {
     this.createForm.reset({
       title: '',
       description: '',
-      status: 'CREATED',
       responsiblePersonUserName: '',
       projectId: 0,
     });
@@ -93,7 +91,8 @@ export class TicketsPage {
     this.creating.set(true);
     this.createError.set(null);
 
-    const payload: CreateTicketDto = this.createForm.getRawValue();
+    const raw = this.createForm.getRawValue();
+    const payload: CreateTicketDto = {...raw, status: 'CREATED' as TicketStatusDto};
 
     this.svc.create(payload).pipe(
       finalize(() => this.creating.set(false)),
