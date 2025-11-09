@@ -38,7 +38,7 @@
                       class="flex items-center justify-between"
                     >
                       <span class="font-medium truncate">{{ p.title }}</span>
-                      <span class="badge badge-ghost ml-2">{{ p.abbreviation ?? '—' }}</span>
+                      <span class="badge badge-ghost ml-2">{{ p.abbreviation || '—' }}</span>
                     </button>
                   </li>
                 }
