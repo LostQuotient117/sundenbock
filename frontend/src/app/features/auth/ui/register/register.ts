@@ -65,7 +65,7 @@ export class RegisterComponent {
       username: this.username.value!,
       email: this.email.value!,
       password: this.password.value!,
-      roles: this.form.value.roles ?? []
+      roles: ['ROLE_DEVELOPER']
     };
 
     try {

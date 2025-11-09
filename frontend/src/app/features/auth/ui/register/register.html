@@ -121,18 +121,6 @@
     </div>
   </div>
 
-  <!-- Rollen -->
-  <div class="form-control">
-    <label class="label">
-      <span class="label-text">Rollen</span>
-    </label>
-    <select multiple class="select select-bordered h-28" formControlName="roles">
-      <option value="USER">USER</option>
-      <option value="ADMIN">ADMIN</option>
-    </select>
-    <span class="text-xs opacity-70 mt-1">Optional: Rollen für den neuen Benutzer</span>
-  </div>
-
   <!-- Server-Fehler -->
   @if (serverError()) {
     <div class="text-error text-center">{{ serverError() }}</div>
