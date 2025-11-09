@@ -4,7 +4,7 @@ import { switchMap, tap, map } from 'rxjs';
 import { ApiService } from '../http/api.service';
 import { AuthService } from '../auth/auth.service';
 import { UserClient } from './user.client';
-import { User } from '../../features/users/models/user';
+import { User } from '../../features/users/domain/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {

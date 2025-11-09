@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { ApiService } from '../http/api.service';
 import { ResourceClient } from '../http/resource-client';
-import { User } from '../../features/users/models/user';
+import { User } from '../../features/users/domain/user.model';
 
 export class UserClient extends ResourceClient<User> {
   constructor(api: ApiService) { super(api, '/api/v1/users'); }
