@@ -1,6 +1,46 @@
 <h2 class="card-title text-center">Registrieren</h2>
 
 <form class="card-body gap-4" [formGroup]="form" (ngSubmit)="submit()">
+ 
+ 
+<!-- Vorname -->
+  <div class="form-control">
+    <label class="label">
+      <span class="label-text">Vorname</span>
+    </label>
+    <input
+      type="text"
+      class="input input-bordered"
+      formControlName="firstName"
+      autocomplete="given-name"
+    />
+    @if (firstName.touched && firstName.invalid) {
+      <span class="text-error text-sm mt-1">
+        @if (firstName.hasError('required')) { Vorname ist erforderlich. }
+        @else if (firstName.hasError('minlength')) { Mindestens 2 Zeichen erforderlich. }
+      </span>
+    }
+  </div>
+ 
+<!-- Nachname -->
+  <div class="form-control">
+    <label class="label">
+      <span class="label-text">Nachname</span>
+    </label>
+    <input
+      type="text"
+      class="input input-bordered"
+      formControlName="lastName"
+      autocomplete="family-name"
+    />
+    @if (lastName.touched && lastName.invalid) {
+      <span class="text-error text-sm mt-1">
+        @if (lastName.hasError('required')) { Nachname ist erforderlich. }
+        @else if (lastName.hasError('minlength')) { Mindestens 2 Zeichen erforderlich. }
+      </span>
+    }
+  </div>
+ 
   <!-- Benutzername -->
   <div class="form-control">
     <label class="label">
