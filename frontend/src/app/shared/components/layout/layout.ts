@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { NavbarService } from '../../../core/navigation/navbar.service';
+import { NavbarService } from './navbar.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LucideAngularModule, LogOutIcon } from 'lucide-angular';
 

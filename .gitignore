@@ -16,7 +16,6 @@ build/
 out/
 
 # Gemeinsame DB/Temp-Verzeichnisse
-data/
 *.mv.db
 *.trace.db
 

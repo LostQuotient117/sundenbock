@@ -5,7 +5,7 @@ export type PageQuery<T> = Partial<Record<Extract<keyof T, string>, string | num
   search?: string;
   page?: number;
   pageSize?: number;
-  sort?: SortKey<T>;  // z.B. "createdAt:desc"
+  sort?: SortKey<T>;
 };
 
 export interface Page<T> {

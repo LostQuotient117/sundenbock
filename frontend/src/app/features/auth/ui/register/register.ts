@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 //import { TranslocoPipe } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 
 function passwordsMatch(ctrl: AbstractControl): ValidationErrors | null {
   const pwd = ctrl.get('password')?.value;

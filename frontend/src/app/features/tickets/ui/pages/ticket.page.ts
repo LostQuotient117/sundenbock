@@ -1,9 +1,12 @@
-import { Component, signal, computed, Signal } from '@angular/core';
+// app/features/tickets/ui/tickets.page.ts
+import { Component, signal, Signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, debounceTime, switchMap } from 'rxjs';
-import { TicketsService } from '../ticket.service';
-import { Page } from '../../../shared/models/paging';
-import { HydratedTicket } from '../../../shared/models/types';
+import { combineLatest, debounceTime, switchMap, map } from 'rxjs';
+
+import { TicketsService } from '@features/tickets/domain/ticket.service';
+import { Page, SortKey, PageQuery } from '@shared/models/paging';
+import { Ticket } from '@features/tickets/domain/ticket.model';
+import { TicketDto } from '@features/tickets/data/ticket.dto';
 import { TicketList } from '../components/ticket-list/ticket-list';
 
 @Component({
@@ -17,7 +20,9 @@ export class TicketsPage {
   search = signal('');
   page   = signal(0);
   size   = signal(20);
-  sort   = signal<'createdOn:desc' | 'createdOn:asc'>('createdOn:desc');
+
+  // WICHTIG: Sort ist jetzt exakt der erwartete Typ
+  sort   = signal<SortKey<TicketDto>>('createdDate:desc' as SortKey<TicketDto>);
 
   constructor(private svc: TicketsService) {}
 
@@ -28,12 +33,14 @@ export class TicketsPage {
     toObservable(this.sort),
   ]).pipe(
     debounceTime(250),
-    switchMap(([search, page, pageSize, sort]) =>
-      this.svc.list({ search, page, pageSize, sort })
-    )
+    map(([search, page, pageSize, sort]) => {
+      const q: PageQuery<TicketDto> = { search, page, pageSize, sort };
+      return q;
+    }),
+    switchMap(q => this.svc.list(q))
   );
 
-  vm: Signal<Page<HydratedTicket>> = toSignal(this.query$, {
+  vm: Signal<Page<Ticket>> = toSignal(this.query$, {
     initialValue: { items: [], total: 0, page: 0, pageSize: 20 },
   });
 

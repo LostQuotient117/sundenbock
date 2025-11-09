@@ -8,3 +8,10 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface UserRef {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+}
