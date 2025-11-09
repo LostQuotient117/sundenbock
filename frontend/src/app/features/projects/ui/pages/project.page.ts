@@ -117,7 +117,8 @@ export class ProjectsPage {
       next: () => {
         this.creating.set(false);
         this.showCreate.set(false);
-        // Liste neu laden (hier hart triggern)
+        // Liste neu laden nach Anlage
+        this.page.set(this.page() + 1);
         this.page.set(0);
       },
       error: (err) => {
