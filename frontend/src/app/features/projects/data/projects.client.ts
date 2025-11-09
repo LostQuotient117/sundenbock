@@ -29,4 +29,9 @@ export class ProjectsClient extends ResourceClient<ProjectDto> {
     const ctx = new HttpContext().set(SUPPRESS_403_REDIRECT, true);
     return this.api.delete<void>(`/projects/${id}/delete`, undefined, { context: ctx });
   }
+
+  updateProject(id: number | string, dto: ProjectDto): Observable<ProjectDto> {
+  const ctx = new HttpContext().set(SUPPRESS_403_REDIRECT, true);
+  return this.api.put<ProjectDto>(`/projects/${id}/update`, dto, undefined, { context: ctx });
+}
 }
