@@ -35,6 +35,7 @@ export class ProjectsService {
   }
 
   delete(id: number | string): Observable<void> {
-    return this.api.delete(id);
+    // Backend-Endpoint ist DELETE /api/v1/projects/{id}/delete
+    return this.client.deleteProject(id);
   }
 }

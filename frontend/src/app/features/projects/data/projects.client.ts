@@ -20,4 +20,8 @@ export class ProjectsClient extends ResourceClient<ProjectDto> {
   createProject(body: CreateProjectDTO): Observable<ProjectDto> {
     return this.api.post<ProjectDto>('/projects/create', body);
   }
+
+  deleteProject(id: number | string): Observable<void> {
+    return this.api.delete<void>(`/projects/${id}/delete`);
+  }
 }
