@@ -3,6 +3,8 @@ package de.nak.iaa.sundenbock.service;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.dto.mapper.RoleMapper;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleWithUsersDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.RoleInUseException;
@@ -12,6 +14,7 @@ import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
+import de.nak.iaa.sundenbock.service.user.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +35,14 @@ public class RoleService {
     private final PermissionRepository permissionRepository;
     private final RoleMapper roleMapper;
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public RoleService(RoleRepository roleRepository, PermissionRepository permissionRepository, RoleMapper roleMapper, UserRepository userRepository) {
+    public RoleService(RoleRepository roleRepository, PermissionRepository permissionRepository, RoleMapper roleMapper, UserRepository userRepository, UserService userService) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.roleMapper = roleMapper;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
@@ -50,6 +55,31 @@ public class RoleService {
         return roleRepository.findAll().stream()
                 .map(roleMapper::toRoleDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves all roles, each populated with a list of users assigned to it.
+     *
+     * @return A list of {@link RoleWithUsersDTO}.
+     */
+    @Transactional(readOnly = true)
+    public List<RoleWithUsersDTO> getAllRolesWithUsers() {
+        List<Role> roles = roleRepository.findAll();
+
+        return roles.stream().map(role -> {
+            List<UserDTO> usersInRole = userService.getUsersByRole(role.getName());
+
+            Set<String> permissionNames = role.getPermissions().stream()
+                    .map(Permission::getName)
+                    .collect(Collectors.toSet());
+
+            return new RoleWithUsersDTO(
+                    role.getId(),
+                    role.getName(),
+                    permissionNames,
+                    usersInRole
+            );
+        }).collect(Collectors.toList());
     }
 
     /**

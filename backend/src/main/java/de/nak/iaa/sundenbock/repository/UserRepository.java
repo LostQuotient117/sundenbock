@@ -3,6 +3,7 @@ package de.nak.iaa.sundenbock.repository;
 import de.nak.iaa.sundenbock.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,4 +54,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return the number of users with this role
      */
     long countByRoles_Id(Long roleId);
+
+    /**
+     * Finds all users who are assigned a specific role.
+     * @param roleName the name of the role (e.g., "ROLE_ADMIN")
+     * @return a list of users assigned to that role
+     */
+    List<User> findByRoles_Name(String roleName);
 }
