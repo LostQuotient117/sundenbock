@@ -48,7 +48,11 @@ export class ProjectListComponent {
       },
       error: (err) => {
         this.deleting.set(false);
-        this.deleteError.set(err?.error?.message ?? 'Löschen fehlgeschlagen.');
+        const msg =
+        err?.status === 403
+        ? 'Keine Berechtigung für diese Aktion.'
+        : (err?.error?.message ?? 'Löschen fehlgeschlagen.');
+        this.deleteError.set(msg);
       },
     });
   }

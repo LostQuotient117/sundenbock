@@ -20,7 +20,7 @@
     </div>
   }
 </div>
-<!--Delete Dialog für Prijekt-->
+<!--Delete Dialog für Projekt-->
 @if (toDelete()) {
   <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div class="card w-full max-w-md bg-base-100 shadow-xl">
@@ -32,6 +32,11 @@
           <button class="btn btn-ghost" (click)="cancelDelete()">Abbrechen</button>
           <button class="btn btn-error" (click)="deleteConfirmed()">Löschen</button>
         </div>
+        @if (deleteError()) {
+          <div class="text-error text-sm mt-2">
+            {{ deleteError() }}
+          </div>
+        }
       </div>
     </div>
   </div>

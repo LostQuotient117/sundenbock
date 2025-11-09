@@ -123,8 +123,12 @@ export class ProjectsPage {
       },
       error: (err) => {
         this.creating.set(false);
-        this.createError.set(err?.error?.message ?? 'Anlage fehlgeschlagen.');
-      }
+const msg =
+    err?.status === 403
+      ? 'Keine Berechtigung für diese Aktion.'
+      : (err?.error?.message ?? 'Anlage fehlgeschlagen.');
+
+      this.createError.set(msg);      }
     });
   }
 }
