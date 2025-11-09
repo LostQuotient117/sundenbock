@@ -79,7 +79,7 @@ export class ProjectDetail {
     this.saving.set(true);
     this.saveError.set(null);
 
-    this.svc.update(p.id, { title, abbreviation, description }).subscribe({
+    this.svc.update(p.id, { id: p.id, title, abbreviation, description }).subscribe({
       next: updated => {
         this.saving.set(false);
         this.editing.set(false);
