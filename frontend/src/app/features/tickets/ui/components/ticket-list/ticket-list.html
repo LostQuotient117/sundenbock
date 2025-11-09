@@ -19,29 +19,29 @@
   </div>
 
   @for (t of tickets; track t.id) {
-  <div class="font-mono text-sm">{{ t.id }}</div>
+    <div class="font-mono text-sm">{{ t.id }}</div>
+
     <a
       [routerLink]="['/tickets', t.id]"
       class="font-semibold text-base-content hover:text-primary hover:underline hover:cursor-pointer transition"
     >
       {{ t.title }}
     </a>
-  </a>
-  <div class="dropdown">
-    <label class="badge" [ngClass]="badge[t.status]">
-      {{ t.status | ticketStatusLabel }}
-    </label>
-    <ul
-      tabindex="0"
-      class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-    >
-      @for (s of allStatuses; track s) {
-        <li><a>{{ s | ticketStatusLabel }}</a></li>
-      }
-    </ul>
-  </div>
-  <div>{{ t.project?.title || '-' }}</div>
-  <div>{{ t.responsiblePerson?.username || '-' }}</div>
-  <div>{{ t.createdOn | date: 'short' }}</div>
+
+    <div class="dropdown">
+      <label class="badge" [ngClass]="badge[t.status]">
+        {{ t.status | ticketStatusLabel }}
+      </label>
+      <ul
+        tabindex="0"
+        class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+      >
+        @for (s of allStatuses; track s) {
+          <li><a>{{ s | ticketStatusLabel }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div>{{ t.createdDate  | date: 'short' }}</div>
   }
 </div>

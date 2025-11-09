@@ -22,7 +22,7 @@ export class TicketsPage {
   size   = signal(20);
 
   // WICHTIG: Sort ist jetzt exakt der erwartete Typ
-  sort   = signal<SortKey<TicketDto>>('createdAt:desc' as SortKey<TicketDto>);
+  sort   = signal<SortKey<TicketDto>>('createdDate:desc' as SortKey<TicketDto>);
 
   constructor(private svc: TicketsService) {}
 

@@ -10,8 +10,8 @@ const ticketSpec = defineMapper<TicketDto, Ticket>()({
   assigneeId: { kind: 'keep' },
 
   // String -> Date
-  createdAt:  { kind: 'map', map: (s: string) => new Date(s) },
-  updatedAt:  { kind: 'map', map: (s: string) => new Date(s) },
+  createdDate:  { kind: 'map', map: (s: string) => new Date(s) },
+  lastModifiedDate:  { kind: 'map', map: (s: string) => new Date(s) },
 }as const);
 
 // 2) Abgeleiteter Typ (optional, zu Doku/Tests)

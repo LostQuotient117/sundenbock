@@ -14,6 +14,6 @@ export interface Ticket {
   title: string;
   status: TicketStatus;
   assigneeId?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdDate: Date;
+  lastModifiedDate: Date;
 }

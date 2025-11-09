@@ -11,6 +11,6 @@ export interface TicketDto {
   title: string;
   status: TicketStatusDto;
   assigneeId?: string;
-  createdAt: string;   // ISO String vom Backend
-  updatedAt: string;   // ISO String vom Backend
+  createdDate: string;   // ISO String vom Backend
+  lastModifiedDate: string;   // ISO String vom Backend
 }
