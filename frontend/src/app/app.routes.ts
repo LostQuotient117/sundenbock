@@ -31,14 +31,14 @@ export const routes: Routes = [
         path: 'tickets',
         loadComponent: () => import('./features/tickets/ui/pages/ticket.page').then(m => m.TicketsPage)
       },
-      /* {
+      {
         path: 'tickets/:id',
         loadComponent: () => import('./features/tickets/ui/components/ticket-detail/ticket-detail').then(m => m.TicketDetail)
-      }, */
-      /* {
+      },
+      {
         path: 'projects',
-        loadComponent: () => import('./features/projects/project.page').then(m => m.ProjectsPage)
-      }, */
+        loadComponent: () => import('./features/projects/ui/pages/project.page').then(m => m.ProjectsPage)
+      },
       { path: '', pathMatch: 'full', redirectTo: 'tickets' }
     ]
   },

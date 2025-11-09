@@ -28,6 +28,9 @@ export class RegisterComponent {
   currentYear = new Date().getFullYear();
 
   form = this.fb.group({
+    
+    firstName: ['', [Validators.required, Validators.minLength(2)]],
+    lastName: ['', [Validators.required, Validators.minLength(2)]],
     username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
     email: ['', [Validators.required, Validators.email]],
     passwordGroup: this.fb.group(
@@ -40,6 +43,9 @@ export class RegisterComponent {
     roles: this.fb.control<string[]>([])
   });
 
+  
+  firstName = this.form.controls.firstName;
+  lastName = this.form.controls.lastName;
   username = this.form.controls.username;
   email = this.form.controls.email;
   passwordGroup = this.form.controls.passwordGroup;
@@ -53,10 +59,13 @@ export class RegisterComponent {
     this.serverError.set(null);
 
     const dto = {
+      
+      firstName: this.firstName.value!,
+      lastName: this.lastName.value!,
       username: this.username.value!,
       email: this.email.value!,
       password: this.password.value!,
-      roles: this.form.value.roles ?? []
+      roles: ['ROLE_DEVELOPER']
     };
 
     try {
