@@ -109,4 +109,10 @@ export class TicketsPage {
       })
     ).subscribe();
   }
+
+reloadAfterDelete() {
+  // gleiches Muster wie bei Projects: kurz „wackeln“ und zurück auf Seite 0
+  this.page.set(this.page() + 1);
+  this.page.set(0);
+}
 }
