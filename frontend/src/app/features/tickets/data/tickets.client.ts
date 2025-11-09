@@ -22,4 +22,10 @@ export class TicketsClient extends ResourceClient<TicketDto> {
     const ctx = new HttpContext().set(SUPPRESS_403_REDIRECT, true);
     return this.api.post<TicketDto>('/tickets/create', body, undefined, { context: ctx });
   }
+
+  deleteTicket(id: number | string) {
+  const ctx = new HttpContext().set(SUPPRESS_403_REDIRECT, true);
+  // Backend Endpunkt: DELETE /tickets/{id}/delete
+  return this.api.delete<void>(`/tickets/${id}/delete`, undefined, { context: ctx });
+}
 }

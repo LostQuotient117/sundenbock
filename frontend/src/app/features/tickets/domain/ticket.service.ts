@@ -25,4 +25,8 @@ export class TicketsService {
   create(dto: CreateTicketDto): Observable<Ticket> {
     return this.api.createTicket(dto).pipe(map(mapTicket));
   }
+
+  delete(id: number | string) {
+  return this.api.deleteTicket(id);
+}
 }
