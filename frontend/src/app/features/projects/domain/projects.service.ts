@@ -30,8 +30,8 @@ export class ProjectsService {
   }
 
   update(id: number | string, payload: Partial<ProjectDto>): Observable<Project> {
-    // analog Hinweis wie bei create() bzgl. '/{id}/update'
-    return this.api.update(id, payload as ProjectDto).pipe(map(mapProject));
+    // Backend-Endpoint ist PUT /api/v1/projects/{id}/update
+    return this.api.updateProject(id, payload as ProjectDto).pipe(map(mapProject));
   }
 
   delete(id: number | string): Observable<void> {
