@@ -9,12 +9,11 @@ import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.SelfActionException;
+import de.nak.iaa.sundenbock.exception.UserInUseException;
 import de.nak.iaa.sundenbock.model.permission.Permission;
 import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.model.user.User;
-import de.nak.iaa.sundenbock.repository.PermissionRepository;
-import de.nak.iaa.sundenbock.repository.RoleRepository;
-import de.nak.iaa.sundenbock.repository.UserRepository;
+import de.nak.iaa.sundenbock.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,13 +55,19 @@ public class UserService {
     private final PermissionRepository permissionRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ProjectRepository projectRepository;
+    private final TicketRepository ticketRepository;
+    private final CommentRepository commentRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, ProjectRepository projectRepository, TicketRepository ticketRepository, CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.projectRepository = projectRepository;
+        this.ticketRepository = ticketRepository;
+        this.commentRepository = commentRepository;
     }
 
     /**
@@ -188,21 +193,67 @@ public class UserService {
      * <p>
      * Prevents the currently authenticated user from deleting their own account.
      * Throws an exception if the user does not exist.
+     * Throws {@link UserInUseException} if the user is still referenced by any projects,
+     * tickets or comments.
      *
      * @param username the username of the user to delete
      * @throws SelfActionException if the user attempts to delete their own account
      * @throws ResourceNotFoundException if the user does not exist
+     * @throws UserInUseException if the user is still in use
      */
     @Transactional
     public void deleteUserByUsername(String username) {
         if (isCurrentUser(username)) {
-            throw new SelfActionException("You cannot delete your own account.");
+            throw new SelfActionException("You cannot delete your own account. You can deactivate it instead.");
         }
 
-        if (!userRepository.existsByUsername(username)) {
-            throw new ResourceNotFoundException("User not found with username: " + username);
+        User user = findUserByUsername(username);
+
+        long projectsCreated = projectRepository.countByCreatedBy(user);
+        long projectsModified = projectRepository.countByLastModifiedBy(user);
+        long ticketsResponsible = ticketRepository.countByResponsiblePerson(user);
+        long ticketsCreated = ticketRepository.countByCreatedBy(user);
+        long commentsCreated = commentRepository.countByCreatedBy(user);
+
+        long totalUsage = projectsCreated + projectsModified + ticketsResponsible + ticketsCreated + commentsCreated;
+
+        if (totalUsage > 0) {
+            StringBuilder message = new StringBuilder();
+            message.append(String.format("Cannot delete user '%s'. It is still in use:", username));
+            if (projectsCreated > 0) message.append(String.format(" %d projects (Creator),", projectsCreated));
+            if (projectsModified > 0) message.append(String.format(" %d projects (Modifier),", projectsModified));
+            if (ticketsResponsible > 0) message.append(String.format(" %d tickets (Responsible),", ticketsResponsible));
+            if (ticketsCreated > 0) message.append(String.format(" %d tickets (Creator),", ticketsCreated));
+            if (commentsCreated > 0) message.append(String.format(" %d comments (Creator),", commentsCreated));
+
+            message.deleteCharAt(message.length() - 1);
+            message.append(". You can deactivate the account instead.");
+
+            throw new UserInUseException(message.toString());
         }
-        userRepository.deleteByUsername(username);
+
+        userRepository.delete(user);
+    }
+
+    /**
+     * Deactivates the currently authenticated user's account.
+     *
+     * This is the preferred way for a user to "delete" their own account,
+     * as it preserves referential integrity for their created tickets/comments.
+     * A deactivated user can no longer log in.
+     *
+     * @throws SelfActionException if the "system" user attempts to deactivate itself.
+     * @throws ResourceNotFoundException if the authenticated user cannot be found.
+     */
+    @Transactional
+    public void deactivateSelf() {
+        String username = getCurrentUsername();
+        if ("system".equals(username)) {
+            throw new SelfActionException("The 'system' user cannot be deactivated.");
+        }
+        User user = findUserByUsername(username);
+        user.setEnabled(false);
+        userRepository.save(user);
     }
 
     /**
@@ -219,6 +270,24 @@ public class UserService {
         User user = findUserByUsername(username);
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+    }
+
+    /**
+     * Reactivates a user's account (administrative action).
+     * This method sets the user's 'enabled' flag back to 'true'.
+     *
+     * @param username the user whose account will be reactivated
+     * @throws SelfActionException if an attempt is made to activate the 'system' user
+     * @throws ResourceNotFoundException if the user is not found
+     */
+    @Transactional
+    public void activateUser(String username) {
+        if ("system".equals(username)) {
+            throw new SelfActionException("The 'system' user account cannot be re-activated.");
+        }
+        User user = findUserByUsername(username);
+        user.setEnabled(true);
         userRepository.save(user);
     }
 

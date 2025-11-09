@@ -200,6 +200,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles {@link UserInUseException} (HTTP 409).
+     * <p>
+     * Thrown when attempting to delete a user that is still referenced
+     * by tickets or comments.
+     *
+     * @param ex The caught UserInUseException.
+     * @return A 409 Conflict response entity.
+     */
+    @ExceptionHandler(UserInUseException.class)
+    public ResponseEntity<Object> handleUserInUseException(UserInUseException ex) {
+        Map<String, Object> body = Map.of(
+                "timestamp", System.currentTimeMillis(),
+                "status", HttpStatus.CONFLICT.value(),
+                "error", "Conflict",
+                "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    /**
      * Handles {@link RoleInUseException} (HTTP 409).
      * <p>
      * Thrown when attempting to delete a role that is still in use by users.

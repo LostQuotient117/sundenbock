@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.repository;
 
 import de.nak.iaa.sundenbock.model.comment.Comment;
+import de.nak.iaa.sundenbock.model.user.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.*;
@@ -50,4 +51,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
      * @return a page of top-level comments for the ticket
      */
     Page<Comment> findByTicketIdAndParentCommentIsNull(Long ticketId, Pageable pageable);
+
+
+    /**
+     * Counts how many comments list this user as the creator.
+     * @param user the user
+     * @return the number of comments
+     */
+    long countByCreatedBy(User user);
+
+
 }
