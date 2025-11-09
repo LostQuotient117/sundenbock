@@ -11,7 +11,7 @@
   </div>
 
   @if (vm(); as page) {
-    <app-ticket-list [tickets]="page.items" />
+    <app-ticket-list [tickets]="page.items" (deleted)="reloadAfterDelete()" />
   } @else {
     <div class="text-center text-base-content/60 py-8">Keine Tickets gefunden.</div>
   }
