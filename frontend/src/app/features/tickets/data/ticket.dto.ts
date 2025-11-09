@@ -14,3 +14,12 @@ export interface TicketDto {
   createdDate: string;   // ISO String vom Backend
   lastModifiedDate: string;   // ISO String vom Backend
 }
+
+//für ticket Create benötigt
+export interface CreateTicketDto {
+  title: string;
+  description: string;
+  status: TicketStatusDto;
+  responsiblePersonUserName: string;
+  projectId: number;
+}
