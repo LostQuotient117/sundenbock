@@ -292,6 +292,19 @@ public class UserService {
     }
 
     /**
+     * Retrieves all users assigned to a specific role.
+     *
+     * @param roleName The name of the role.
+     * @return A list of users (as UserDTO) assigned to that role.
+     */
+    @Transactional(readOnly = true)
+    public List<UserDTO> getUsersByRole(String roleName) {
+        return userRepository.findByRoles_Name(roleName).stream()
+                .map(userMapper::toUserDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Assigns a role to a user.
      * <p>
      * Resolves the user and role by their respective identifiers and adds the role to the user's roles.
