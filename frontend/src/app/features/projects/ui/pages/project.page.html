@@ -33,6 +33,8 @@
         <option [ngValue]="20">20</option>
         <option [ngValue]="50">50</option>
       </select>
+      <!--neues Projekt anlegen-->
+      <button class="btn btn-primary" (click)="openCreate()">Neu</button>
     </div>
   </div>
 
@@ -51,4 +53,70 @@
       <button class="btn join-item" (click)="next()" [disabled]="result().page + 1 >= totalPages()">»</button>
     </div>
   </div>
+
+  <!--Pop Up bei ANlage neues Projekt-->
+  @if (showCreate()) {
+    <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div class="card w-full max-w-xl bg-base-100 shadow-xl">
+        <div class="card-body gap-3">
+          <div class="flex items-start justify-between">
+            <h2 class="card-title">Neues Projekt anlegen</h2>
+            <button class="btn btn-ghost btn-sm" (click)="closeCreate()">✕</button>
+          </div>
+
+          <form (ngSubmit)="submitCreate()" #form="ngForm" class="grid grid-cols-1 gap-3">
+            <label class="form-control">
+              <div class="label"><span class="label-text">Titel*</span></div>
+              <input
+                class="input input-bordered"
+                name="title"
+                [(ngModel)]="createModel.title"
+                required
+                maxlength="200"
+                placeholder="Projekt-Titel"
+              />
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Kürzel* (3 Zeichen)</span></div>
+              <input
+                class="input input-bordered font-mono"
+                name="abbreviation"
+                [(ngModel)]="createModel.abbreviation"
+                required
+                minlength="3"
+                maxlength="3"
+                placeholder="ABC"
+              />
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Beschreibung*</span></div>
+              <textarea
+                class="textarea textarea-bordered"
+                name="description"
+                [(ngModel)]="createModel.description"
+                required
+                maxlength="2000"
+                rows="4"
+                placeholder="Kurzbeschreibung…"
+              ></textarea>
+            </label>
+
+            <div class="flex items-center justify-end gap-2 mt-2">
+              <button type="button" class="btn btn-ghost" (click)="closeCreate()">Abbrechen</button>
+              <button type="submit" class="btn btn-primary" [disabled]="form.invalid || creating()">
+                <span *ngIf="!creating()">Anlegen</span>
+                <span *ngIf="creating()" class="loading loading-spinner loading-sm"></span>
+              </button>
+            </div>
+
+            <div class="text-error text-sm" *ngIf="createError()">
+              {{ createError() }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
 </div>

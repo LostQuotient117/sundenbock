@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '@core/http/api.service';
 import { ResourceClient } from '@core/http/resource-client';
 import { Page, PageQuery } from '@shared/models/paging';
-import { ProjectDto } from './project.dto';
+import { ProjectDto, CreateProjectDTO } from './project.dto';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectsClient extends ResourceClient<ProjectDto> {
@@ -15,5 +15,9 @@ export class ProjectsClient extends ResourceClient<ProjectDto> {
 
   override list(q?: PageQuery<ProjectDto>): Observable<Page<ProjectDto>> {
     return super.list(q);
+  }
+
+  createProject(body: CreateProjectDTO): Observable<ProjectDto> {
+    return this.api.post<ProjectDto>('/projects/create', body);
   }
 }

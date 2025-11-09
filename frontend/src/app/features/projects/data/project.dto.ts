@@ -19,3 +19,5 @@ export interface ProjectDto {
   createdBy: UserRefDto;
   lastModifiedBy: UserRefDto;
 }
+//Create-DTO für Projekt
+export type CreateProjectDTO = Pick<ProjectDto, 'title' | 'description' | 'abbreviation'>;
