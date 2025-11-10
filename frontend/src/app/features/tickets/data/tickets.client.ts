@@ -30,6 +30,6 @@ export class TicketsClient extends ResourceClient<TicketDto> {
 }
 
 updateCustom(id: number, dto: UpdateTicketDto): Observable<TicketDto> {
-    return this.api.put<TicketDto>(`/tickets/${id}}/update`, dto);
+    return this.api.put<TicketDto>(`/tickets/${id}/update`, dto);
   }
 }
