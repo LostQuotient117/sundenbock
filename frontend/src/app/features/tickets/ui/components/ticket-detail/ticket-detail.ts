@@ -10,12 +10,13 @@ import { TicketStatusLabelPipe } from '@shared/pipes/status-label.pipe';
 import { CommentsService } from '@features/tickets/domain/comments.service';
 import { Page } from '@shared/models/paging';
 import { TicketComment } from '@features/tickets/domain/comment.model';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UpdateTicketDto } from '@features/tickets/data/ticket.dto';
 
 @Component({
   standalone: true,
   selector: 'ticket-detail',
-  imports: [CommonModule, RouterLink, DatePipe, TicketStatusLabelPipe],
+  imports: [CommonModule, RouterLink, DatePipe, TicketStatusLabelPipe, ReactiveFormsModule],
   templateUrl: './ticket-detail.html',
 })
 export class TicketDetail {
@@ -68,6 +69,8 @@ export class TicketDetail {
     }
   });
 
+statusOptions: TicketStatus[] = Object.values(TicketStatus);
+
 editing = signal(false);
 saving = signal(false);
 saveError = signal<string | null>(null);
@@ -75,7 +78,7 @@ saveError = signal<string | null>(null);
 form = this.fb.nonNullable.group({
   title: ['', [Validators.required, Validators.maxLength(200)]],
   description: ['', [Validators.required, Validators.maxLength(2000)]],
-  status: this.fb.nonNullable.control<string>('CREATED', [Validators.required]),
+  status: this.fb.nonNullable.control<TicketStatus>(TicketStatus.CREATED, [Validators.required]),
   projectId: this.fb.nonNullable.control<number | null>(null, [Validators.required]),
   responsiblePersonUserName: this.fb.nonNullable.control<string>('', [Validators.required]),
 });
@@ -86,7 +89,7 @@ startEdit() {
   this.form.setValue({
     title: t.title,
     description: t.description ?? '',
-    status: (t.status as string) ?? 'CREATED',
+    status: t.status as TicketStatus,
     projectId: t.project?.id ?? null,
     responsiblePersonUserName: t.responsiblePerson?.username ?? t.responsiblePersonUserName ?? '',
   });
@@ -98,5 +101,39 @@ startEdit() {
 cancelEdit() {
   this.editing.set(false);
   this.saveError.set(null);
+}
+
+submitUpdate() {
+  const t = this.ticket();
+  if (!t || this.form.invalid) return;
+
+  this.saving.set(true);
+  this.saveError.set(null);
+
+  const base: UpdateTicketDto = {
+    id: t.id,
+    title: this.form.value.title!,
+    description: this.form.value.description!,
+    status: this.form.value.status! as any,
+    project: { id: this.form.value.projectId! },
+    responsiblePerson: { username: this.form.value.responsiblePersonUserName! },
+  };
+
+  const body: UpdateTicketDto = t.ticketKey
+    ? { ...base, ticketKey: t.ticketKey } // nur wenn gesetzt
+    : base;
+
+  this.svc.update(t.id, body).subscribe({
+    next: (updated: Ticket) => {
+      this.svc.setCurrentTicket(updated);
+      this.saving.set(false);
+      this.editing.set(false);
+    },
+    error: (err: any) => {
+      this.saving.set(false);
+      const msg = (err?.error?.message as string) || 'Speichern fehlgeschlagen.';
+      this.saveError.set(msg);
+    },
+  });
 }
 }

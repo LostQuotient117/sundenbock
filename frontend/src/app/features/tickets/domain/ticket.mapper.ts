@@ -6,6 +6,7 @@ import { Ticket } from './ticket.model';
 const ticketSpec = defineMapper<TicketDto, Ticket>()({
   id:         { kind: 'keep' },
   title:      { kind: 'keep' },
+  description: { kind: 'keep' },
   status:     { kind: 'keep' },
   assigneeId: { kind: 'keep' },
   ticketKey:  { kind: 'keep' },
@@ -16,6 +17,11 @@ const ticketSpec = defineMapper<TicketDto, Ticket>()({
     map: (rp: TicketResponsiblePersonDto | undefined) => rp
       ? { id: rp.id, username: rp.username, firstName: rp.firstName, lastName: rp.lastName }
       : undefined
+  },
+  project: {
+    kind: 'map',
+    from: 'project',
+    map: (p: any) => p ? { id: p.id, title: p.title, abbreviation: p.abbreviation } : undefined,
   },
   // String -> Date
   createdDate:  { kind: 'map', map: (s: string) => new Date(s) },

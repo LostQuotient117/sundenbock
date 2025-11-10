@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/http/api.service';
 import { ResourceClient } from '@core/http/resource-client';
-import { CreateTicketDto, TicketDto } from './ticket.dto';
+import { CreateTicketDto, TicketDto, UpdateTicketDto } from './ticket.dto';
 import { Observable } from 'rxjs';
 import { Page, PageQuery } from '@shared/models/paging';
 import { HttpContext } from '@angular/common/http';
@@ -28,4 +28,8 @@ export class TicketsClient extends ResourceClient<TicketDto> {
   // Backend Endpunkt: DELETE /tickets/{id}/delete
   return this.api.delete<void>(`/tickets/${id}/delete`, undefined, { context: ctx });
 }
+
+updateCustom(id: number, dto: UpdateTicketDto): Observable<TicketDto> {
+    return this.api.put<TicketDto>(`/tickets/${id}}/update`, dto);
+  }
 }

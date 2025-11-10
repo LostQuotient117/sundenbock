@@ -12,15 +12,23 @@ export type TicketStatusDto =
   firstName?: string;
   lastName?: string;
 }
+
+export interface TicketProjectDto {
+  id: number;
+  title?: string;
+  abbreviation?: string;
+}
   
 export interface TicketDto {
   id: string;
   title: string;
+  description?: string
   status: TicketStatusDto;
   ticketKey?: string;
   responsiblePerson?: TicketResponsiblePersonDto;
   responsiblePersonUserName?: string;
   assigneeId?: string;
+  project?: TicketProjectDto;
   createdDate: string;   // ISO String vom Backend
   lastModifiedDate: string;   // ISO String vom Backend
 }
@@ -32,4 +40,15 @@ export interface CreateTicketDto {
   status: TicketStatusDto;
   responsiblePersonUserName: string;
   projectId: number;
+}
+
+//für ticket update benötigt
+export interface UpdateTicketDto {
+  id: string | number;
+  title: string;
+  description: string;
+  status: TicketStatusDto;
+  project: { id: number };
+  responsiblePerson: { username: string };
+  ticketKey?: string; // optional mitsenden, falls vorhanden
 }
