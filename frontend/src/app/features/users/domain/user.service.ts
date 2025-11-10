@@ -1,16 +1,30 @@
 import { Injectable, inject } from '@angular/core';
-import { shareReplay } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { UsersClient } from '../data/users.client';
 import { User } from './user.model';
 import { UserDetailDto, UserDto } from '../data/user.dto';
 
+export type UserVm = Omit<UserDto, 'createdAt' | 'updatedAt'> & {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private api = inject(UsersClient);
 
-  listAll(): Observable<UserDto[]> {
-    return this.api.listAll().pipe(shareReplay(1));
+  listAll(): Observable<UserVm[]> {
+    return this.api.listAll().pipe(
+      map(dtos =>
+        dtos.map(d => ({
+          ...d,
+          createdAt: new Date(d.createdAt),
+          updatedAt: new Date(d.updatedAt),
+        }))
+      ),
+      shareReplay(1)
+    );
   }
 
   details(username: string): Observable<UserDetailDto> {

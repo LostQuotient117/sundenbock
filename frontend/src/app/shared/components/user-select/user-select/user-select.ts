@@ -1,11 +1,10 @@
 import { Component, Input, HostListener, inject, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { UsersService } from '@features/users/domain/user.service';
-import { User } from '@features/users/domain/user.model';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, timer } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { UsersService, UserVm } from '@features/users/domain/user.service';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, from, Observable, of, timer } from 'rxjs';
+import { catchError, debounceTime, filter, map, mergeMap, shareReplay, take, toArray } from 'rxjs/operators';
 
 @Component({
   standalone: true,
@@ -17,7 +16,7 @@ export class UserSelectComponent {
   private svc = inject(UsersService);
 
   @Input({ required: true }) control!: FormControl<string>;
-  @Input() placeholder = 'Entwickler auswählen (Vor-/Nachname/Username)…';
+  @Input() placeholder = 'Entwickler suchen';
 
   open = signal(false);
   query = signal('');
@@ -29,15 +28,69 @@ export class UserSelectComponent {
   //lädt einmalig alle User
   private allUsers$ = this.svc.listAll();
 
+  //Cache username ist Rolle Developer?
+  private devFlagCache = new Map<string, boolean>();
+
+  private inflight = new Map<string, Observable<boolean>>();
+
+  private isDeveloper$(username: string): Observable<boolean> {
+    // 1) Memory-Cache-Hit
+    if (this.devFlagCache.has(username)) {
+      return of(this.devFlagCache.get(username)!);
+    }
+    // 2) Inflight-Hit
+    if (this.inflight.has(username)) {
+      return this.inflight.get(username)!;
+    }
+    // 3) neuer Request
+    const obs = this.svc.details(username).pipe(
+      map(d => {
+        const roles = d.roles ?? [];
+        const isDev = roles.includes('ROLE_DEVELOPER') || roles.includes('DEVELOPER');
+        this.devFlagCache.set(username, isDev);
+        return isDev;
+      }),
+      catchError(() => {
+        this.devFlagCache.set(username, false);
+        return of(false);
+      }),
+      shareReplay(1)
+    );
+
+    // Inflight vormerken und nach Abschluss wieder entfernen
+    this.inflight.set(username, obs);
+    obs.subscribe({ complete: () => this.inflight.delete(username) });
+
+    return obs;
+  }
+
   //nur Benutzer angezeigt, deren Rollen ROLE_DEVELOPER enthalten und deren Name oder Username mit dem Suchtext übereinstimmt
-  vm: Signal<User[]> = toSignal(
-    combineLatest([this.allUsers$, timer(0, 1).pipe(map(() => this.query()))]).pipe(
+  vm: Signal<UserVm[]> = toSignal(
+    combineLatest([this.allUsers$, toObservable(this.query).pipe(debounceTime(200)),
+    ]).pipe(
+      //nur textuelles Matching
       map(([users, q]) => {
-        const s = (q || '').trim().toLowerCase();
-        if (s.length < this.minChars) return [];
-        const isDev = (u: User) => (u.roles ?? []).includes('ROLE_DEVELOPER');
-        const full = (u: User) => `${(u as any).firstName ?? ''} ${(u as any).lastName ?? ''} ${u.username}`.toLowerCase();
-        return users.filter(u => isDev(u) && full(u).includes(s)).slice(0, this.pageSize);
+      const s = (q || '').trim().toLowerCase();
+      if (s.length < this.minChars) return [] as UserVm[];
+      return users.filter((u: UserVm) => {
+        const full = `${u.firstName ?? ''} ${u.lastName ?? ''} ${u.username}`.toLowerCase();
+        return full.includes(s);
+      });
+    }),
+      // Rollenprüfung
+      mergeMap((subset: UserVm[]) => {
+        if (!subset.length) return of([] as UserVm[]);
+        return from(subset).pipe(
+          mergeMap(
+            (u) => this.isDeveloper$(u.username).pipe(map(isDev => ({ u, isDev }))),
+            3
+          ),
+          //nur Developer durchlassen
+          filter(({ isDev }) => isDev),
+          map(({ u }) => u),
+          take(this.pageSize),
+          toArray()
+        );
       })
     ),
     { initialValue: [] }
@@ -53,15 +106,16 @@ export class UserSelectComponent {
     if (!this.open()) this.openPanel();
   }
 
-  choose(u: User) {
-    if (!(u.roles ?? []).includes('ROLE_DEVELOPER')) {
+  choose(u: UserVm) {
+    const cached = this.devFlagCache.get(u.username);
+    if (cached == false) {
       this.errorMsg.set('Nur Nutzer mit ROLE_DEVELOPER können verantwortlich sein.');
       return;
     }
     this.control.setValue(u.username, { emitEvent: true });
 
     //zeigt Vor- + Nachname (oder username) im Inputfeld
-    const label = `${(u as any).firstName ?? ''} ${(u as any).lastName ?? ''}`.trim() || u.username;
+    const label = `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || u.username;
     this.query.set(label);
     this.closePanel();
   }
