@@ -5,14 +5,14 @@ export interface CommentAuthor {
   lastName?: string;
 }
 
-export interface Comment {
+export interface TicketComment {
   id?: number;
   ticketId: number | string;
   parentCommentId?: number;
   commentText: string;
   likes?: number;
   dislikes?: number;
-  childComments?: Comment[];
+  childComments?: TicketComment[];
   createdDate?: Date;
   lastModifiedDate?: Date;
   createdBy?: CommentAuthor;
