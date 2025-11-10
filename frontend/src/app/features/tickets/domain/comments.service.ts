@@ -3,7 +3,7 @@ import { Observable, map } from 'rxjs';
 import { Page, PageQuery } from '@shared/models/paging';
 import { CommentsClient } from '@features/tickets/data/comments.client';
 import { CommentDto } from '@features/tickets/data/comment.dto';
-import { Comment } from './comment.model';
+import { TicketComment } from './comment.model';
 import { mapPage } from '@shared/utils/mapping.base';
 import { mapComment } from './comment.mapper';
 
@@ -11,7 +11,7 @@ import { mapComment } from './comment.mapper';
 export class CommentsService {
   private api = inject(CommentsClient);
 
-  listByTicket(ticketId: number | string, q?: PageQuery<CommentDto>): Observable<Page<Comment>> {
+  listByTicket(ticketId: number | string, q?: PageQuery<CommentDto>): Observable<Page<TicketComment>> {
     return this.api.listByTicket(ticketId, q).pipe(map((p) => mapPage(p, mapComment)));
   }
 }
