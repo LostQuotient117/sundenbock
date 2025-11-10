@@ -5,11 +5,21 @@ export type TicketStatusDto =
   | 'RESOLVED'
   | 'REJECTED'
   | 'CLOSED';
+
+  export interface TicketResponsiblePersonDto {
+  id: number;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+}
   
 export interface TicketDto {
   id: string;
   title: string;
   status: TicketStatusDto;
+  ticketKey?: string;
+  responsiblePerson?: TicketResponsiblePersonDto;
+  responsiblePersonUserName?: string;
   assigneeId?: string;
   createdDate: string;   // ISO String vom Backend
   lastModifiedDate: string;   // ISO String vom Backend
