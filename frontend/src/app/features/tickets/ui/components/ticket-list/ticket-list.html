@@ -30,16 +30,29 @@
   </div>
   <!-- Responsible -->
   <div class="truncate" [title]="
-         ((t.responsiblePerson?.firstName || '') + ' ' + (t.responsiblePerson?.lastName || '')).trim()
-      || t.responsiblePerson?.username
-      || t.responsiblePersonUserName
-      || (t.assigneeId ?? '')">
+      ((t.responsiblePerson?.firstName || '') + ' ' + (t.responsiblePerson?.lastName || '')).trim()
+      + (
+        t.responsiblePerson?.username
+          ? ' (' + t.responsiblePerson?.username + ')'
+          : (t.responsiblePersonUserName
+              ? ' (' + t.responsiblePersonUserName + ')'
+              : (t.assigneeId ? ' (' + t.assigneeId + ')' : '')
+            )
+        )
+      || '—'">
+    <span>
     {{
-    t.responsiblePerson?.username
-    || t.responsiblePersonUserName
-    || t.assigneeId
+    (t.responsiblePerson?.firstName || '') +
+        (t.responsiblePerson?.firstName && t.responsiblePerson?.lastName ? ' ' : '') +
+        (t.responsiblePerson?.lastName || '')
     || '—'
     }}
+    </span>
+    @if (t.responsiblePerson?.username || t.responsiblePersonUserName || t.assigneeId) {
+          <span class="opacity-70">
+            ({{ t.responsiblePerson?.username || t.responsiblePersonUserName || t.assigneeId }})
+          </span>
+        }
   </div>
 
   <!--Erstellt-->
