@@ -1,13 +1,40 @@
 <div class="flex flex-col gap-4">
   <div class="flex items-center justify-between gap-3">
     <h1 class="text-2xl font-bold">Tickets</h1>
+    <div class="flex items-center gap-2">
+      <div class="join">
     <input
-      class="input input-bordered w-full sm:w-80"
+      class="input input-bordered join-item"
+      type="text"
       placeholder="Suche…"
       [value]="search()"
       (input)="onSearchInput($event)"
     />
-    <button class="btn btn-primary ml-auto" (click)="openCreate()">Neu</button>
+    <button class="btn join-item" type="button" (click)="clearSearch()">Clear</button>
+      </div>
+
+        <!-- Sort -->
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost">Sort</label>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-56">
+          <li><a (click)="sortByCreatedDesc()">Neueste zuerst</a></li>
+          <li><a (click)="sortByCreatedAsc()">Älteste zuerst</a></li>
+          <li class="disabled opacity-50"><a>Creator (deaktiviert)</a></li>
+        </ul>
+      </div>
+    <!--Page Size-->
+    <select
+        class="select select-bordered w-28"
+        [value]="size()"
+        (change)="onPageSizeChange($event)"
+      >
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+
+    <button class="btn btn-primary" type="button" (click)="openCreate()">Neu</button>
+  </div>
   </div>
 
   @if (vm(); as page) {
@@ -15,6 +42,18 @@
   } @else {
     <div class="text-center text-base-content/60 py-8">Keine Tickets gefunden.</div>
   }
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-2">
+    <div class="opacity-70 text-sm">
+      Seite {{ vm().page + 1 }} / {{ totalPages() }} — {{ vm().total }} Einträge
+    </div>
+
+    <div class="join">
+      <button class="btn join-item" (click)="prev()" [disabled]="vm().page === 0">«</button>
+      <button class="btn join-item" (click)="next()" [disabled]="vm().page + 1 >= totalPages()">»</button>
+    </div>
+  </div>
   <!--Create Pop Up-->
   @if (showCreate()) {
     <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

@@ -65,9 +65,52 @@ export class TicketsPage {
   });
 
   onSearchInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.search.set(input.value);
+    const input = (event.target as HTMLInputElement).value ?? '';
+    this.search.set(input);
   }
+
+  onSearchEnter() {
+  this.page.set(0);
+}
+
+clearSearch() {
+  this.search.set('');
+  this.page.set(0);
+}
+
+sortByCreatedDesc() {
+  this.sort.set('createdDate:desc' as SortKey<TicketDto>);
+  this.page.set(0);
+}
+
+sortByCreatedAsc() {
+  this.sort.set('createdDate:asc' as SortKey<TicketDto>);
+  this.page.set(0);
+}
+
+onPageSizeChange(ev: Event) {
+  const v = Number((ev.target as HTMLSelectElement).value);
+  this.size.set(v);
+  this.page.set(0);
+}
+
+totalPages() {
+  const v = this.vm();
+  if (!v || !v.pageSize) return 1;
+  return Math.max(1, Math.ceil((v.total ?? 0) / v.pageSize));
+}
+
+prev() {
+  const p = (this.vm().page ?? 0);
+  if (p <= 0) return;
+  this.page.set(p - 1);
+}
+
+next() {
+  const p = (this.vm().page ?? 0);
+  if (p + 1 >= this.totalPages()) return;
+  this.page.set(p + 1);
+}
 
   openCreate() {
     this.createError.set(null);
