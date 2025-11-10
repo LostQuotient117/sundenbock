@@ -1,6 +1,6 @@
 import { defineMapper, mapBySpec } from '@shared/utils/mapping/mapping.dsl';
 import { CommentDto, UserDto } from '@features/tickets/data/comment.dto';
-import { Comment, CommentAuthor } from './comment.model';
+import { CommentAuthor, TicketComment } from './comment.model';
 
 const toDate = (s?: string) => (s ? new Date(s) : undefined);
 
@@ -11,7 +11,7 @@ const authorSpec = defineMapper<UserDto, CommentAuthor>()({
   lastName:  { kind: 'keep' },
 } as const);
 
-export const commentSpec = defineMapper<CommentDto, Comment>()({
+export const commentSpec = defineMapper<CommentDto, TicketComment>()({
   id:              { kind: 'keep' },
   ticketId:        { kind: 'keep' },
   parentCommentId: { kind: 'keep' },
@@ -40,6 +40,6 @@ export const commentSpec = defineMapper<CommentDto, Comment>()({
   },
 } as const);
 
-export function mapComment(dto: CommentDto): Comment {
+export function mapComment(dto: CommentDto): TicketComment {
   return mapBySpec(dto, commentSpec);
 }
