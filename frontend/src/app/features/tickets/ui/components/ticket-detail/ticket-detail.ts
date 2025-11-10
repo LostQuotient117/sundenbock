@@ -10,6 +10,7 @@ import { TicketStatusLabelPipe } from '@shared/pipes/status-label.pipe';
 import { CommentsService } from '@features/tickets/domain/comments.service';
 import { Page } from '@shared/models/paging';
 import { TicketComment } from '@features/tickets/domain/comment.model';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   standalone: true,
@@ -20,6 +21,7 @@ import { TicketComment } from '@features/tickets/domain/comment.model';
 export class TicketDetail {
   private route = inject(ActivatedRoute);
   private svc = inject(TicketsService);
+  private readonly fb = inject(FormBuilder);
 
   readonly Math = Math;
 
@@ -65,4 +67,36 @@ export class TicketDetail {
         return 'badge-neutral';
     }
   });
+
+editing = signal(false);
+saving = signal(false);
+saveError = signal<string | null>(null);
+
+form = this.fb.nonNullable.group({
+  title: ['', [Validators.required, Validators.maxLength(200)]],
+  description: ['', [Validators.required, Validators.maxLength(2000)]],
+  status: this.fb.nonNullable.control<string>('CREATED', [Validators.required]),
+  projectId: this.fb.nonNullable.control<number | null>(null, [Validators.required]),
+  responsiblePersonUserName: this.fb.nonNullable.control<string>('', [Validators.required]),
+});
+
+startEdit() {
+  const t = this.ticket();
+  if (!t) return;
+  this.form.setValue({
+    title: t.title,
+    description: t.description ?? '',
+    status: (t.status as string) ?? 'CREATED',
+    projectId: t.project?.id ?? null,
+    responsiblePersonUserName: t.responsiblePerson?.username ?? t.responsiblePersonUserName ?? '',
+  });
+  this.form.markAsPristine();
+  this.saveError.set(null);
+  this.editing.set(true);
+}
+
+cancelEdit() {
+  this.editing.set(false);
+  this.saveError.set(null);
+}
 }
