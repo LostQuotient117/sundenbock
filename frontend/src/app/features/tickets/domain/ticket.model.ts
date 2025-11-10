@@ -16,9 +16,17 @@ export interface TicketResponsible {
   lastName?: string;
 }
 
+export interface TicketProjectRef {
+  id: number;
+  title?: string;
+  abbreviation?: string;
+}
+
 export interface Ticket {
   id: string;
   title: string;
+  description?: string;
+  project?: TicketProjectRef;
   status: TicketStatus;
   ticketKey?: string;
   responsiblePerson?: TicketResponsible;
