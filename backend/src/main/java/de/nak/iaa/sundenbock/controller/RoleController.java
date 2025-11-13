@@ -3,9 +3,13 @@ package de.nak.iaa.sundenbock.controller;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
 import de.nak.iaa.sundenbock.annotation.NavItem;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleWithUsersDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.service.RoleService;
+import de.nak.iaa.sundenbock.service.user.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +29,11 @@ import java.util.Set;
 public class RoleController {
 
     private final RoleService roleService;
+    private final UserService userService;
 
-    public RoleController(RoleService roleService) {
+    public RoleController(RoleService roleService, UserService userService) {
         this.roleService = roleService;
+        this.userService = userService;
     }
 
     /**
@@ -39,6 +45,29 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ROLE_MANAGE')")
     public List<RoleDTO> getAllRoles() {
         return roleService.getAllRoles();
+    }
+
+    /**
+     * Retrieves a list of all users assigned to a specific role.
+     *
+     * @param roleName The name of the role.
+     * @return a list of {@link UserDTO} representing the users.
+     */
+    @GetMapping("/{roleName}/users")
+    @PreAuthorize("hasAuthority('USER_MANAGE')")
+    public List<UserDTO> getUsersByRole(@PathVariable @NotBlank String roleName) {
+        return userService.getUsersByRole(roleName);
+    }
+
+    /**
+     * Retrieves all roles, each populated with a list of users assigned to it.
+     *
+     * @return a list of {@link RoleWithUsersDTO}
+     */
+    @GetMapping("/with-users")
+    @PreAuthorize("hasAuthority('ROLE_MANAGE') or hasAuthority('USER_MANAGE')")
+    public List<RoleWithUsersDTO> getAllRolesWithUsers() {
+        return roleService.getAllRolesWithUsers();
     }
 
     /**

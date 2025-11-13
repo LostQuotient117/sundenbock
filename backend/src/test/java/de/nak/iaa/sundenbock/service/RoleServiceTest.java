@@ -1,8 +1,11 @@
 package de.nak.iaa.sundenbock.service;
 
 import de.nak.iaa.sundenbock.dto.mapper.RoleMapper;
+import de.nak.iaa.sundenbock.dto.mapper.UserMapper;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleWithUsersDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.exception.RoleInUseException;
@@ -12,6 +15,7 @@ import de.nak.iaa.sundenbock.model.role.Role;
 import de.nak.iaa.sundenbock.repository.PermissionRepository;
 import de.nak.iaa.sundenbock.repository.RoleRepository;
 import de.nak.iaa.sundenbock.repository.UserRepository;
+import de.nak.iaa.sundenbock.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,9 +44,14 @@ class RoleServiceTest {
     private RoleMapper roleMapper;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserService userService;
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private RoleService roleService;
+
 
     private Role adminRole;
     private Permission userManagePermission;
@@ -75,6 +84,35 @@ class RoleServiceTest {
         assertThat(result.getFirst().name()).isEqualTo("ROLE_ADMIN");
         verify(roleRepository, times(1)).findAll();
         verify(roleMapper, times(1)).toRoleDTO(adminRole);
+    }
+
+    @Test
+    @DisplayName("getAllRolesWithUsers should return roles with mapped users")
+    void getAllRolesWithUsers_shouldReturnRolesWithMappedUsers() {
+        UserDTO testUserDTO = new UserDTO(1L, "testuser", "Test", "User");
+        when(roleRepository.findAll()).thenReturn(List.of(adminRole));
+        when(userService.getUsersByRole("ROLE_ADMIN")).thenReturn(List.of(testUserDTO));
+
+        List<RoleWithUsersDTO> result = roleService.getAllRolesWithUsers();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().name()).isEqualTo("ROLE_ADMIN");
+        assertThat(result.getFirst().users()).hasSize(1);
+        assertThat(result.getFirst().users().getFirst().username()).isEqualTo("testuser");
+        assertThat(result.getFirst().permissions()).contains("USER_MANAGE");
+    }
+
+    @Test
+    @DisplayName("getAllRolesWithUsers should return roles with empty user list if no users assigned")
+    void getAllRolesWithUsers_shouldReturnRolesWithEmptyUserList() {
+        when(roleRepository.findAll()).thenReturn(List.of(adminRole));
+        when(userService.getUsersByRole("ROLE_ADMIN")).thenReturn(List.of());
+
+        List<RoleWithUsersDTO> result = roleService.getAllRolesWithUsers();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().name()).isEqualTo("ROLE_ADMIN");
+        assertThat(result.getFirst().users()).isEmpty();
     }
 
     // --- Create Role ---

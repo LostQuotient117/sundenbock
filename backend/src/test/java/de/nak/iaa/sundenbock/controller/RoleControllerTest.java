@@ -5,6 +5,8 @@ import de.nak.iaa.sundenbock.config.JwtAuthFilter;
 import de.nak.iaa.sundenbock.config.SecurityConfig;
 import de.nak.iaa.sundenbock.dto.roleDTO.CreateRoleDTO;
 import de.nak.iaa.sundenbock.dto.roleDTO.RoleDTO;
+import de.nak.iaa.sundenbock.dto.roleDTO.RoleWithUsersDTO;
+import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.CustomAccessDeniedHandler;
 import de.nak.iaa.sundenbock.exception.CustomAuthenticationEntryPoint;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
@@ -12,6 +14,7 @@ import de.nak.iaa.sundenbock.service.RoleService;
 import de.nak.iaa.sundenbock.service.security.CustomSecurityService;
 import de.nak.iaa.sundenbock.service.security.JwtService;
 import de.nak.iaa.sundenbock.service.user.UserDetailsServiceImpl;
+import de.nak.iaa.sundenbock.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +57,9 @@ class RoleControllerTest {
     private RoleService roleService;
 
     @MockitoBean
+    private UserService userService;
+
+    @MockitoBean
     private JwtService jwtService;
 
     @MockitoBean
@@ -92,6 +98,56 @@ class RoleControllerTest {
 
         mockMvc.perform(get("/api/v1/roles"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/roles/with-users should return 200 and full list for admin")
+    @WithMockUser(authorities = "ROLE_MANAGE")
+    void getAllRolesWithUsers_shouldReturn200_forAdmin() throws Exception {
+        UserDTO user1 = new UserDTO(1L, "user1", "Test", "User");
+        RoleWithUsersDTO roleDTO = new RoleWithUsersDTO(
+                1L, "ROLE_ADMIN", Set.of("USER_MANAGE"), List.of(user1)
+        );
+        when(roleService.getAllRolesWithUsers()).thenReturn(List.of(roleDTO));
+
+        mockMvc.perform(get("/api/v1/roles/with-users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("ROLE_ADMIN"))
+                .andExpect(jsonPath("$[0].users[0].username").value("user1"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/roles/with-users should return 401 for anonymous")
+    @WithAnonymousUser
+    void getAllRolesWithUsers_shouldReturn401_forAnonymous() throws Exception {
+        mockMvc.perform(get("/api/v1/roles/with-users"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/roles/with-users should return 403 for user without ROLE_MANAGE or USER_MANAGE")
+    @WithMockUser(authorities = "ROLE_DEVELOPER")
+    void getAllRolesWithUsers_shouldReturn403_forForbidden() throws Exception {
+        mockMvc.perform(get("/api/v1/roles/with-users"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/roles/with-users should return 200 for USER_MANAGE authority")
+    @WithMockUser(authorities = "USER_MANAGE")
+    void getAllRolesWithUsers_shouldReturn200_forUserManageAuth() throws Exception {
+        when(roleService.getAllRolesWithUsers()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/roles/with-users"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/roles/{roleName}/users should return 400 for blank role name")
+    @WithMockUser(authorities = "USER_MANAGE")
+    void getUsersByRole_shouldReturn400_forBlankRoleName() throws Exception {
+        mockMvc.perform(get("/api/v1/roles/ /users"))
+                .andExpect(status().isBadRequest());
     }
 
     // --- POST Endpoint (Admin) ---
