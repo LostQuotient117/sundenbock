@@ -50,6 +50,7 @@ export class AuthService {
     this.tokens.clear();
     this._token.set(null);
     this._me.set(null);
+    this._meLoaded = false;
     if (redirectToLogin) this.router.navigate(['/login']);
   }
 
