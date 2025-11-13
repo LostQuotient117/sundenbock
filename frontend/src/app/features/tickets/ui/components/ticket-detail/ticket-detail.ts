@@ -11,7 +11,6 @@ import { Page } from '@shared/models/paging';
 import { TicketComment } from '@features/tickets/domain/comment.model';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UpdateTicketDto } from '@features/tickets/data/ticket.dto';
-import { ProjectSelectComponent } from '@shared/components/project-select/project-select';
 import { UserSelectComponent } from '@shared/components/user-select/user-select/user-select';
 
 @Component({
@@ -23,7 +22,6 @@ import { UserSelectComponent } from '@shared/components/user-select/user-select/
     DatePipe,
     TicketStatusLabelPipe,
     ReactiveFormsModule,
-    ProjectSelectComponent,
     UserSelectComponent,
   ],
   templateUrl: './ticket-detail.html',
