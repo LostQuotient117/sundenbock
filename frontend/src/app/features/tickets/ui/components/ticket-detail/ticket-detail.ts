@@ -12,6 +12,8 @@ import { TicketComment } from '@features/tickets/domain/comment.model';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UpdateTicketDto } from '@features/tickets/data/ticket.dto';
 import { UserSelectComponent } from '@shared/components/user-select/user-select/user-select';
+import { AuthService } from '@core/auth/auth.service';
+
 
 @Component({
   standalone: true,
@@ -31,6 +33,8 @@ export class TicketDetail {
   private svc = inject(TicketsService);
   private commentsSvc = inject(CommentsService);
   private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+
 
   // Für {{ Math.ceil(...) }} im Template
   readonly Math = Math;
@@ -82,6 +86,8 @@ export class TicketDetail {
   });
 
   constructor() {
+    // sicherstellen, dass der eingeloggte User einmal geladen wird (für Assign me / Rollen)
+    this.auth.loadMeOnce();
     // Ticket aus :id-Route laden und in ticketState schreiben
     this.route.paramMap
       .pipe(
@@ -177,12 +183,12 @@ export class TicketDetail {
 
     this.svc.update(t.id, body).subscribe({
       next: (updated: Ticket) => {
-        // ✅ Variante A: Lokale Quelle der Wahrheit aktualisieren
+        // Lokale Quelle der Wahrheit aktualisieren
         this.ticketState.set(updated);
         // optional auch im Service weiterreichen (falls anderswo verwendet)
         this.svc.setCurrentTicket(updated);
 
-        // Formular an neuen Stand anpassen (falls man direkt wieder editiert)
+        // Formular an neuen Stand anpassen
         this.patchFormFromTicket(updated);
 
         this.saving.set(false);
@@ -194,5 +200,34 @@ export class TicketDetail {
         this.saveError.set(msg);
       },
     });
+  }
+
+  canSearchDevelopers(): boolean {
+    // Admin darf Suche nutzen
+    return this.auth.hasAnyRole(['ADMIN', 'ROLE_ADMIN']);
+  }
+
+  canSelfAssign(): boolean {
+    // Developer darf sich selbst zuweisen (wenn nicht Admin)
+    return this.auth.hasAnyRole(['DEVELOPER', 'ROLE_DEVELOPER']) && !this.canSearchDevelopers();
+  }
+
+  private currentUsername(): string | null {
+    return this.auth.me()?.username ?? null;
+  }
+
+  onDeveloperChosen(u: { username: string }) {
+    this.form.patchValue({ responsiblePersonUserName: u.username });
+  }
+
+  onAssignMe() {
+    const me = this.auth.username();
+    if (!me) return;
+    this.form.patchValue({ responsiblePersonUserName: me });
+  }
+
+  onAssignMeAndSave() {
+    this.onAssignMe();
+    this.submitUpdate();
   }
 }

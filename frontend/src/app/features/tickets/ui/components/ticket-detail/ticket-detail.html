@@ -96,9 +96,26 @@
               </span>
             </div>
             } @else {
+            <!--bei ADMIN Rolle -->
+            @if (canSearchDevelopers()) {
             <user-select class="w-full" [control]="form.controls.responsiblePersonUserName"></user-select>
             @if (form.controls.responsiblePersonUserName.touched && form.controls.responsiblePersonUserName.invalid) {
             <div class="text-error text-xs mt-1">Responsible ist erforderlich.</div>
+            }
+            } @else {
+            <!-- bei DEVELOPER Rolle -->
+            <div class="flex items-center gap-2">
+              <div class="truncate">
+                <div class="text-xs opacity-70">Aktuell:</div>
+                <div class="font-medium">
+                  @{{ form.controls.responsiblePersonUserName.value || '—' }}
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-sm" (click)="onAssignMe()" [disabled]="saving()">
+                Assign me
+              </button>
+            </div>
             }
             }
           </div>
