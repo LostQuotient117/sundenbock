@@ -25,7 +25,6 @@ public record CreateTicketDTO(
         String description,
         @NotNull(message = "A status must be selected")
         TicketStatus status,
-        @NotNull(message = "A responsible person must be selected")
         String responsiblePersonUserName,
         @NotNull(message = "A associated project must be selected")
         Long projectId

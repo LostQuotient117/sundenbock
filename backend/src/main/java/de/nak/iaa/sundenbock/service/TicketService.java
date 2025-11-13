@@ -124,9 +124,11 @@ public class TicketService {
     public TicketDTO createTicket(CreateTicketDTO ticketDTO) {
         Ticket ticket = ticketMapper.toTicketFromCreate(ticketDTO);
 
-        User responsible = userRepository.findByUsername(ticketDTO.responsiblePersonUserName())
-                .orElseThrow(() -> new ResourceNotFoundException("Responsible person not found with username " + ticketDTO.responsiblePersonUserName()));
-        ticket.setResponsiblePerson(responsible);
+        if (ticketDTO.responsiblePersonUserName() != null) {
+            User responsible = userRepository.findByUsername(ticketDTO.responsiblePersonUserName())
+                    .orElseThrow(() -> new ResourceNotFoundException("Responsible person not found with username " + ticketDTO.responsiblePersonUserName()));
+            ticket.setResponsiblePerson(responsible);
+        }
 
         Project project = projectRepository.findById(ticketDTO.projectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + ticketDTO.projectId()));

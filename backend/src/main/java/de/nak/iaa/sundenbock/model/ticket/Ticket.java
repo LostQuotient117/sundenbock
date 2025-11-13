@@ -34,7 +34,7 @@ public class Ticket extends AuditedEntity {
     private String title;
     private String description;
     private TicketStatus status;
-    @ManyToOne(optional = false)
+    @ManyToOne
     private User responsiblePerson;
     @ManyToOne(optional = false)
     private Project project;
