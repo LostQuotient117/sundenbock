@@ -1,93 +1,152 @@
-# IAA_Hausarbeit_Nicht_Stolarczyk_Pick_Gottschalk
+# Sundenbock (Ticket-Tracking-System)
+---
+## Projektübersicht
 
+`Sundenbock` ist eine Enterprise Web Application für das Management von Projekten, Tickets und dessen Benutzern. Die Anwendung ist als 3-Schichten-Architektur konzipiert:
 
+- `Backend` Spring Boot 3 (Java 25) mit Spring Security (JWT), Spring Data JPA und MapStruct.<br><br>
+- `Frontend` Angular (TypeScript) mit PrimeNG-Komponenten. <br><br>
+- `Datenbank (Dev)` H2 In-Memory-Datenbank, die beim Start, falls noch nicht Initialisiert, automatisch mit Beispieldaten befüllt wird. Zusätzlich ein Prod-Profil für eine PostgreSQL-Datenbank für späteres Deployment.
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Zusatzinformationen
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Alle API-Endpunkte erfordern eine Authentifizierung. Die einzigen Ausnahmen sind `/api/v1/auth/register` und `/api/v1/auth/authenticate`, die für den Registrierungs- und Login-Vorgang öffentlich zugänglich sind.<br><br>
+ 
+- Zusätzlich sind aktuell die Endpunkte `/swagger-ui/**`, `/v3/api-docs/**`, `/h2-console/**` und `/api/health` für Entwicklungs- und Review-Zwecke offen. Bei einem finalen Produktiv-Deployment würden diese Endpunkte gesichert oder entfernt und die H2-Datenbank durch PostgreSQL (siehe `application.yaml`) ersetzt.<br><br>
+ 
+- Wenn ich die Zeit habe, wird die App auf meinem lokalen Linux Server in Docker laufen und unter der Domain `sundenbock.lars-hq.vip` erreichbar sein. -Lars
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 1. Voraussetzungen
+
+Stellen Sie sicher, dass Sie die folgende Software haben, bevor Sie mit dem Setup fortfahren:
+
+- [ Java Development Kit (JDK) 25](https://jdk.java.net/25/)
+- [Node.js und npm](https://nodejs.org/en/download) (Empfohlen: LTS-Version 20.x)
+- [Apache Maven](https://maven.apache.org/download.cgi) (für die mvn commands)
+- [git](https://git-scm.com/install/windows) (für git Commands)
+
+IDE Backend:
+- [IntelliJ IDEA](https://www.jetbrains.com/idea/) (empfohlene IDE für das Backend)
+
+IDE Frontend:
+- [Visual Studio Code](https://code.visualstudio.com/download) (empfohlene IDE für das Frontend)
+
+---
+
+## 2. Installation & Setup
+
+Das Projektverzeichnis enthält zwei Hauptordner: backend und frontend. Die Schritte müssen für beide Teile getrennt durchgeführt werden.
+
+### 2.1 Backend-Setup (IntelliJ)
+
+1. Öffnen Sie IntelliJ IDEA.
+2. Wählen Sie `File` -> `New` -> `Project from Version Control` oder `Get from VCS`.
+3. Wählen Sie Git und geben Sie die Repository-URL ein: `https://gitlab2.nordakademie.de/JannickGottschalk-I22/iaa_hausarbeit_nicht_stolarczyk_pick_gottschalk.git`.
+4. Klicken Sie auf `Clone`.
+5. Loggen Sie sich mit Ihren Daten ein.
+6. IntelliJ IDEA erkennt das Maven-Projekt automatisch und importiert es.
+
+### 2.2 Frontend-Setup (VS Code)
+
+1. Öffnen Sie Visual Studio Code.
+2. Wählen Sie `File` -> `Open Folder...`
+3. Öffnen Sie den frontend-Ordner.
+4. Öffnen Sie ein neues Terminal in VS Code.
+5. Installieren Sie alle npm-Abhängigkeiten:```npm install```
+
+---
+
+## 3. Anwendung lokal ausführen
+
+Um die Anwendung zu nutzen, müssen beide Teile (Backend und Frontend) gleichzeitig laufen.
+
+### 3.1 Backend starten (Port 8080)
+
+Sie können das Backend direkt über IntelliJ oder per Maven im Terminal starten.
+
+**Option A: Mit IntelliJ IDEA (Empfohlen)**
+
+1.  Navigieren Sie zur Klasse `SundenbockApplication.java\` (im `src/main/java/de/nak/iaa/sundenbock\` Verzeichnis).
+2.  Klicken Sie auf den grünen "Play"-Button neben der `main`-Methode.
+
+**Option B: Mit Maven-Terminal**
+
+1.  Öffnen Sie ein Terminal und navigieren Sie in den \`backend\`-Ordner.
+2.  Starten Sie die Anwendung mit dem entsprechendeen mvn-Command:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab2.nordakademie.de/JannickGottschalk-I22/iaa_hausarbeit_nicht_stolarczyk_pick_gottschalk.git
-git branch -M main
-git push -uf origin main
+mvn spring-boot:run
 ```
 
-## Integrate with your tools
+Das Backend läuft nun auf `http://localhost:8080`. Beim ersten Start wird die H2-Datenbank initialisiert und mit Beispieldaten befüllt.
 
-- [ ] [Set up project integrations](https://gitlab2.nordakademie.de/JannickGottschalk-I22/iaa_hausarbeit_nicht_stolarczyk_pick_gottschalk/-/settings/integrations)
+Sie können die H2-Datenbank-Konsole im Browser unter `http://localhost:8080/h2-console` erreichen und die Daten mit der JDBC URL: `jdbc:h2:file:./data/sundenbock-db` und User Name:  `sa` einsehen (Details in \`application-dev.yaml\`).
 
-## Collaborate with your team
+### 3.2 Frontend starten (Port 4200)
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+1.  Öffnen Sie ein zweites Terminal (das Backend muss weiterlaufen!).
+2.  Navigieren Sie in den `frontend`-Ordner und starten Sie den Angular Development Server:
+```
+cd frontend
+npm start
+```
 
-## Test and Deploy
+Dieser Befehl startet die Frontend-Anwendung und öffnet automatisch `http://localhost:4200` in Ihrem Browser.
 
-Use the built-in continuous integration in GitLab.
+---
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## 4. Nutzung der Anwendung (Erste Schritte)
 
-***
+Öffnen Sie `http://localhost:4200` im Browser.
 
-# Editing this README
+Sie werden zur Login-Seite weitergeleitet.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Sie können sich nun als neuer Benutzer registrieren oder einen der folgenden Beispieldatensätze verwenden, um sich anzumelden:
 
-## Suggestions for a good README
+| Benutzername | Passwort |
+| :--- | :--- |
+| Super-admin-666 | password357 | 
+| OG-Developer | password420 |
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Nach dem Login werden Sie zum Dashboard weitergeleitet und die Navigationselemente werden basierend auf Ihren Berechtigungen dynamisch geladen.
 
-## Name
-Choose a self-explaining name for your project.
+---
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## 5. Tests
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### 5.1 Backend-Tests (JUnit & Mockito)
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Sie können die Tests über die IntelliJ IDEA Maven Sidebar oder per Terminal ausführen.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**Option A: Mit IntelliJ IDEA (Empfohlen)**
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1.  Öffnen Sie die Maven-Sidebar (normalerweise rechts im Fenster oder über `View` -> `Tool Windows` -> `Maven`).
+2.  Erweitern Sie `sundenbock-backend` -> `Lifecycle`.
+3.  Doppelklicken Sie auf `test`, um alle Backend-Tests auszuführen .
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**Option B: Mit Maven-Terminal**
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Führen Sie im Terminal folgende Befehle aus:
+```
+cd backend
+mvn test
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### 5.2. Frontend-Tests (Karma & Jasmine)
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Führen Sie im Terminal folgende Befehle aus:
+```
+cd frontend
+npm test
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Autoren
+- Daria Stolarczyk
+- Jannick Gottschalk
+- Lars Nicht
+- Nina Pick
