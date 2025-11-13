@@ -26,10 +26,15 @@ export class AuthService {
   username   = computed(() => this._me()?.username ?? this.claims()?.sub ?? null);
   expiresAt = computed<number | null>(() => this.claims()?.exp ?? null);
 
-  roles       = computed<string[]>(() => this._me()?.roles ?? this.claims()?.roles ?? []);
+  roles       = computed<string[]>(() => this._me()?.roles ?? (this.claims()?.roles as string[] | undefined) ?? ((this.claims() as any)?.authorities as string[] | undefined) ?? []);
   permissions = computed<string[]>(() => this._me()?.permissions ?? (this.claims() as any)?.permissions ?? []);
   
   me = this._me.asReadonly();
+
+  //Getter für Komponente this.auth.user()?.username
+  user(): User | null {
+    return this._me();
+  }
 
   login(body: AuthenticationRequest): Observable<AuthenticationResponse> {
     return this.api.post<AuthenticationResponse>('/auth/authenticate', body)
@@ -45,6 +50,7 @@ export class AuthService {
     this.tokens.clear();
     this._token.set(null);
     this._me.set(null);
+    this._meLoaded = false;
     if (redirectToLogin) this.router.navigate(['/login']);
   }
 
