@@ -1,16 +1,146 @@
 <div class="flex flex-col gap-4">
-  <div class="flex flex-wrap gap-2 items-center">
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold">Tickets</h1>
+    <div class="flex items-center gap-2">
+      <div class="join">
     <input
-      class="input input-bordered w-full sm:w-80"
+      class="input input-bordered join-item"
+      type="text"
       placeholder="Suche…"
       [value]="search()"
       (input)="onSearchInput($event)"
     />
+    <button class="btn join-item" type="button" (click)="clearSearch()">Clear</button>
+      </div>
+
+        <!-- Sort -->
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost">Sort</label>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-56">
+          <li><a (click)="sortByCreatedDesc()">Neueste zuerst</a></li>
+          <li><a (click)="sortByCreatedAsc()">Älteste zuerst</a></li>
+          <li class="disabled opacity-50"><a>Creator (deaktiviert)</a></li>
+        </ul>
+      </div>
+    <!--Page Size-->
+    <select
+        class="select select-bordered w-28"
+        [value]="size()"
+        (change)="onPageSizeChange($event)"
+      >
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+
+    <button class="btn btn-primary" type="button" (click)="openCreate()">Neu</button>
+  </div>
   </div>
 
   @if (vm(); as page) {
-    <app-ticket-list [tickets]="page.items" />
+    <app-ticket-list [tickets]="page.items" (deleted)="reloadAfterDelete()" />
   } @else {
     <div class="text-center text-base-content/60 py-8">Keine Tickets gefunden.</div>
+  }
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-2">
+    <div class="opacity-70 text-sm">
+      Seite {{ vm().page + 1 }} / {{ totalPages() }} — {{ vm().total }} Einträge
+    </div>
+
+    <div class="join">
+      <button class="btn join-item" (click)="prev()" [disabled]="vm().page === 0">«</button>
+      <button class="btn join-item" (click)="next()" [disabled]="vm().page + 1 >= totalPages()">»</button>
+    </div>
+  </div>
+  <!--Create Pop Up-->
+  @if (showCreate()) {
+    <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div class="card w-full max-w-xl bg-base-100 shadow-xl">
+        <div class="card-body gap-3">
+          <div class="flex items-start justify-between">
+            <h2 class="card-title">Neues Ticket anlegen</h2>
+            <button class="btn btn-ghost btn-sm" (click)="closeCreate()">✕</button>
+          </div>
+
+          <form (submit)="submitCreate()" class="grid grid-cols-1 gap-3">
+            <!-- Titel -->
+            <label class="form-control">
+              <div class="label"><span class="label-text">Titel*</span></div>
+              <input
+                class="input input-bordered"
+                type="text"
+                [formControl]="createForm.controls.title"
+              />
+              @if (createForm.controls.title.touched && createForm.controls.title.invalid) {
+                <div class="text-error text-xs mt-1">Titel ist erforderlich.</div>
+              }
+            </label>
+
+            <!-- Beschreibung -->
+            <label class="form-control">
+              <div class="label"><span class="label-text">Beschreibung*</span></div>
+              <textarea
+                class="textarea textarea-bordered min-h-28"
+                [formControl]="createForm.controls.description"
+              ></textarea>
+              @if (createForm.controls.description.touched && createForm.controls.description.invalid) {
+                <div class="text-error text-xs mt-1">Beschreibung ist erforderlich.</div>
+              }
+            </label>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <!-- Status 
+              <label class="form-control">
+                <div class="label"><span class="label-text">Status*</span></div>
+                <select
+                  class="select select-bordered"
+                  [formControl]="createForm.controls.status"
+                >
+                  @for (s of ticketStatuses; track s) {
+                    <option [value]="s">{{ s }}</option>
+                  }
+                </select>
+              </label>
+              -->
+
+              <!-- Responsible Username -->
+              <label class="form-control">
+                <div class="label"><span class="label-text">Responsible (Developer)*</span></div>
+                <user-select [control]="createForm.controls.responsiblePersonUserName"></user-select>
+
+                @if (createForm.controls.responsiblePersonUserName.touched && createForm.controls.responsiblePersonUserName.invalid) {
+                  <div class="text-error text-xs mt-1">
+                    Bitte einen gültigen Entwickler auswählen.
+                  </div>
+                }
+              </label>
+
+              <!-- Projekt-ID -->
+              <label class="form-control md:col-span-2">
+                <div class="label"><span class="label-text">Projekt-ID*</span></div>
+                <project-select [control]="createForm.controls.projectId"></project-select>
+                @if (createForm.controls.projectId.touched && createForm.controls.projectId.invalid) {
+                  <div class="text-error text-xs mt-1">Bitte ein Projekt auswählen.</div>
+                }
+              </label>
+            </div>
+
+            @if (createError()) {
+              <div class="text-error text-sm">{{ createError() }}</div>
+            }
+
+            <div class="flex items-center justify-end gap-2 mt-2">
+              <button type="button" class="btn btn-ghost" (click)="closeCreate()">Abbrechen</button>
+              <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid || creating()">
+                @if (!creating()) { <span>Anlegen</span> }
+                @else { <span class="loading loading-spinner loading-sm"></span> }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   }
 </div>

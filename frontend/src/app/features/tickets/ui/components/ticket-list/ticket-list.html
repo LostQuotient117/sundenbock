@@ -1,41 +1,90 @@
-<div class="grid grid-cols-4 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
-  <div class="flex items-center gap-1 font-bold">
-    ID <span class="text-xs cursor-pointer">▲</span>
-  </div>
-  <div class="flex items-center gap-1 font-bold">
-    Titel <span class="text-xs cursor-pointer">▲</span>
-  </div>
-  <div class="flex items-center gap-1 font-bold">
-    Status <span class="text-xs cursor-pointer">▲</span>
-  </div>
-  <div class="flex items-center gap-1 font-bold">
-    Erstellt am <span class="text-xs cursor-pointer">▲</span>
-  </div>
+<div class="grid grid-cols-7 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
+  <div class="font-bold">ID</div>
+  <div class="font-bold">Ticket Key</div>
+  <div class="font-bold">Titel</div>
+  <div class="font-bold">Status</div>
+  <div class="font-bold">Verantwortlich</div>
+  <div class="font-bold">Erstellt am</div>
+  <div class="font-bold text-right">Aktionen</div>
 
   @for (t of tickets; track t.id) {
-    <div class="font-mono text-sm">{{ t.id }}</div>
-
-    <a
-      [routerLink]="['/tickets', t.id]"
-      class="font-semibold text-base-content hover:text-primary hover:underline hover:cursor-pointer transition"
-    >
-      {{ t.title }}
-    </a>
-
-    <div class="dropdown">
-      <label class="badge" [ngClass]="badge[t.status]">
-        {{ t.status | ticketStatusLabel }}
-      </label>
-      <ul
-        tabindex="0"
-        class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-      >
-        @for (s of allStatuses; track s) {
-          <li><a>{{ s | ticketStatusLabel }}</a></li>
+  <!-- ID -->
+  <div class="font-mono text-sm">{{ t.id }}</div>
+  <!-- Ticket Key -->
+  <div class="font-mono text-sm">{{ t.ticketKey || '—' }}</div>
+  <!-- Titel und Link -->
+  <a [routerLink]="['/tickets', t.id]"
+    class="font-semibold text-base-content hover:text-primary hover:underline hover:cursor-pointer transition">
+    {{ t.title }}
+  </a>
+  <!-- Status -->
+  <div class="dropdown">
+    <label [class]="'badge ' + badge[t.status]">
+      {{ t.status | ticketStatusLabel }}
+    </label>
+    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+      @for (s of allStatuses; track s) {
+      <li><a>{{ s | ticketStatusLabel }}</a></li>
+      }
+    </ul>
+  </div>
+  <!-- Responsible -->
+  <div class="truncate" [title]="
+      ((t.responsiblePerson?.firstName || '') + ' ' + (t.responsiblePerson?.lastName || '')).trim()
+      + (
+        t.responsiblePerson?.username
+          ? ' (' + t.responsiblePerson?.username + ')'
+          : (t.responsiblePersonUserName
+              ? ' (' + t.responsiblePersonUserName + ')'
+              : (t.assigneeId ? ' (' + t.assigneeId + ')' : '')
+            )
+        )
+      || '—'">
+    <span>
+    {{
+    (t.responsiblePerson?.firstName || '') +
+        (t.responsiblePerson?.firstName && t.responsiblePerson?.lastName ? ' ' : '') +
+        (t.responsiblePerson?.lastName || '')
+    || '—'
+    }}
+    </span>
+    @if (t.responsiblePerson?.username || t.responsiblePersonUserName || t.assigneeId) {
+          <span class="opacity-70">
+            ({{ t.responsiblePerson?.username || t.responsiblePersonUserName || t.assigneeId }})
+          </span>
         }
-      </ul>
-    </div>
+  </div>
 
-    <div>{{ t.createdDate  | date: 'short' }}</div>
+  <!--Erstellt-->
+  <div>{{ t.createdDate | date: 'short' }}</div>
+
+  <div class="text-right">
+    <button type="button" class="btn btn-ghost btn-xs text-error" (click)="confirmDelete(t)" title="Löschen">
+      🗑️
+    </button>
+  </div>
   }
 </div>
+
+<!-- Delete-Dialog -->
+@if (toDelete()) {
+<div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="card w-full max-w-md bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-lg">Ticket löschen?</h2>
+      <p class="opacity-80">
+        „{{ toDelete()?.title }}“ (ID {{ toDelete()?.id }}) wird entfernt.
+      </p>
+
+      <div class="flex justify-end gap-2 mt-4">
+        <button class="btn btn-ghost" (click)="cancelDelete()">Abbrechen</button>
+        <button class="btn btn-error" (click)="deleteConfirmed()">Löschen</button>
+      </div>
+
+      @if (deleteError()) {
+      <div class="text-error text-sm mt-2">{{ deleteError() }}</div>
+      }
+    </div>
+  </div>
+</div>
+}

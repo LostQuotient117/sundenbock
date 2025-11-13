@@ -6,7 +6,7 @@ import { ApiService } from '../http/api.service';
 import { TokenService } from './token.service';
 
 import { decodeJwt } from './utils/jwt.util';
-import { User } from '../../features/users/models/user';
+import { User } from '../../features/users/domain/user.model';
 import { JwtPayload, AuthenticationRequest, AuthenticationResponse, RegistrationRequest } from './models/authentication.models';
 @Injectable({ providedIn: 'root' })
 export class AuthService {

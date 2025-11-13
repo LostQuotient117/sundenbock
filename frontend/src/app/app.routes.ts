@@ -29,7 +29,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'tickets',
-        loadComponent: () => import('./features/tickets/ui/pages/ticket.page').then(m => m.TicketsPage)
+        loadComponent: () => import('./features/tickets/ui/pages/tickets.page').then(m => m.TicketsPage)
       },
       {
         path: 'tickets/:id',

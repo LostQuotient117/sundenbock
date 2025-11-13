@@ -1,0 +1,59 @@
+<div class="dropdown w-full" data-role="project-select-root">
+  <!-- Trigger / Input -->
+  <div class="w-full">
+    <div class="join w-full">
+      <input
+        class="input input-bordered join-item w-full"
+        [placeholder]="placeholder"
+        [value]="search()"
+        (focus)="openPanel()"
+        (click)="openPanel()"
+        (input)="onInput($event)"
+        (keydown)="onKeydown($event)"
+        autocomplete="off"
+      />
+      <button class="btn join-item" type="button" (click)="toggle()">
+        @if (!open()) { ▼ } @else { ▲ }
+      </button>
+    </div>
+  </div>
+
+  <!-- Panel -->
+  @if (open()) {
+    <div class="dropdown-content z-50 mt-2 w-full">
+      <div class="card bg-base-100 shadow-xl w-full">
+        <div class="card-body gap-2">
+          <!-- Ergebnisliste -->
+          @if (vm(); as page) {
+            @if (page.items.length === 0) {
+              <div class="text-sm opacity-70">Keine Projekte gefunden.</div>
+            } @else {
+              <ul class="menu rounded-box border border-base-300 max-h-64 overflow-auto">
+                @for (p of page.items; track p.id; let i = $index) {
+                  <li>
+                    <button
+                      type="button"
+                      (click)="choose(p)"
+                      [class.active]="i === activeIndex()"
+                      class="flex items-center justify-between"
+                    >
+                      <span class="font-medium truncate">{{ p.title }}</span>
+                      <span class="badge badge-ghost ml-2">{{ p.abbreviation || '—' }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+
+              <!-- Pager -->
+              <div class="flex items-center justify-between text-sm mt-2">
+                <button class="btn btn-ghost btn-xs" type="button" (click)="prev()">« Zurück</button>
+                <div>Seite {{ page.page + 1 }} / {{ totalPages(page) }}</div>
+                <button class="btn btn-ghost btn-xs" type="button" (click)="next()">Weiter »</button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

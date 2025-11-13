@@ -1,0 +1,60 @@
+<div class="dropdown w-full" data-role="user-select-root">
+
+  <!-- Eingabefeld + Button -->
+  <div class="join w-full">
+    <input
+      class="input input-bordered join-item w-full"
+      [placeholder]="placeholder"
+      [value]="query()"
+      (focus)="openPanel()"
+      (click)="openPanel()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+      autocomplete="off"
+    />
+    <button class="btn join-item" type="button" (click)="toggle()">
+      @if (!open()) { ▼ } @else { ▲ }
+    </button>
+  </div>
+
+  <!--Dropdown  Menü-->
+  @if (open()) {
+    <div class="dropdown-content mt-2 z-50 w-full">
+      <div class="card bg-base-100 shadow-xl w-full">
+        <div class="card-body gap-2">
+          @if ((query().trim().length < minChars)) {
+            <div class="text-sm opacity-70">Mind. {{ minChars }} Zeichen zum Suchen.</div>
+          } @else {
+            @if (vm().length === 0) {
+              <div class="text-sm opacity-70">Keine Entwickler gefunden.</div>
+            } @else {
+              <ul class="menu rounded-box border border-base-300 max-h-64 overflow-auto">
+                @for (u of vm(); track u.username; let i = $index) {
+                  <li>
+                    <button
+                      type="button"
+                      (click)="choose(u)"
+                      [class.active]="i === activeIndex()"
+                      class="flex items-center justify-between"
+                    >
+                      <span class="truncate">
+                        {{ u.firstName || '' }} {{ u.lastName || '' }}
+                        <span class="opacity-60">({{ u.username }})</span>
+                      </span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          }
+
+          <!--Fehlermeldung-->
+          @if (errorMsg()) {
+            <div class="text-error text-sm mt-2">{{ errorMsg() }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

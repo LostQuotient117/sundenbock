@@ -14,42 +14,153 @@
       <div class="card-body">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h2 class="card-title break-words">{{ t.title }}</h2>
+            <!-- Titel -->
+            <h2 class="card-title break-words">
+              @if (!editing()) {
+                {{ t.title }}
+              } @else {
+                <input
+                  class="input input-bordered w-full max-w-xl"
+                  type="text"
+                  placeholder="Titel"
+                  [formControl]="form.controls.title"
+                  [disabled]="saving()"
+                />
+              }
+            </h2>
+            @if (form.controls.title.touched && form.controls.title.invalid) {
+              <div class="text-error text-xs mt-1">Titel ist erforderlich.</div>
+            }
+
+            <!--Status-->
             <div class="mt-2 flex items-center gap-2">
-              <span class="badge" [ngClass]="badgeClass()">
-                {{ t.status | ticketStatusLabel }}
-              </span>
+              @if (!editing()) {
+                <span class="badge" [ngClass]="badgeClass()">
+                  {{ t.status | ticketStatusLabel }}
+                </span>
+              } @else {
+                <select
+                  class="select select-bordered select-sm"
+                  [formControl]="form.controls.status"
+                  [disabled]="saving()"
+                  aria-label="Status"
+                >
+                  @for (s of statusOptions; track s) {
+                    <option [value]="s">{{ s | ticketStatusLabel }}</option>
+                  }
+                </select>
+              }
               <span class="text-xs opacity-70">ID: {{ t.id }}</span>
             </div>
           </div>
-
-          <a routerLink="/tickets" class="btn btn-ghost">Zur Übersicht</a>
+          <div class="flex items-center gap-2">
+            @if (!editing()) {
+              <button class="btn btn-ghost" (click)="startEdit()">Bearbeiten</button>
+              <a routerLink="/tickets" class="btn btn-ghost">Zur Übersicht</a>
+            } @else {
+              <button class="btn btn-ghost" (click)="cancelEdit()" [disabled]="saving()">Abbrechen</button>
+              <button class="btn btn-primary" (click)="submitUpdate()" [disabled]="saving() || form.invalid">
+                Speichern
+              </button>
+            }
+          </div>
         </div>
 
         <div class="divider my-2"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!--Projekt-->
+          <div class="space-y-1">
+            <div class="text-xs opacity-70">Projekt</div>
+            <div class="font-medium">
+              @if (!editing()) {
+                <span class="badge badge-primary">{{ t.project?.abbreviation }}</span>
+                <span class="ml-2">{{ t.project?.title || '—' }}</span>
+              } @else {
+                <project-select
+                  class="w-full"
+                  [control]="$any(form.controls.projectId)"
+                ></project-select>
+                @if (form.controls.projectId.touched && form.controls.projectId.invalid) {
+                  <div class="text-error text-xs mt-1">Projekt ist erforderlich.</div>
+                }
+              }
+            </div>
+          </div>
+
+          <!--Responsible-->
           <div class="space-y-1">
             <div class="text-xs opacity-70">Verantwortlich</div>
             <div class="font-medium">
-              {{ t.assigneeId || '—' }}
+              @if (!editing()) {
+                <div
+                  class="truncate"
+                  [title]="
+                    (t.responsiblePerson?.username || t.responsiblePersonUserName || '—') +
+                    ((t.responsiblePerson?.firstName || t.responsiblePerson?.lastName)
+                      ? ' (' + (t.responsiblePerson?.firstName || '') + ' ' + (t.responsiblePerson?.lastName || '') + ')'
+                      : '')
+                  "
+                >
+                  {{
+                    (t.responsiblePerson?.firstName || '') + ' ' + (t.responsiblePerson?.lastName || '')
+                  }}
+                  <span class="opacity-70">
+                    (@{{ t.responsiblePerson?.username || t.responsiblePersonUserName || '—' }})
+                  </span>
+                </div>
+              } @else {
+                <user-select
+                  class="w-full"
+                  [control]="form.controls.responsiblePersonUserName"
+                ></user-select>
+                @if (form.controls.responsiblePersonUserName.touched && form.controls.responsiblePersonUserName.invalid) {
+                  <div class="text-error text-xs mt-1">Responsible ist erforderlich.</div>
+                }
+              }
             </div>
           </div>
 
+          <!-- Erstellt-->
           <div class="space-y-1">
             <div class="text-xs opacity-70">Erstellt am</div>
             <div class="font-medium">
-              {{ t.createdDate | date:'medium' }}
+              {{ t.createdDate | date: 'medium' }}
             </div>
           </div>
 
+          <!-- Geändert -->
           <div class="space-y-1">
             <div class="text-xs opacity-70">Zuletzt geändert</div>
             <div class="font-medium">
-              {{ t.lastModifiedDate | date:'medium' }}
+              {{ t.lastModifiedDate | date: 'medium' }}
             </div>
           </div>
         </div>
+
+        <div class="divider my-2"></div>
+
+        <!-- Beschreibung -->
+        @if (!editing()) {
+          <div class="prose max-w-none whitespace-pre-wrap">
+            {{ t.description || '—' }}
+          </div>
+        } @else {
+          <textarea
+            class="textarea textarea-bordered w-full min-h-32"
+            placeholder="Beschreibung"
+            [formControl]="form.controls.description"
+            [disabled]="saving()"
+          ></textarea>
+          @if (form.controls.description.touched && form.controls.description.invalid) {
+            <div class="text-error text-xs mt-1">Beschreibung ist erforderlich.</div>
+          }
+        }
+
+        <!-- Fehler beim Speichern -->
+        @if (saveError()) {
+          <div class="text-error text-sm mt-2">{{ saveError() }}</div>
+        }
       </div>
     </div>
   } @else {
@@ -58,3 +169,57 @@
     </div>
   }
 </div>
+
+<div class="divider my-6">Kommentare</div>
+
+@if (comments(); as c) {
+  @if (c.total === 0) {
+    <div class="text-base-content/70">Keine Kommentare vorhanden.</div>
+  } @else {
+    <div class="flex flex-col gap-3">
+      @for (cm of c.items; track cm.id) {
+        <div class="card bg-base-200">
+          <div class="card-body p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="text-sm opacity-70">
+                {{ cm.createdBy?.firstName }} {{ cm.createdBy?.lastName }}
+                <span class="opacity-60">(@{{ cm.createdBy?.username }})</span>
+                · <span>{{ cm.createdDate | date: 'medium' }}</span>
+              </div>
+              <div class="text-xs opacity-60">
+                👍 {{ cm.likes || 0 }} · 👎 {{ cm.dislikes || 0 }}
+              </div>
+            </div>
+
+            <div class="mt-1 whitespace-pre-wrap break-words">
+              {{ cm.commentText }}
+            </div>
+
+            @if (cm.childComments?.length) {
+              <div class="mt-3 pl-4 border-l border-base-300 flex flex-col gap-2">
+                @for (child of cm.childComments; track child.id) {
+                  <div class="text-sm">
+                    <span class="opacity-70">
+                      {{ child.createdBy?.firstName }} {{ child.createdBy?.lastName }}
+                      <span class="opacity-60">(@{{ child.createdBy?.username }})</span>
+                      · {{ child.createdDate | date: 'short' }}
+                    </span>
+                    <div class="whitespace-pre-wrap break-words">
+                      {{ child.commentText }}
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="mt-2 text-xs opacity-70">
+      Seite {{ c.page + 1 }} von {{ Math.ceil(c.total / c.pageSize) }}
+    </div>
+  }
+} @else {
+  <div class="text-base-content/70">Kommentare werden geladen…</div>
+}
