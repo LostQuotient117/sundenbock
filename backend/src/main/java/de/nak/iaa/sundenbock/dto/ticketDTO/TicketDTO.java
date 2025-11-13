@@ -29,7 +29,6 @@ public record TicketDTO(
         String description,
         @NotNull(message = "A status must be selected")
         TicketStatus status,
-        @NotNull(message = "A responsible person must be selected")
         UserDTO responsiblePerson,
         @NotNull(message = "A associated project must be selected")
         ProjectDTO project,
