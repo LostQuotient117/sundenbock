@@ -1,3 +1,10 @@
+/**
+ * @file project.mapper.ts
+ *
+ * Definiert die Mapping-Funktion `mapProject`, um rohe Projekt-DTOs
+ * (`ProjectDto`) in das interne Domain-Model (`Project`) umzuwandeln.
+ * Kümmert sich z.B. um die Konvertierung von ISO-Strings in Date-Objekte.
+ */
 import { defineMapper, mapBySpec } from '@shared/utils/mapping/mapping.dsl';
 import { ProjectDto } from '../data/project.dto';
 import { Project } from './project.model';

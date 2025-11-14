@@ -1,3 +1,12 @@
+/**
+ * @file projects.client.ts
+ *
+ * Low-Level HTTP-Client für die `/projects` API-Endpunkte.
+ * Erweitert den `ResourceClient` für Standard-CRUD und fügt
+ * spezifische Methoden (createProject, deleteProject) hinzu,
+ * die von den Standard-REST-Pfaden abweichen.
+ * Kommuniziert ausschließlich mit rohen DTOs.
+ */
 // app/features/projects/data/projects.client.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';

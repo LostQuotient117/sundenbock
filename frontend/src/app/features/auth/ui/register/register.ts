@@ -1,3 +1,13 @@
+/**
+ * @file register.ts
+ *
+ * Logik für die Registrierungs-Komponente.
+ * Definiert das Reactive Form (`form`) inklusive Validatoren
+ * (auch für Passwort-Übereinstimmung).
+ * Ruft bei `submit()` den `AuthService.register()` auf, verarbeitet
+ * das Token und leitet bei Erfolg weiter.
+ * Verwaltet Lade- (`submitting`) und Fehlerzustände (`serverError`).
+ */
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, ValidationErrors, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';

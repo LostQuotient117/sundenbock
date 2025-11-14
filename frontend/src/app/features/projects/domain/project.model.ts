@@ -1,3 +1,10 @@
+/**
+ * @file project.model.ts
+ *
+ * Definiert das Kern-Domain-Model `Project`.
+ * Dieses Model wird innerhalb der Anwendung verwendet (z.B. in Services
+ * und Komponenten) und nutzt native Typen wie `Date` anstelle von Strings.
+ */
 export interface UserRef {
   id: number;
   username: string;
