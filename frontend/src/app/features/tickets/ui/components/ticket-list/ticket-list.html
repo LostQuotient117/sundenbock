@@ -1,4 +1,4 @@
-<div class="grid grid-cols-8 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
+<div class="grid grid-cols-8 gap-2 bg-base-200 text-base-content p-2 rounded-lg" [class.grid-cols-8]="isAdmin()" [class.grid-cols-7]="!isAdmin()">
   <div class="font-bold">ID</div>
   <div class="font-bold">Ticket Key</div>
   <div class="font-bold">Titel</div>
@@ -6,7 +6,9 @@
   <div class="font-bold">Verantwortlich</div>
   <div class="font-bold">Erstellt am</div>
   <div class="font-bold">Autor</div>
+  @if (isAdmin()) {
   <div class="font-bold text-right">Aktionen</div>
+  }
 
   @for (t of tickets; track t.id) {
   <!-- ID -->
@@ -75,12 +77,13 @@
         —
       }
     </div>
-
+  @if (isAdmin()) {
   <div class="text-right">
     <button type="button" class="btn btn-ghost btn-xs text-error" (click)="confirmDelete(t)" title="Löschen">
       🗑️
     </button>
   </div>
+  }
   }
 </div>
 

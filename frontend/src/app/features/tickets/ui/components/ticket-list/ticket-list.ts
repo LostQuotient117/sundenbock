@@ -1,9 +1,10 @@
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Ticket, TicketStatus } from '@features/tickets/domain/ticket.model';
 import { TicketStatusLabelPipe } from '@shared/pipes/status-label.pipe';
 import { TicketsService } from '@features/tickets/domain/ticket.service';
+import { AuthService } from '@core/auth/auth.service';
 
 @Component({
   standalone: true,
@@ -13,9 +14,12 @@ import { TicketsService } from '@features/tickets/domain/ticket.service';
 })
 export class TicketList {
   private svc = inject(TicketsService);
+  private authService = inject(AuthService);
   
   @Input({ required: true }) tickets: Ticket[] = [];
   @Output() deleted = new EventEmitter<void>();
+
+  isAdmin = computed(() => this.authService.hasRole('ROLE_ADMIN'));
 
   readonly allStatuses = Object.values(TicketStatus);
 
