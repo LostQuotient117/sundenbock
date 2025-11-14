@@ -6,11 +6,12 @@
  * Sie verwaltet den Lösch-Dialog und ruft den ProjectsService auf.
  * Meldet erfolgreiche Löschungen über `@Output deleted` an den Parent.
  */
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Project } from '@features/projects/domain/project.model';
 import { ProjectsService } from '@features/projects/domain/projects.service';
+import { AuthService } from '@core/auth/auth.service';
 
 @Component({
   standalone: true,
@@ -20,10 +21,13 @@ import { ProjectsService } from '@features/projects/domain/projects.service';
 })
 export class ProjectListComponent {
   private svc = inject(ProjectsService);
+  private authService = inject(AuthService);
   
   @Input({ required: true }) items: Project[] = [];
   //neu laden des Parent
   @Output() deleted = new EventEmitter<void>();
+
+  isAdmin = computed(() => this.authService.hasRole('ROLE_ADMIN'));
 
   // delete funktion für projekte
   toDelete = signal<Project | null>(null);
