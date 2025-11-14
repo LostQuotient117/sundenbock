@@ -198,8 +198,8 @@ public class TicketService {
                 .anyMatch(a -> a.getAuthority().equals(Role.ADMIN));
         boolean isDeveloper = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(Role.DEVELOPER));
-        boolean isAuthor = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(existingTicket.getCreatedBy().getUsername()));
+        String currentUserName = authentication.getName();
+        boolean isAuthor = currentUserName.equals(existingTicket.getCreatedBy().getUsername());
 
         boolean valid = isAdmin ||
                 (isDeveloper && currentStatus.getAllowedTransitionsForDeveloper().contains(nextStatus)) ||
