@@ -1,41 +1,23 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { NavItem } from './nav-item.model';
-import { AuthService } from '../../../core/auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class NavbarService {
-  private auth = inject(AuthService);
 
   // zentrale Konfiguration
   private all = signal<NavItem[]>([
-    { path: '/tickets',  label: 'Tickets',  icon: 'M3 6h18M3 12h18M3 18h18', requiredPermissions: ['TICKET:READ'] },
-    { path: '/projects', label: 'Projects', icon: 'M4 6h16v12H4z',           requiredPermissions: ['PROJECT:READ'] },
-    { path: '/health',   label: 'Health',   icon: 'M12 2v20M2 12h20',         requiredRoles: ['ADMIN'] },
+    { path: '/tickets',  label: 'Tickets',  icon: 'M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z' },
+    { path: '/projects', label: 'Projects', icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'},
     // { path: '/settings', label: 'Settings', requiredRoles: ['ADMIN'] },
   ]);
 
-  // optional: Feature-Flags dynamisch an-/abschaltbar
+  // Feature-Flags dynamisch an-/abschaltbar
   setHidden(path: string, hidden: boolean) {
     this.all.update(items => items.map(i => i.path === path ? { ...i, hidden } : i));
   }
 
   // Sichtbare Einträge = Berechtigung + nicht hidden
   visible = computed(() => {
-    const roles = this.auth.roles();
-    const perms = this.auth.permissions();
-
-    return this.all().filter(item => {
-      if (item.hidden) return false;
-
-      if (item.requiredRoles?.length) {
-        const ok = item.requiredRoles.some(r => roles.includes(r));
-        if (!ok) return false;
-      }
-      if (item.requiredPermissions?.length) {
-        const ok = item.requiredPermissions.some(p => perms.includes(p));
-        if (!ok) return false;
-      }
-      return true;
-    });
+    return this.all().filter(item => !item.hidden);
   });
 }
