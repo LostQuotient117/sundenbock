@@ -1,9 +1,13 @@
-<div class="grid grid-cols-5 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
+<div class="grid gap-2 bg-base-200 text-base-content p-2 rounded-lg"
+     [class.grid-cols-5]="isAdmin()"
+     [class.grid-cols-4]="!isAdmin()">
   <div class="font-bold">ID</div>
   <div class="font-bold">Titel</div>
   <div class="font-bold">Kürzel</div>
   <div class="font-bold">Erstellt</div>
+  @if (isAdmin()) {
   <div class="font-bold text-right">Aktionen</div>
+  }
 
   @for (p of items; track p.id) {
     <div class="font-mono text-sm">{{ p.id }}</div>
@@ -13,11 +17,13 @@
     <div>{{ p.abbreviation }}</div>
     <div>{{ p.createdDate | date:'medium' }}</div>
     <!--Delete button je projekt-->
+    @if (isAdmin()) {
     <div class="text-right">
       <button class="btn btn-ghost btn-xs text-error" (click)="confirmDelete(p)" title="Löschen">
         🗑️
       </button>
     </div>
+  }
   }
 </div>
 <!--Delete Dialog für Projekt-->
