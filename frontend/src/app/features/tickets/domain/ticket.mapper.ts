@@ -18,6 +18,18 @@ const ticketSpec = defineMapper<TicketDto, Ticket>()({
       ? { id: rp.id, username: rp.username, firstName: rp.firstName, lastName: rp.lastName }
       : undefined
   },
+  createdBy: {
+    kind: 'map',
+    from: 'createdBy',
+    map: (u: TicketResponsiblePersonDto | undefined) =>
+      u ? { id: u.id, username: u.username, firstName: u.firstName, lastName: u.lastName } : undefined,
+  },
+  lastModifiedBy: {
+    kind: 'map',
+    from: 'lastModifiedBy',
+    map: (u: TicketResponsiblePersonDto | undefined) =>
+      u ? { id: u.id, username: u.username, firstName: u.firstName, lastName: u.lastName } : undefined,
+  },
   project: {
     kind: 'map',
     from: 'project',

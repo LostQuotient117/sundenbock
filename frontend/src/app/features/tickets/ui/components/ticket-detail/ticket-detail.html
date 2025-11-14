@@ -28,7 +28,7 @@
           }
 
           <!--Status-->
-          <div class="mt-2 flex items-center gap-2">
+          <div class="flex items-center gap-3">
             @if (!editing()) {
             <span class="badge" [ngClass]="badgeClass()">
               {{ t.status | ticketStatusLabel }}
@@ -36,17 +36,44 @@
             } @else {
             <select class="select select-bordered select-sm" [formControl]="form.controls.status" [disabled]="saving()"
               aria-label="Status">
-              @for (s of statusOptions; track s) {
+              @for (s of getStatusOptionsForEdit(); track s) {
               <option [value]="s">{{ s | ticketStatusLabel }}</option>
               }
             </select>
             }
             <span class="text-xs opacity-70">ID: {{ t.id }}</span>
           </div>
+          <div class="text-sm font-medium text-base-content">
+    <span>Autor:</span>
+
+    @if (t.createdBy; as a) {
+      <span>
+        {{
+          (a.firstName || '') +
+          (a.firstName && a.lastName ? ' ' : '') +
+          (a.lastName || '') ||
+          a.username
+        }}
+        <span class="opacity-70">
+          (@{{ a.username }})
+        </span>
+      </span>
+    } @else {
+      <span>—</span>
+    }
+  </div>
         </div>
         <div class="flex items-center gap-2">
           @if (!editing()) {
+            @if (canEditTicket()) {
           <button class="btn btn-ghost" (click)="startEdit()">Bearbeiten</button>
+            } @else {
+              <div class="tooltip" data-tip="Ticket während Bearbeitung nicht änderbar">
+                <button class="btn btn-ghost btn-disabled cursor-not-allowed" type="button">
+                Bearbeiten
+                </button>
+              </div>
+            }
           <a routerLink="/tickets" class="btn btn-ghost">Zur Übersicht</a>
           } @else {
           <button class="btn btn-ghost" (click)="cancelEdit()" [disabled]="saving()">Abbrechen</button>
@@ -95,6 +122,16 @@
                 (@{{ t.responsiblePerson?.username || t.responsiblePersonUserName || '—' }})
               </span>
             </div>
+            @if (canSelfAssign()) {
+              <button
+                type="button"
+                class="btn btn-warning btn-xs"
+                (click)="onAssignMeAndSave()"
+                [disabled]="saving()"
+              >
+                Assign me
+              </button>
+            }
             } @else {
             <!--bei ADMIN Rolle -->
             @if (canSearchDevelopers()) {

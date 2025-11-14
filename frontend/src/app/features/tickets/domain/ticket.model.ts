@@ -34,4 +34,6 @@ export interface Ticket {
   assigneeId?: string;
   createdDate: Date;
   lastModifiedDate: Date;
+  createdBy?: TicketResponsible;
+  lastModifiedBy?: TicketResponsible;
 }

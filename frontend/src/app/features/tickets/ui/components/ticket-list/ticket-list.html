@@ -1,10 +1,11 @@
-<div class="grid grid-cols-7 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
+<div class="grid grid-cols-8 gap-2 bg-base-200 text-base-content p-2 rounded-lg">
   <div class="font-bold">ID</div>
   <div class="font-bold">Ticket Key</div>
   <div class="font-bold">Titel</div>
   <div class="font-bold">Status</div>
   <div class="font-bold">Verantwortlich</div>
   <div class="font-bold">Erstellt am</div>
+  <div class="font-bold">Autor</div>
   <div class="font-bold text-right">Aktionen</div>
 
   @for (t of tickets; track t.id) {
@@ -57,6 +58,23 @@
 
   <!--Erstellt-->
   <div>{{ t.createdDate | date: 'short' }}</div>
+
+  <!--Autor-->
+  <div class="truncate">
+      @if (t.createdBy; as a) {
+        {{
+          (a.firstName || '') +
+          (a.firstName && a.lastName ? ' ' : '') +
+          (a.lastName || '') ||
+          a.username
+        }}
+        <span class="opacity-70">
+          (@{{ a.username }})
+        </span>
+      } @else {
+        —
+      }
+    </div>
 
   <div class="text-right">
     <button type="button" class="btn btn-ghost btn-xs text-error" (click)="confirmDelete(t)" title="Löschen">

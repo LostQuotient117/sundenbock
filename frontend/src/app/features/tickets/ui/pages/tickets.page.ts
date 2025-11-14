@@ -9,12 +9,11 @@ import { CreateTicketDto, TicketDto, TicketStatusDto } from '@features/tickets/d
 import { TicketList } from '../components/ticket-list/ticket-list';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProjectSelectComponent } from '@shared/components/project-select/project-select';
-import { UserSelectComponent } from '@shared/components/user-select/user-select/user-select';
 
 @Component({
   standalone: true,
   selector: 'tickets-page',
-  imports: [TicketList, ReactiveFormsModule, ProjectSelectComponent, UserSelectComponent],
+  imports: [TicketList, ReactiveFormsModule, ProjectSelectComponent],
   templateUrl: './tickets.page.html',
 })
 export class TicketsPage {
@@ -42,7 +41,6 @@ export class TicketsPage {
   createForm = this.fb.nonNullable.group({
     title: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(200)]),
     description: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(2000)]),
-    responsiblePersonUserName: this.fb.nonNullable.control('', [Validators.required]),
     projectId: this.fb.nonNullable.control<number>(0, { validators: [Validators.required, Validators.min(1)] }),
   });
 
@@ -117,7 +115,6 @@ next() {
     this.createForm.reset({
       title: '',
       description: '',
-      responsiblePersonUserName: '',
       projectId: 0,
     });
     this.showCreate.set(true);

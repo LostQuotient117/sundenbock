@@ -31,6 +31,8 @@ export interface TicketDto {
   project?: TicketProjectDto;
   createdDate: string;   // ISO String vom Backend
   lastModifiedDate: string;   // ISO String vom Backend
+  createdBy?: TicketResponsiblePersonDto
+  lastModifiedBy?: TicketResponsiblePersonDto
 }
 
 //für ticket Create benötigt
@@ -38,7 +40,7 @@ export interface CreateTicketDto {
   title: string;
   description: string;
   status: TicketStatusDto;
-  responsiblePersonUserName: string;
+  responsiblePersonUserName?: string;
   projectId: number;
 }
 
