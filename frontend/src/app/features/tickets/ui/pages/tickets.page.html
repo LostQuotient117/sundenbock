@@ -105,18 +105,6 @@
               </label>
               -->
 
-              <!-- Responsible Username -->
-              <label class="form-control">
-                <div class="label"><span class="label-text">Responsible (Developer)*</span></div>
-                <user-select [control]="createForm.controls.responsiblePersonUserName"></user-select>
-
-                @if (createForm.controls.responsiblePersonUserName.touched && createForm.controls.responsiblePersonUserName.invalid) {
-                  <div class="text-error text-xs mt-1">
-                    Bitte einen gültigen Entwickler auswählen.
-                  </div>
-                }
-              </label>
-
               <!-- Projekt-ID -->
               <label class="form-control md:col-span-2">
                 <div class="label"><span class="label-text">Projekt-ID*</span></div>

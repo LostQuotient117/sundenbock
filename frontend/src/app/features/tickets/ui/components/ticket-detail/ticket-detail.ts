@@ -73,6 +73,26 @@ export class TicketDetail {
 
   statusOptions: TicketStatus[] = Object.values(TicketStatus);
 
+  // Helper für Rollen/Benutzer
+  private currentUsername(): string | null {
+    return this.auth.username();
+  }
+
+  private isAdmin(): boolean {
+    return this.auth.hasAnyRole(['ADMIN', 'ROLE_ADMIN']);
+  }
+
+  private isAuthor(t: Ticket, me: string | null): boolean {
+    return !!me && t.createdBy?.username === me;
+  }
+
+  private isResponsible(t: Ticket, me: string | null): boolean {
+    return !!me && (
+      t.responsiblePersonUserName === me ||
+      t.responsiblePerson?.username === me
+    );
+  }
+
   editing = signal(false);
   saving = signal(false);
   saveError = signal<string | null>(null);
@@ -150,6 +170,89 @@ export class TicketDetail {
     this.form.markAsPristine();
   }
 
+  getStatusOptionsForEdit(): TicketStatus[] {
+    const t = this.ticket();
+    if (!t) return this.statusOptions;
+
+    // Admin alle Status
+    if (this.isAdmin()) {
+      return this.statusOptions;
+    }
+
+    const me = this.currentUsername();
+    if (!me) {
+      return [t.status];
+    }
+
+    const isAuthor = this.isAuthor(t, me);
+    const isResponsible = this.isResponsible(t, me);
+
+    // Responsible Developer bei in progress
+    if (t.status === TicketStatus.IN_PROGRESS && isResponsible) {
+      return [
+        TicketStatus.IN_PROGRESS,
+        TicketStatus.RESOLVED,
+        TicketStatus.REJECTED,
+      ];
+    }
+
+    // Autor bei resolved/rejected
+    if (
+      isAuthor &&
+      (t.status === TicketStatus.RESOLVED || t.status === TicketStatus.REJECTED)
+    ) {
+      return [
+        t.status,
+        TicketStatus.CLOSED,
+        TicketStatus.REOPENED,
+      ];
+    }
+
+    // Standard: nur aktueller Status
+    return [t.status];
+  }
+
+   canEditTicket(): boolean {
+    const t = this.ticket();
+    if (!t) return false;
+
+    const me = this.currentUsername();
+    if (!me) return false;
+
+    // Admin darf immer bearbeiten
+    if (this.isAdmin()) {
+      return true;
+    }
+    
+    // closed tickets für alle anderen nicht bearbeitbar
+    if (t.status === TicketStatus.CLOSED) {
+    return false;
+  }
+
+  const isAuthor = this.isAuthor(t, me);
+  const isResponsible = this.isResponsible(t, me);
+
+  // in prgress und ich bin nicht responsible -> autor darf nicht bearbeiten
+  if (
+   t.status === TicketStatus.IN_PROGRESS) {
+   if (isResponsible) {
+        return true;
+      }
+      if (isAuthor && !isResponsible) {
+        return false;
+      }
+    }
+   // Autor darf bearbeiten um auf Closed/reopened zu stellen
+    if (
+      (t.status === TicketStatus.RESOLVED || t.status === TicketStatus.REJECTED) &&
+      isAuthor
+    ) {
+      return true;
+    }
+
+    return isAuthor;
+  }
+
   startEdit() {
     const t = this.ticket();
     if (!t) return;
@@ -196,7 +299,7 @@ export class TicketDetail {
       },
       error: (err: any) => {
         this.saving.set(false);
-        const msg = (err?.error?.message as string) || 'Speichern fehlgeschlagen.';
+        const msg = err?.error?.message ?? 'Statuswechsel ist für deine Rolle in diesem Zustand nicht erlaubt.';
         this.saveError.set(msg);
       },
     });
@@ -207,13 +310,24 @@ export class TicketDetail {
     return this.auth.hasAnyRole(['ADMIN', 'ROLE_ADMIN']);
   }
 
-  canSelfAssign(): boolean {
-    // Developer darf sich selbst zuweisen (wenn nicht Admin)
-    return this.auth.hasAnyRole(['DEVELOPER', 'ROLE_DEVELOPER']) && !this.canSearchDevelopers();
+  // Rollenprüfung auf Developer 
+  isDeveloper(): boolean {
+    return (
+      this.auth.hasAnyRole(['DEVELOPER', 'ROLE_DEVELOPER']) &&
+      !this.canSearchDevelopers()
+    );
   }
 
-  private currentUsername(): string | null {
-    return this.auth.me()?.username ?? null;
+  canSelfAssign(): boolean {
+    const t = this.ticket()
+    if(!t) return false;
+    // Developer darf sich selbst zuweisen (wenn nicht Admin)
+    if(!this.isDeveloper()) return false;
+
+    return(
+      t.status === TicketStatus.CREATED ||
+      t.status === TicketStatus.REOPENED
+    );
   }
 
   onDeveloperChosen(u: { username: string }) {
@@ -222,8 +336,16 @@ export class TicketDetail {
 
   onAssignMe() {
     const me = this.auth.username();
-    if (!me) return;
+    const t = this.ticket();
+    if (!me || !t) return;
     this.form.patchValue({ responsiblePersonUserName: me });
+
+    if (
+      t.status === TicketStatus.CREATED ||
+      t.status === TicketStatus.REOPENED
+    ) {
+      this.form.patchValue({ status: TicketStatus.IN_PROGRESS });
+    }
   }
 
   onAssignMeAndSave() {
