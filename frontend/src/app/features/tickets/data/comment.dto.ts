@@ -18,3 +18,9 @@ export interface CommentDto {
   createdBy?: UserDto;
   lastModifiedBy?: UserDto;
 }
+
+export interface CreateCommentDto {
+  ticketId: number;
+  parentCommentId?: number;
+  commentText: string;
+}
