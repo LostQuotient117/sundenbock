@@ -84,51 +84,66 @@ class CommentServiceTest {
 
     @Test
     void createComment_shouldCreateTopLevelComment() {
-        when(ticketRepository.existsById(1L)).thenReturn(true);
-        when(ticketRepository.getReferenceById(1L)).thenReturn(ticket);
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
         when(commentMapper.toCommentForCreate(createCommentDTO)).thenReturn(comment1);
         when(commentRepository.save(comment1)).thenReturn(comment1);
         when(commentMapper.toCommentDTO(comment1)).thenReturn(commentDTO1);
 
         CommentDTO result = commentService.createComment(createCommentDTO);
 
+        assertNotNull(result);
         assertEquals(commentDTO1.id(), result.id());
-        verify(commentRepository).save(any(Comment.class));
-        verify(commentMapper).toCommentDTO(comment1);
+        verify(ticketRepository).findById(1L);
+        verify(commentRepository).save(comment1);
+        verify(ticketRepository).save(ticket);
     }
 
     @Test
     void createComment_shouldCreateReplyComment() {
         CreateCommentDTO createReplyDTO = new CreateCommentDTO(1L, 1L, "Reply Text");
-        when(ticketRepository.existsById(1L)).thenReturn(true);
-        when(ticketRepository.getReferenceById(1L)).thenReturn(ticket);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
         when(commentRepository.existsById(1L)).thenReturn(true);
         when(commentRepository.getReferenceById(1L)).thenReturn(comment1);
+
         when(commentMapper.toCommentForCreate(createReplyDTO)).thenReturn(comment2);
         when(commentRepository.save(comment2)).thenReturn(comment2);
+        when(ticketRepository.save(ticket)).thenReturn(ticket);
+        when(commentMapper.toCommentDTO(comment2)).thenReturn(mock(CommentDTO.class));
 
         commentService.createComment(createReplyDTO);
 
         verify(commentRepository).save(comment2);
         assertEquals(comment1, comment2.getParentComment());
+        verify(ticketRepository).save(ticket);
     }
 
     @Test
     void createComment_shouldThrowException_whenTicketNotFound() {
-        when(ticketRepository.existsById(1L)).thenReturn(false);
+        when(ticketRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> commentService.createComment(createCommentDTO));
+
+        verify(ticketRepository, never()).save(any(Ticket.class));
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
     void createComment_shouldThrowException_whenParentCommentNotFound() {
         CreateCommentDTO createReplyDTO = new CreateCommentDTO(1L, 99L, "Reply Text");
-        when(ticketRepository.existsById(1L)).thenReturn(true);
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
+
         when(commentRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
                 () -> commentService.createComment(createReplyDTO));
+
+        verify(ticketRepository, never()).save(any(Ticket.class));
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
