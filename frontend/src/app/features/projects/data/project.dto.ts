@@ -1,3 +1,10 @@
+/**
+ * @file project.dto.ts
+ *
+ * Definiert die Data Transfer Object (DTO) Interfaces für Projekte.
+ * Dies sind die Rohdatenstrukturen, wie sie von der Backend-API
+ * empfangen oder an sie gesendet werden (z.B. Daten als ISO-Strings).
+ */
 export interface UserRefDto {
   id: number;
   username: string;

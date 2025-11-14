@@ -1,3 +1,11 @@
+/**
+ * @file project-list.ts
+ *
+ * Logik für die ProjectListComponent.
+ * Diese Komponente zeigt die übergebene Projektliste an (`@Input items`).
+ * Sie verwaltet den Lösch-Dialog und ruft den ProjectsService auf.
+ * Meldet erfolgreiche Löschungen über `@Output deleted` an den Parent.
+ */
 import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';

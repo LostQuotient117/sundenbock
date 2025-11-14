@@ -1,9 +1,17 @@
+/**
+ * @file login.ts
+ *
+ * Logik für die Login-Komponente.
+ * Definiert das Reactive Form (`form`) für Benutzername und Passwort.
+ * Ruft bei `submit()` den `AuthService.login()` auf.
+ * Speichert bei Erfolg das Token über den AuthService und leitet weiter.
+ * Verwaltet Lade- (`submitting`) und Fehlerzustände (`serverError`).
+ */
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
-//import { TranslocoPipe } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 
 @Component({

@@ -1,3 +1,11 @@
+/**
+ * @file projects.service.ts
+ *
+ * Domain-Service (Fassade) für Projekt-Operationen.
+ * Abstrahiert den `ProjectsClient` von den UI-Komponenten.
+ * Hauptverantwortung: Datenabruf (list, get), Mutationen (create, update, delete)
+ * und das Mapping von DTOs zu Domain-Modellen.
+ */
 // app/features/projects/domain/projects.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';

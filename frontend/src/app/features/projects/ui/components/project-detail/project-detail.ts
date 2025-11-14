@@ -1,3 +1,11 @@
+/**
+ * @file project-detail.ts
+ *
+ * Logik für die Projekt-Detailansicht.
+ * Lädt das Projekt basierend auf der Routen-ID.
+ * Verwaltet den "Bearbeiten"-Modus (`editing`) und das Reactive Form (`form`)
+ * für die Aktualisierung des Projekts über den `ProjectsService`.
+ */
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';

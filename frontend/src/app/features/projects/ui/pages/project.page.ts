@@ -1,3 +1,11 @@
+/**
+ * @file project.page.ts
+ *
+ * "Smarte" Page-Komponente für die Projektübersicht.
+ * Verwaltet den State für Paginierung, Suche und Sortierung (`query`).
+ * Ruft den `ProjectsService` auf, um die Liste zu laden (`effect`).
+ * Stellt die Logik für das Erstellen eines neuen Projekts (Modal) bereit.
+ */
 // app/features/projects/ui/pages/projects.page.ts
 import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
