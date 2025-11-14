@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UpdateTicketDto } from '@features/tickets/data/ticket.dto';
 import { UserSelectComponent } from '@shared/components/user-select/user-select/user-select';
 import { AuthService } from '@core/auth/auth.service';
+import { CreateCommentDto } from '@features/tickets/data/comment.dto';
 
 
 @Component({
@@ -50,6 +51,13 @@ export class TicketDetail {
 
   /** Kommentare zum Ticket */
   comments = signal<Page<TicketComment> | null>(null);
+  commentSaving = signal(false);
+  commentError = signal<string | null>(null);
+  replyToCommentId = signal<number | null>(null);
+
+  commentForm = this.fb.nonNullable.group({
+    commentText: ['', [Validators.required, Validators.maxLength(2000)]],
+  });
 
   /** Styling für Status-Badge (DaisyUI) */
   badgeClass = computed(() => {
@@ -139,9 +147,15 @@ export class TicketDetail {
       const t = this.ticket();
       if (!t?.id) return;
 
-      this.comments.set(null);
+      this.loadComments(t.id);
+    });
+  }
+
+  //lade kommentare Methode
+  private loadComments(ticketId: number | string) {
+  this.comments.set(null);
       this.commentsSvc
-        .listByTicket(t.id, { page: 0, pageSize: 20, sort: 'createdDate:asc' })
+        .listByTicket(ticketId, { page: 0, pageSize: 20, sort: 'createdDate:asc' })
         .subscribe({
           next: (p) => this.comments.set(p),
           error: (err) => {
@@ -155,8 +169,7 @@ export class TicketDetail {
             });
           },
         });
-    });
-  }
+      }
 
   /** Ticket -> Formular transferieren */
   private patchFormFromTicket(t: Ticket) {
@@ -351,5 +364,78 @@ export class TicketDetail {
   onAssignMeAndSave() {
     this.onAssignMe();
     this.submitUpdate();
+  }
+
+  onCommentFormSubmit(event: SubmitEvent) {
+    event.preventDefault(); // verhindert Full Page Reload
+    this.replyToCommentId.set(null);
+    this.submitComment();
+  }
+
+  startReply(commentId: number | undefined) {
+    if (commentId == null) {
+    return;
+  }
+    this.replyToCommentId.set(commentId);
+    this.commentError.set(null);
+    this.commentForm.reset({ commentText: '' });
+  }
+
+  cancelReply() {
+    this.replyToCommentId.set(null);
+    this.commentError.set(null);
+    this.commentForm.reset({ commentText: '' });
+  }
+
+  onReplyFormSubmit(event: Event, parentCommentId: number) {
+    event.preventDefault(); // kein Page-Reload
+    this.replyToCommentId.set(parentCommentId);
+    this.submitComment();
+  }
+
+  submitComment() {
+    const t = this.ticket();
+    if (!t) return;
+
+    if (this.commentForm.invalid) {
+      this.commentForm.markAllAsTouched();
+      return;
+    }
+
+    // Ticket-ID robust in number casten (falls string o. ä.)
+    const rawTicketId: any = t.id as any;
+    const ticketId: number =
+      typeof rawTicketId === 'string' ? Number(rawTicketId) : (rawTicketId as number);
+
+    if (!ticketId) {
+      console.error('Ticket-ID fehlt oder ist ungültig für Kommentar-Erstellung');
+      return;
+    }
+
+    const body: CreateCommentDto = {
+      ticketId,
+      commentText: this.commentForm.value.commentText!,
+      parentCommentId: this.replyToCommentId() ?? undefined
+    };
+
+    this.commentSaving.set(true);
+    this.commentError.set(null);
+
+    this.commentsSvc.create(ticketId, body).subscribe({
+      next: (updatedTicket: Ticket) => {
+        this.commentSaving.set(false);
+        // Textfeld leeren
+        this.cancelReply();   
+        this.ticketState.set(updatedTicket);
+        // Kommentare neu laden
+        this.loadComments(ticketId);
+      },
+      error: (err) => {
+        this.commentSaving.set(false);
+        const msg =
+          err?.error?.message ?? 'Kommentar konnte nicht gespeichert werden.';
+        this.commentError.set(msg);
+      },
+    });
   }
 }
