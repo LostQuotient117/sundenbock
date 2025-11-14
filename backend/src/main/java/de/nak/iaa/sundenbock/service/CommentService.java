@@ -90,10 +90,8 @@ public class CommentService{
      */
     @Transactional
     public CommentDTO createComment(CreateCommentDTO createCommentDTO) {
-        if (!ticketRepository.existsById(createCommentDTO.ticketId())){
-            throw new ResourceNotFoundException("Ticket not found with id " + createCommentDTO.ticketId());
-        }
-        Ticket ticket = ticketRepository.getReferenceById(createCommentDTO.ticketId());
+        Ticket ticket = ticketRepository.findById(createCommentDTO.ticketId())
+                .orElseThrow(() ->  new ResourceNotFoundException("Ticket with id " + createCommentDTO.ticketId() + " not found"));
 
         Comment parentComment = null;
         if (createCommentDTO.parentCommentId() != null) {
@@ -106,6 +104,9 @@ public class CommentService{
         comment.setTicket(ticket);
         comment.setParentComment(parentComment);
         Comment savedComment = commentRepository.save(comment);
+
+        ticket.setLastModifiedDate(java.time.Instant.now());
+        ticketRepository.save(ticket);
         return commentMapper.toCommentDTO(savedComment);
     }
 
