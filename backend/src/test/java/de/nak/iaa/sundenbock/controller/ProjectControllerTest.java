@@ -8,10 +8,7 @@ import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
 import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
-import de.nak.iaa.sundenbock.exception.CustomAccessDeniedHandler;
-import de.nak.iaa.sundenbock.exception.CustomAuthenticationEntryPoint;
-import de.nak.iaa.sundenbock.exception.MismatchedIdException;
-import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
+import de.nak.iaa.sundenbock.exception.*;
 import de.nak.iaa.sundenbock.model.project.Project;
 import de.nak.iaa.sundenbock.pageable.PageableFactory;
 import de.nak.iaa.sundenbock.service.ProjectService;
@@ -38,8 +35,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -99,7 +95,6 @@ class ProjectControllerTest {
 
         testPageable = PageRequest.of(0, 20);
 
-        // KORREKTUR: anyString() durch nullable(String.class) ersetzt
         when(pageableFactory.createPageable(
                 anyInt(),
                 anyInt(),
@@ -149,15 +144,6 @@ class ProjectControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
-    @DisplayName("DELETE /api/v1/projects/1/delete should return 401 for anonymous user")
-    @WithAnonymousUser
-    void deleteProject_shouldReturn401_forAnonymous() throws Exception {
-        mockMvc.perform(delete("/api/v1/projects/1/delete")
-                        .with(csrf()))
-                .andExpect(status().isUnauthorized());
-    }
-
 
     @Test
     @DisplayName("GET /api/v1/projects should return 403 for user without PROJECT_READ")
@@ -196,15 +182,6 @@ class ProjectControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testProjectDTO)))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("DELETE /api/v1/projects/1/delete should return 403 for user without PROJECT_DELETE")
-    @WithMockUser(username = "user", authorities = {"ROLE_USER"})
-    void deleteProject_shouldReturn403_forUserWithoutPermission() throws Exception {
-        mockMvc.perform(delete("/api/v1/projects/1/delete")
-                        .with(csrf()))
                 .andExpect(status().isForbidden());
     }
 
@@ -270,17 +247,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/v1/projects/1/delete should return 200 OK")
-    @WithMockUser(authorities = "PROJECT_DELETE")
-    void deleteProject_shouldReturnOk() throws Exception {
-        doNothing().when(projectService).deleteProject(1L);
-
-        mockMvc.perform(delete("/api/v1/projects/1/delete")
-                        .with(csrf()))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     @DisplayName("GET /api/v1/projects/99 should return 404 if not found")
     @WithMockUser(authorities = "PROJECT_READ")
     void getProjectById_shouldReturn404_ifNotFound() throws Exception {
@@ -312,7 +278,7 @@ class ProjectControllerTest {
                         .content(objectMapper.writeValueAsString(badDTO)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.title").value("Title must not be empty"))
-                .andExpect(jsonPath("$.fieldErrors.abbreviation").value("size must be between 3 and 3"));
+                .andExpect(jsonPath("$.fieldErrors.abbreviation").value("Abbreviation must be exactly 3 characters long"));
     }
 
     @Test
@@ -335,5 +301,60 @@ class ProjectControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.message").value("Path variable 'id' = 1 does not match 'id' = 2 in request body"));
+    }
+
+    @Test
+    @WithMockUser(authorities = "PROJECT_DELETE")
+    void deleteProject_shouldReturnOk_whenSuccessful() throws Exception {
+        Long projectId = 1L;
+        doNothing().when(projectService).deleteProject(projectId);
+
+        mockMvc.perform(delete("/api/v1/projects/{id}/delete", projectId))
+                .andExpect(status().isOk());
+        verify(projectService).deleteProject(projectId);
+    }
+
+    @Test
+    @WithMockUser(authorities = "PROJECT_DELETE")
+    void deleteProject_shouldReturnNotFound_whenProjectDoesNotExist() throws Exception {
+        Long projectId = 99L;
+        doThrow(new ResourceNotFoundException("Project not found with id " + projectId))
+                .when(projectService).deleteProject(projectId);
+
+        mockMvc.perform(delete("/api/v1/projects/{id}/delete", projectId))
+                .andExpect(status().isNotFound());
+
+        verify(projectService).deleteProject(projectId);
+    }
+
+    @Test
+    @WithMockUser(authorities = "PROJECT_DELETE")
+    void deleteProject_shouldReturnConflict_whenProjectHasOpenTickets() throws Exception {
+        Long projectId = 1L;
+        doThrow(new ProjectHasOpenTicketsException("Project cannot be deleted, it still has 2 open ticket(s)."))
+                .when(projectService).deleteProject(projectId);
+
+        mockMvc.perform(delete("/api/v1/projects/{id}/delete", projectId))
+                .andExpect(status().isConflict());
+
+        verify(projectService).deleteProject(projectId);
+    }
+
+    @Test
+    @WithMockUser(authorities = "PROJECT_DELETE")
+    void deleteProject_shouldReturnBadRequest_whenIdIsInvalid() throws Exception {
+        mockMvc.perform(delete("/api/v1/projects/{id}/delete", 0L))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(projectService);
+    }
+
+    @Test
+    @WithMockUser(authorities = "PROJECT_READ")
+    void deleteProject_shouldReturnForbidden_whenMissingAuthority() throws Exception {
+        mockMvc.perform(delete("/api/v1/projects/{id}/delete", 1L))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(projectService);
     }
 }

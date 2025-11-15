@@ -12,6 +12,7 @@ import de.nak.iaa.sundenbock.service.ProjectService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -115,12 +116,17 @@ public class ProjectController {
     }
 
     /**
-     * Deletes a project by its identifier.
+     * Deletes a project by its ID.
+     * <p>
+     * A project can only be deleted if it has no open tickets. Tickets with status
+     * {@code CLOSED} or {@code REJECTED} are not considered open.
+     * </p>
      *
-     * @param id the id of the project to delete, must be greater than or equal to 1
+     * @param id the ID of the project to delete
      */
     @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasAuthority('PROJECT_DELETE')")
+    @ResponseStatus(HttpStatus.OK)
     public void deleteProject(@PathVariable @Min(1) Long id) {
         projectService.deleteProject(id);
     }

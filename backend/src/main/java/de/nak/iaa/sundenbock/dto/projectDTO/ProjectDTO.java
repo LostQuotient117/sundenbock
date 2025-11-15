@@ -2,6 +2,7 @@ package de.nak.iaa.sundenbock.dto.projectDTO;
 
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
@@ -23,7 +24,8 @@ public record ProjectDTO(
      @Size(max = 2000, message = "Description must not exceed 2000 characters")
      String description,
      @NotBlank(message = "Abbreviation must not be empty")
-     @Size(min = 3, max = 3)
+     @Size(min = 3, max = 3, message = "Abbreviation must be exactly 3 characters long")
+     @Pattern(regexp = "[a-zA-Z]{3}", message = "Abbreviation must only contain letters")
      String abbreviation,
      //!-- from AuditedEntity --!
      Instant createdDate,
