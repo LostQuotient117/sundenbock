@@ -1,19 +1,19 @@
 // app/features/tickets/ui/components/ticket-detail/ticket-detail.ts
-import { Component, computed, effect, inject, signal, Signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { switchMap } from 'rxjs/operators';
-import { TicketsService } from '@features/tickets/domain/ticket.service';
-import { Ticket, TicketStatus } from '@features/tickets/domain/ticket.model';
-import { TicketStatusLabelPipe } from '@shared/pipes/status-label.pipe';
-import { CommentsService } from '@features/tickets/domain/comments.service';
-import { Page } from '@shared/models/paging';
-import { TicketComment } from '@features/tickets/domain/comment.model';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UpdateTicketDto } from '@features/tickets/data/ticket.dto';
-import { UserSelectComponent } from '@shared/components/user-select/user-select/user-select';
-import { AuthService } from '@core/auth/auth.service';
-import { CreateCommentDto } from '@features/tickets/data/comment.dto';
+
+import { CommonModule, DatePipe } from "@angular/common";
+import { inject, signal, Signal, computed } from "@angular/core";
+import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
+import { RouterLink, ActivatedRoute } from "@angular/router";
+import { AuthService } from "@core/auth/auth.service";
+import { UpdateTicketDto } from "@features/tickets/data/ticket.dto";
+import { Ticket, TicketStatus } from "@features/tickets/domain/ticket.model";
+import { TicketsService } from "@features/tickets/domain/ticket.service";
+import { UserSelectComponent } from "@shared/components/user-select/user-select/user-select";
+import { TicketStatusLabelPipe } from "@shared/pipes/status-label.pipe";
+import { Component } from "@angular/core";
+import { switchMap } from "rxjs";
+import { TicketCommentsComponent } from "../ticket-comments/ticket-comments";
+
 
 
 @Component({
@@ -26,19 +26,15 @@ import { CreateCommentDto } from '@features/tickets/data/comment.dto';
     TicketStatusLabelPipe,
     ReactiveFormsModule,
     UserSelectComponent,
+    TicketCommentsComponent
   ],
   templateUrl: './ticket-detail.html',
 })
 export class TicketDetail {
   private route = inject(ActivatedRoute);
   private svc = inject(TicketsService);
-  commentsSvc = inject(CommentsService);
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
-
-
-  // Für {{ Math.ceil(...) }} im Template
-  readonly Math = Math;
 
   /**
    * Lokale Quelle der Wahrheit fürs Ticket.
@@ -48,16 +44,6 @@ export class TicketDetail {
 
   /** Readonly-Sicht fürs Template: ticket() */
   ticket: Signal<Ticket | undefined> = this.ticketState.asReadonly();
-
-  /** Kommentare zum Ticket */
-  comments = signal<Page<TicketComment> | null>(null);
-  commentSaving = signal(false);
-  commentError = signal<string | null>(null);
-  replyToCommentId = signal<number | null>(null);
-
-  commentForm = this.fb.nonNullable.group({
-    commentText: ['', [Validators.required, Validators.maxLength(2000)]],
-  });
 
   /** Styling für Status-Badge (DaisyUI) */
   badgeClass = computed(() => {
@@ -139,34 +125,6 @@ export class TicketDetail {
         },
         error: (err) => {
           console.error('Ticket konnte nicht geladen werden', err);
-        },
-      });
-
-    // Kommentare laden, sobald ein Ticket da ist
-    effect(() => {
-      const t = this.ticket();
-      if (!t?.id) return;
-
-      this.loadComments(t.id);
-    });
-  }
-
-  //lade kommentare Methode
-  private loadComments(ticketId: number | string) {
-    this.comments.set(null);
-    this.commentsSvc
-      .listByTicket(ticketId, { page: 0, pageSize: 20, sort: 'createdDate:asc' })
-      .subscribe({
-        next: (p) => this.comments.set(p),
-        error: (err) => {
-          console.error('Kommentare konnten nicht geladen werden', err);
-          // Fallback: leere Seite, damit Template nicht crasht
-          this.comments.set({
-            items: [],
-            total: 0,
-            page: 0,
-            pageSize: 20,
-          });
         },
       });
   }
@@ -366,110 +324,12 @@ export class TicketDetail {
     this.submitUpdate();
   }
 
-  onCommentFormSubmit(event: SubmitEvent) {
-    event.preventDefault(); // verhindert Full Page Reload
-    this.replyToCommentId.set(null);
-    this.submitComment();
+  onTicketChanged(updated: Ticket) {
+  this.ticketState.set(updated);
+
+  // Wenn wir gerade nicht im Edit-Modus sind, Formular mit dem neuen Stand syncen
+  if (!this.editing()) {
+    this.patchFormFromTicket(updated);
   }
-
-  startReply(commentId: number | undefined) {
-    if (commentId == null) {
-      return;
-    }
-    this.replyToCommentId.set(commentId);
-    this.commentError.set(null);
-    this.commentForm.reset({ commentText: '' });
-  }
-
-  cancelReply() {
-    this.replyToCommentId.set(null);
-    this.commentError.set(null);
-    this.commentForm.reset({ commentText: '' });
-  }
-
-  onReplyFormSubmit(event: Event, parentCommentId: number) {
-    event.preventDefault(); // kein Page-Reload
-    this.replyToCommentId.set(parentCommentId);
-    this.submitComment();
-  }
-
-  submitComment() {
-    const t = this.ticket();
-    if (!t) return;
-
-    if (this.commentForm.invalid) {
-      this.commentForm.markAllAsTouched();
-      return;
-    }
-
-    // Ticket-ID robust in number casten (falls string o. ä.)
-    const rawTicketId: any = t.id as any;
-    const ticketId: number =
-      typeof rawTicketId === 'string' ? Number(rawTicketId) : (rawTicketId as number);
-
-    if (!ticketId) {
-      console.error('Ticket-ID fehlt oder ist ungültig für Kommentar-Erstellung');
-      return;
-    }
-
-    const body: CreateCommentDto = {
-      ticketId,
-      commentText: this.commentForm.value.commentText!,
-      parentCommentId: this.replyToCommentId() ?? undefined
-    };
-
-    this.commentSaving.set(true);
-    this.commentError.set(null);
-
-    this.commentsSvc.create(ticketId, body).subscribe({
-      next: (updatedTicket: Ticket) => {
-        this.commentSaving.set(false);
-        // Textfeld leeren
-        this.cancelReply();
-        this.ticketState.set(updatedTicket);
-        // Kommentare neu laden
-        this.loadComments(ticketId);
-      },
-      error: (err) => {
-        this.commentSaving.set(false);
-        const msg =
-          err?.error?.message ?? 'Kommentar konnte nicht gespeichert werden.';
-        this.commentError.set(msg);
-      },
-    });
-  }
-
-  onLike(comment: TicketComment) {
-    const t = this.ticket();
-    if (!t?.id) return;
-
-    this.commentsSvc
-      .toggleVote(t.id, comment, 'LIKE')
-      .subscribe({
-        next: (page) => this.comments.set(page),
-        error: (err) => {
-          console.error('Like konnte nicht gespeichert werden', err);
-          this.commentError.set(
-            err?.error?.message ?? 'Bewertung konnte nicht gespeichert werden.'
-          );
-        },
-      });
-  }
-
-  onDislike(comment: TicketComment) {
-    const t = this.ticket();
-    if (!t?.id) return;
-
-    this.commentsSvc
-      .toggleVote(t.id, comment, 'DISLIKE')
-      .subscribe({
-        next: (page) => this.comments.set(page),
-        error: (err) => {
-          console.error('Dislike konnte nicht gespeichert werden', err);
-          this.commentError.set(
-            err?.error?.message ?? 'Bewertung konnte nicht gespeichert werden.'
-          );
-        },
-      });
-  }
+}
 }

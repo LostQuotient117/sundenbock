@@ -1,0 +1,142 @@
+@if (comments(); as c) {
+  @if (c.total === 0) {
+    <div class="text-base-content/70">Keine Kommentare vorhanden.</div>
+  } @else {
+    <div class="flex flex-col gap-3">
+      @for (cm of c.items; track cm.id) {
+        <div class="card bg-base-200">
+          <div class="card-body p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="text-sm opacity-70">
+                {{ cm.createdBy?.firstName }} {{ cm.createdBy?.lastName }}
+                <span class="opacity-60">(@{{ cm.createdBy?.username }})</span>
+                · <span>{{ cm.createdDate | date: 'medium' }}</span>
+              </div>
+              <div class="text-xs opacity-60">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs"
+                  [class.btn-active]="isVoted(cm.id, 'LIKE')"
+                  (click)="onLike(cm)">
+                  👍
+                </button>
+                <span class="ml-1">{{ cm.likes || 0 }}</span>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs"
+                  [class.btn-active]="isVoted(cm.id, 'DISLIKE')"
+                  (click)="onDislike(cm)">
+                  👎
+                </button>
+                <span class="ml-1">{{ cm.dislikes || 0 }}</span>
+              </div>
+            </div>
+
+            <div class="mt-1 whitespace-pre-wrap break-words">
+              {{ cm.commentText }}
+            </div>
+
+            @if (cm.childComments?.length) {
+              <div class="mt-3 pl-4 border-l border-base-300 flex flex-col gap-2">
+                @for (child of cm.childComments; track child.id) {
+                  <div class="text-sm">
+                    <span class="opacity-70">
+                      {{ child.createdBy?.firstName }} {{ child.createdBy?.lastName }}
+                      <span class="opacity-60">(@{{ child.createdBy?.username }})</span>
+                      · {{ child.createdDate | date: 'short' }}
+                    </span>
+                    <div class="whitespace-pre-wrap break-words">
+                      {{ child.commentText }}
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <div class="mt-3">
+              <button type="button" class="btn btn-ghost btn-xs" (click)="startReply(cm.id!)">
+                Antworten
+              </button>
+            </div>
+
+            @if (replyToCommentId() === cm.id) {
+              <form class="mt-2 flex flex-col gap-2" (submit)="onReplyFormSubmit($event, cm.id!)">
+                <textarea
+                  class="textarea textarea-bordered w-full min-h-20"
+                  placeholder="Antwort schreiben..."
+                  [formControl]="commentForm.controls.commentText"
+                  [disabled]="commentSaving()"></textarea>
+
+                @if (commentForm.controls.commentText.touched && commentForm.controls.commentText.invalid) {
+                  <div class="text-error text-xs">
+                    Kommentartext ist erforderlich.
+                  </div>
+                }
+
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs"
+                    (click)="cancelReply()"
+                    [disabled]="commentSaving()">
+                    Abbrechen
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-xs"
+                    [disabled]="commentSaving() || commentForm.invalid">
+                    Senden
+                  </button>
+                </div>
+              </form>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="mt-2 text-xs opacity-70">
+      Seite {{ c.page + 1 }} von {{ Math.ceil(c.total / c.pageSize) }}
+    </div>
+  }
+} @else {
+  <div class="text-base-content/70">Kommentare werden geladen…</div>
+}
+
+<!-- Eingabebereich für neuen Kommentar -->
+<div class="mt-6 card bg-base-200">
+  <div class="card-body p-4">
+    <form class="flex flex-col gap-2" (submit)="onCommentFormSubmit($event)">
+      <label class="text-sm font-semibold mb-1">
+        Kommentar hinzufügen
+      </label>
+
+      <div class="flex items-stretch gap-2">
+        <textarea
+          class="textarea textarea-bordered flex-1 resize-y min-h-24"
+          placeholder="Kommentar schreiben..."
+          [formControl]="commentForm.controls.commentText"
+          [disabled]="commentSaving()"></textarea>
+
+        <button
+          type="submit"
+          class="btn btn-primary self-start"
+          [disabled]="commentSaving() || commentForm.invalid">
+          Senden
+        </button>
+      </div>
+
+      @if (commentForm.controls.commentText.touched && commentForm.controls.commentText.invalid) {
+        <div class="text-error text-xs">
+          Kommentartext ist erforderlich.
+        </div>
+      }
+
+      @if (commentError()) {
+        <div class="text-error text-xs mt-1">
+          {{ commentError() }}
+        </div>
+      }
+    </form>
+  </div>
+</div>
