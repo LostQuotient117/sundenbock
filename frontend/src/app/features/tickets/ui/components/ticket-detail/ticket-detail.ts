@@ -32,7 +32,7 @@ import { CreateCommentDto } from '@features/tickets/data/comment.dto';
 export class TicketDetail {
   private route = inject(ActivatedRoute);
   private svc = inject(TicketsService);
-  private commentsSvc = inject(CommentsService);
+  commentsSvc = inject(CommentsService);
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
 
@@ -153,23 +153,23 @@ export class TicketDetail {
 
   //lade kommentare Methode
   private loadComments(ticketId: number | string) {
-  this.comments.set(null);
-      this.commentsSvc
-        .listByTicket(ticketId, { page: 0, pageSize: 20, sort: 'createdDate:asc' })
-        .subscribe({
-          next: (p) => this.comments.set(p),
-          error: (err) => {
-            console.error('Kommentare konnten nicht geladen werden', err);
-            // Fallback: leere Seite, damit Template nicht crasht
-            this.comments.set({
-              items: [],
-              total: 0,
-              page: 0,
-              pageSize: 20,
-            });
-          },
-        });
-      }
+    this.comments.set(null);
+    this.commentsSvc
+      .listByTicket(ticketId, { page: 0, pageSize: 20, sort: 'createdDate:asc' })
+      .subscribe({
+        next: (p) => this.comments.set(p),
+        error: (err) => {
+          console.error('Kommentare konnten nicht geladen werden', err);
+          // Fallback: leere Seite, damit Template nicht crasht
+          this.comments.set({
+            items: [],
+            total: 0,
+            page: 0,
+            pageSize: 20,
+          });
+        },
+      });
+  }
 
   /** Ticket -> Formular transferieren */
   private patchFormFromTicket(t: Ticket) {
@@ -225,7 +225,7 @@ export class TicketDetail {
     return [t.status];
   }
 
-   canEditTicket(): boolean {
+  canEditTicket(): boolean {
     const t = this.ticket();
     if (!t) return false;
 
@@ -236,26 +236,26 @@ export class TicketDetail {
     if (this.isAdmin()) {
       return true;
     }
-    
+
     // closed tickets für alle anderen nicht bearbeitbar
     if (t.status === TicketStatus.CLOSED) {
-    return false;
-  }
+      return false;
+    }
 
-  const isAuthor = this.isAuthor(t, me);
-  const isResponsible = this.isResponsible(t, me);
+    const isAuthor = this.isAuthor(t, me);
+    const isResponsible = this.isResponsible(t, me);
 
-  // in prgress und ich bin nicht responsible -> autor darf nicht bearbeiten
-  if (
-   t.status === TicketStatus.IN_PROGRESS) {
-   if (isResponsible) {
+    // in prgress und ich bin nicht responsible -> autor darf nicht bearbeiten
+    if (
+      t.status === TicketStatus.IN_PROGRESS) {
+      if (isResponsible) {
         return true;
       }
       if (isAuthor && !isResponsible) {
         return false;
       }
     }
-   // Autor darf bearbeiten um auf Closed/reopened zu stellen
+    // Autor darf bearbeiten um auf Closed/reopened zu stellen
     if (
       (t.status === TicketStatus.RESOLVED || t.status === TicketStatus.REJECTED) &&
       isAuthor
@@ -333,11 +333,11 @@ export class TicketDetail {
 
   canSelfAssign(): boolean {
     const t = this.ticket()
-    if(!t) return false;
+    if (!t) return false;
     // Developer darf sich selbst zuweisen (wenn nicht Admin)
-    if(!this.isDeveloper()) return false;
+    if (!this.isDeveloper()) return false;
 
-    return(
+    return (
       t.status === TicketStatus.CREATED ||
       t.status === TicketStatus.REOPENED
     );
@@ -374,8 +374,8 @@ export class TicketDetail {
 
   startReply(commentId: number | undefined) {
     if (commentId == null) {
-    return;
-  }
+      return;
+    }
     this.replyToCommentId.set(commentId);
     this.commentError.set(null);
     this.commentForm.reset({ commentText: '' });
@@ -425,7 +425,7 @@ export class TicketDetail {
       next: (updatedTicket: Ticket) => {
         this.commentSaving.set(false);
         // Textfeld leeren
-        this.cancelReply();   
+        this.cancelReply();
         this.ticketState.set(updatedTicket);
         // Kommentare neu laden
         this.loadComments(ticketId);
@@ -437,5 +437,39 @@ export class TicketDetail {
         this.commentError.set(msg);
       },
     });
+  }
+
+  onLike(comment: TicketComment) {
+    const t = this.ticket();
+    if (!t?.id) return;
+
+    this.commentsSvc
+      .toggleVote(t.id, comment, 'LIKE')
+      .subscribe({
+        next: (page) => this.comments.set(page),
+        error: (err) => {
+          console.error('Like konnte nicht gespeichert werden', err);
+          this.commentError.set(
+            err?.error?.message ?? 'Bewertung konnte nicht gespeichert werden.'
+          );
+        },
+      });
+  }
+
+  onDislike(comment: TicketComment) {
+    const t = this.ticket();
+    if (!t?.id) return;
+
+    this.commentsSvc
+      .toggleVote(t.id, comment, 'DISLIKE')
+      .subscribe({
+        next: (page) => this.comments.set(page),
+        error: (err) => {
+          console.error('Dislike konnte nicht gespeichert werden', err);
+          this.commentError.set(
+            err?.error?.message ?? 'Bewertung konnte nicht gespeichert werden.'
+          );
+        },
+      });
   }
 }
