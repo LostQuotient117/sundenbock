@@ -21,4 +21,15 @@ export class CommentsClient extends ResourceClient<CommentDto> {
   createForTicket(ticketId: number, body: CreateCommentDto): Observable<TicketDto> {
     return this.api.post<TicketDto>(`/tickets/${ticketId}/comments/create`, body);
   }
+
+  updateComment(
+    ticketId: number | string,
+    commentId: number | string,
+    body: CommentDto
+  ): Observable<CommentDto> {
+    return this.api.put<CommentDto>(
+      `/tickets/${ticketId}/comments/${commentId}/update`,
+      body
+    );
+  }
 }

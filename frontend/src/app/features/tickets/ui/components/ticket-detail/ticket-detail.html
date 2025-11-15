@@ -41,39 +41,39 @@
               }
             </select>
             }
-            <span class="text-xs opacity-70">ID: {{ t.id }}</span>
+            <span class="text-xs opacity-70">ID: {{ t.id }} TICKETKEY: {{ t.ticketKey ? t.ticketKey : '' }}</span>
           </div>
           <div class="text-sm font-medium text-base-content">
-    <span>Autor:</span>
+            <span>Autor:</span>
 
-    @if (t.createdBy; as a) {
-      <span>
-        {{
-          (a.firstName || '') +
-          (a.firstName && a.lastName ? ' ' : '') +
-          (a.lastName || '') ||
-          a.username
-        }}
-        <span class="opacity-70">
-          (@{{ a.username }})
-        </span>
-      </span>
-    } @else {
-      <span>—</span>
-    }
-  </div>
+            @if (t.createdBy; as a) {
+            <span>
+              {{
+              (a.firstName || '') +
+              (a.firstName && a.lastName ? ' ' : '') +
+              (a.lastName || '') ||
+              a.username
+              }}
+              <span class="opacity-70">
+                (@{{ a.username }})
+              </span>
+            </span>
+            } @else {
+            <span>—</span>
+            }
+          </div>
         </div>
         <div class="flex items-center gap-2">
           @if (!editing()) {
-            @if (canEditTicket()) {
+          @if (canEditTicket()) {
           <button class="btn btn-ghost" (click)="startEdit()">Bearbeiten</button>
-            } @else {
-              <div class="tooltip" data-tip="Ticket während Bearbeitung nicht änderbar">
-                <button class="btn btn-ghost btn-disabled cursor-not-allowed" type="button">
-                Bearbeiten
-                </button>
-              </div>
-            }
+          } @else {
+          <div class="tooltip" data-tip="Ticket während Bearbeitung nicht änderbar">
+            <button class="btn btn-ghost btn-disabled cursor-not-allowed" type="button">
+              Bearbeiten
+            </button>
+          </div>
+          }
           <a routerLink="/tickets" class="btn btn-ghost">Zur Übersicht</a>
           } @else {
           <button class="btn btn-ghost" (click)="cancelEdit()" [disabled]="saving()">Abbrechen</button>
@@ -92,8 +92,10 @@
           <div class="text-xs opacity-70">Projekt</div>
           <div class="font-medium">
             @if (!editing()) {
-            <span class="badge badge-primary">{{ t.project?.abbreviation }}</span>
-            <span class="ml-2">{{ t.project?.title || '—' }}</span>
+            <span class="badge badge-primary ">{{ t.project?.abbreviation }}</span>
+            <span [routerLink]="['/projects', t.project?.id]"
+              class="ml-2 hover:text-primary hover:underline hover:cursor-pointer transition">{{ t.project?.title || '—'
+              }}</span>
             } @else {
             <div class="flex items-center gap-2">
               <span class="badge badge-primary">{{ t.project?.abbreviation }}</span>
@@ -123,14 +125,9 @@
               </span>
             </div>
             @if (canSelfAssign()) {
-              <button
-                type="button"
-                class="btn btn-warning btn-xs"
-                (click)="onAssignMeAndSave()"
-                [disabled]="saving()"
-              >
-                Assign me
-              </button>
+            <button type="button" class="btn btn-warning btn-xs" (click)="onAssignMeAndSave()" [disabled]="saving()">
+              Assign me
+            </button>
             }
             } @else {
             <!--bei ADMIN Rolle -->
@@ -220,7 +217,16 @@
           · <span>{{ cm.createdDate | date: 'medium' }}</span>
         </div>
         <div class="text-xs opacity-60">
-          👍 {{ cm.likes || 0 }} · 👎 {{ cm.dislikes || 0 }}
+          <button type="button" class="btn btn-ghost btn-xs" [class.btn-active]="commentsSvc.isVoted(cm.id, 'LIKE')"
+            (click)="onLike(cm)">
+            👍
+          </button>
+          <span class="ml-1">{{ cm.likes || 0}}</span>
+          <button type="button" class="btn btn-ghost btn-xs" [class.btn-active]="commentsSvc.isVoted(cm.id, 'LIKE')"
+            (click)="onDislike(cm)">
+            👎
+          </button>
+          <span class="ml-1">{{ cm.dislikes || 0}}</span>
         </div>
       </div>
 
@@ -245,53 +251,33 @@
       </div>
       }
       <div class="mt-3">
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs"
-          (click)="startReply(cm.id)"
-        >
+        <button type="button" class="btn btn-ghost btn-xs" (click)="startReply(cm.id)">
           Antworten
         </button>
       </div>
       @if (replyToCommentId() === cm.id) {
-        <form
-          class="mt-2 flex flex-col gap-2"
-          (submit)="onReplyFormSubmit($event, cm.id)"
-        >
-          <textarea
-            class="textarea textarea-bordered w-full min-h-20"
-            placeholder="Antwort schreiben..."
-            [formControl]="commentForm.controls.commentText"
-            [disabled]="commentSaving()"
-          ></textarea>
+      <form class="mt-2 flex flex-col gap-2" (submit)="onReplyFormSubmit($event, cm.id)">
+        <textarea class="textarea textarea-bordered w-full min-h-20" placeholder="Antwort schreiben..."
+          [formControl]="commentForm.controls.commentText" [disabled]="commentSaving()"></textarea>
 
-          @if (
-            commentForm.controls.commentText.touched &&
-            commentForm.controls.commentText.invalid
-          ) {
-            <div class="text-error text-xs">
-              Kommentartext ist erforderlich.
-            </div>
-          }
+        @if (
+        commentForm.controls.commentText.touched &&
+        commentForm.controls.commentText.invalid
+        ) {
+        <div class="text-error text-xs">
+          Kommentartext ist erforderlich.
+        </div>
+        }
 
-          <div class="flex justify-end gap-2">
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs"
-              (click)="cancelReply()"
-              [disabled]="commentSaving()"
-            >
-              Abbrechen
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary btn-xs"
-              [disabled]="commentSaving() || commentForm.invalid"
-            >
-              Senden
-            </button>
-          </div>
-        </form>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="btn btn-ghost btn-xs" (click)="cancelReply()" [disabled]="commentSaving()">
+            Abbrechen
+          </button>
+          <button type="submit" class="btn btn-primary btn-xs" [disabled]="commentSaving() || commentForm.invalid">
+            Senden
+          </button>
+        </div>
+      </form>
       }
     </div>
   </div>
@@ -315,37 +301,29 @@
 
       <!-- Textfeld + Senden-Button rechts (Jira-Style) -->
       <div class="flex items-stretch gap-2">
-        <textarea
-          class="textarea textarea-bordered flex-1 resize-y min-h-24"
-          placeholder="Kommentar schreiben..."
-          [formControl]="commentForm.controls.commentText"
-          [disabled]="commentSaving()"
-        ></textarea>
+        <textarea class="textarea textarea-bordered flex-1 resize-y min-h-24" placeholder="Kommentar schreiben..."
+          [formControl]="commentForm.controls.commentText" [disabled]="commentSaving()"></textarea>
 
-        <button
-          type="submit"
-          class="btn btn-primary self-start"
-          [disabled]="commentSaving() || commentForm.invalid"
-        >
+        <button type="submit" class="btn btn-primary self-start" [disabled]="commentSaving() || commentForm.invalid">
           Senden
         </button>
       </div>
 
       <!-- Validierungsfehler -->
       @if (
-        commentForm.controls.commentText.touched &&
-        commentForm.controls.commentText.invalid
+      commentForm.controls.commentText.touched &&
+      commentForm.controls.commentText.invalid
       ) {
-        <div class="text-error text-xs">
-          Kommentartext ist erforderlich.
-        </div>
+      <div class="text-error text-xs">
+        Kommentartext ist erforderlich.
+      </div>
       }
 
       <!-- Server-Fehler -->
       @if (commentError()) {
-        <div class="text-error text-xs mt-1">
-          {{ commentError() }}
-        </div>
+      <div class="text-error text-xs mt-1">
+        {{ commentError() }}
+      </div>
       }
     </form>
   </div>
