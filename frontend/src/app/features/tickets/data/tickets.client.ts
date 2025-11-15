@@ -1,3 +1,12 @@
+/**
+ * @file tickets.client.ts
+ *
+ * Low-Level HTTP-Client für die `/tickets` API-Endpunkte.
+ * Erweitert den `ResourceClient` für Standard-CRUD und fügt
+ * spezifische Methoden für abweichende Endpunkte hinzu
+ * (z.B. `createTicket`, `deleteTicket`, `updateCustom`).
+ * Kommuniziert ausschließlich mit rohen DTOs.
+ */
 // app/features/tickets/data/tickets.client.ts
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/http/api.service';

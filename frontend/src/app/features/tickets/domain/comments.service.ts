@@ -1,3 +1,13 @@
+/**
+ * @file comments.service.ts
+ *
+ * Domain-Service (Fassade) für Kommentar-Operationen.
+ * Abstrahiert den `CommentsClient` von den UI-Komponenten.
+ * Verantwortlich für das Laden von Kommentaren (`listByTicket`),
+ * das Erstellen (`create`) und die komplexe Logik für
+ * das Voten (Like/Dislike), inklusive optimistischer Updates
+ * des lokalen Vote-Status.
+ */
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, switchMap } from 'rxjs';
 import { Page, PageQuery } from '@shared/models/paging';

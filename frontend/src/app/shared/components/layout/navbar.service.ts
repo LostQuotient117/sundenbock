@@ -1,3 +1,11 @@
+/**
+ * @file navbar.service.ts
+ *
+ * Verwaltet den Zustand der Hauptnavigation.
+ * Hält die zentrale Konfiguration aller Navigations-Einträge (`all`).
+ * Berechnet (`computed`) die aktuell sichtbaren Einträge (`visible`)
+ * basierend auf Berechtigungen (zukünftig) und "hidden"-Flags.
+ */
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { NavItem } from './nav-item.model';
 

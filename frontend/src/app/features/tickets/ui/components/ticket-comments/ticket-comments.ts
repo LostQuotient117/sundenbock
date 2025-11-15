@@ -1,3 +1,13 @@
+/**
+ * @file ticket-comments.ts
+ *
+ * Logik für die `TicketCommentsComponent`.
+ * Diese Komponente ist verantwortlich für das Anzeigen und Erstellen
+ * von Kommentaren zu einem spezifischen Ticket (`@Input ticket`).
+ * Sie lädt die Kommentare (`loadComments`) und verwaltet das Formular
+ * für neue Kommentare und Antworten (`replyToCommentId`).
+ * Sie kümmert sich auch um Like/Dislike-Aktionen (`onLike`).
+ */
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, effect, inject, input, Output, EventEmitter, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';

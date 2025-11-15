@@ -1,3 +1,13 @@
+/**
+ * @file project-select.ts
+ *
+ * Logik für die `ProjectSelectComponent`.
+ * Dies ist eine wiederverwendbare "Such-Dropdown"-Komponente
+ * zur Auswahl eines Projekts.
+ * Sie nimmt ein `FormControl` (`@Input control`) entgegen und
+ * schreibt die ausgewählte Projekt-ID hinein.
+ * Verwaltet den State für Suche, Paginierung und Tastaturnavigation.
+ */
 import { Component, Input, inject, signal, Signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';

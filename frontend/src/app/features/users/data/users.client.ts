@@ -1,3 +1,11 @@
+/**
+ * @file users.client.ts
+ *
+ * Low-Level HTTP-Client für die `/users` API-Endpunkte.
+ * Stellt Methoden zur Verfügung, um Rohdaten vom Backend abzurufen,
+ * z.B. eine Liste aller User (`listAll`) oder die detaillierte
+ * Ansicht eines Users inklusive Rollen (`getDetails`).
+ */
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@core/http/api.service';

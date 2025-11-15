@@ -1,3 +1,12 @@
+/**
+ * @file user.service.ts
+ *
+ * Domain-Service für Benutzer-Operationen.
+ * Abstrahiert den `UsersClient` und ist verantwortlich für
+ * das Abrufen von Benutzerlisten (`listAll`) oder Details (`details`).
+ * Mappt DTOs in View-Models (z.B. `UserVm`), um Datums-Strings
+ * in Date-Objekte umzuwandeln.
+ */
 import { Injectable, inject } from '@angular/core';
 import { map, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';

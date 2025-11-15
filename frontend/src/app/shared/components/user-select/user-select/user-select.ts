@@ -1,3 +1,13 @@
+/**
+ * @file user-select.ts
+ *
+ * Logik für die `UserSelectComponent`.
+ * Eine wiederverwendbare Komponente zur Auswahl eines Benutzers
+ * (speziell eines Entwicklers).
+ * Sie filtert die Gesamtbenutzerliste (`listAll`) nach dem Suchtext
+ * und prüft anschließend via `details`-Endpoint (mit Caching),
+ * ob der User die Rolle "DEVELOPER" hat.
+ */
 import { Component, Input, HostListener, inject, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';

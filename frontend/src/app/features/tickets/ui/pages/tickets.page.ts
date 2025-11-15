@@ -1,3 +1,13 @@
+/**
+ * @file tickets.page.ts
+ *
+ * "Smarte" Page-Komponente für die Ticket-Übersicht.
+ * Diese Komponente verwaltet den State für die Ticket-Liste,
+ * einschließlich Suche, Paginierung und Sortierung (`query$`).
+ * Sie lädt die Daten über den `TicketsService` und stellt sie
+ * der `TicketList`-Komponente bereit (`vm`).
+ * Enthält auch die Logik für das Erstellen eines neuen Tickets (Modal).
+ */
 // app/features/tickets/ui/tickets.page.ts
 import { Component, inject, signal, Signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';

@@ -1,3 +1,12 @@
+/**
+ * @file tickets.service.ts
+ *
+ * Domain-Service (Fassade) für Ticket-Operationen.
+ * Dient als zentrale Schnittstelle für die UI-Schicht, um mit
+ * Tickets zu interagieren. Abstrahiert den `TicketsClient`.
+ * Verantwortlich für CRUD-Operationen (list, get, create, update, delete)
+ * und das Mapping von DTOs zu Domain-Modellen (`mapTicket`).
+ */
 // app/features/tickets/domain/tickets.service.ts
 import { Injectable, inject, signal } from '@angular/core';
 import { TicketsClient } from '../data/tickets.client';
