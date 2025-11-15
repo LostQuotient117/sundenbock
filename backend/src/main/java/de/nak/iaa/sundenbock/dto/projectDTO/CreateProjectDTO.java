@@ -1,6 +1,7 @@
 package de.nak.iaa.sundenbock.dto.projectDTO;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -20,6 +21,7 @@ public record CreateProjectDTO(
         @Size(max = 2000, message = "Description must not exceed 2000 characters")
         String description,
         @NotBlank(message = "Abbreviation must not be empty")
-        @Size(min = 3, max = 3)
+        @Size(min = 3, max = 3, message = "Abbreviation must be exactly 3 characters long")
+        @Pattern(regexp = "[a-zA-Z]*", message = "Abbreviation must only contain letters")
         String abbreviation
 ) {}

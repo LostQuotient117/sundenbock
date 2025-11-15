@@ -29,6 +29,7 @@ public class Project extends AuditedEntity {
     @Column(nullable = false, unique = true)
     private String title;
     private String description;
+    @Column(nullable = false, unique = true, length = 3)
     private String abbreviation;
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Ticket> tickets = new ArrayList<>();

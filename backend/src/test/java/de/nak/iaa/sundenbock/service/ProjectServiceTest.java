@@ -1,16 +1,21 @@
 package de.nak.iaa.sundenbock.service;
+
 import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
 import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.dto.userDTO.UserDTO;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
+import de.nak.iaa.sundenbock.exception.ProjectHasOpenTicketsException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.project.Project;
+import de.nak.iaa.sundenbock.model.ticket.Ticket;
+import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -146,6 +151,32 @@ class ProjectServiceTest {
     }
 
     @Test
+    void createProject_shouldConvertToUppercaseAndSave() {
+        CreateProjectDTO newProjectDTO = new CreateProjectDTO("New Project", "Desc", "new");
+        Project projectToSave = new Project();
+        projectToSave.setAbbreviation("NEW");
+
+        when(projectRepository.existsByTitle(anyString())).thenReturn(false);
+        when(projectRepository.existsByAbbreviation(anyString())).thenReturn(false);
+        when(projectMapper.toProjectForCreate(newProjectDTO)).thenReturn(projectToSave);
+        when(projectRepository.save(any(Project.class))).thenReturn(projectToSave);
+
+        projectService.createProject(newProjectDTO);
+
+        verify(projectRepository).save(argThat(p -> p.getAbbreviation().equals("NEW")));
+    }
+
+    @Test
+    void createProject_shouldThrowDuplicateResourceException_whenAbbreviationExists() {
+        when(projectRepository.existsByTitle(createProjectDTO.title())).thenReturn(false);
+        when(projectRepository.existsByAbbreviation(createProjectDTO.abbreviation().toUpperCase())).thenReturn(true);
+
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> projectService.createProject(createProjectDTO));
+
+        assertTrue(exception.getMessage().contains("already exists"));
+    }
+
+    @Test
     void updateProject_returnsDTO_whenSuccessful() {
         ProjectDTO updatedDto = new ProjectDTO(
                 1L,
@@ -185,9 +216,104 @@ class ProjectServiceTest {
     }
 
     @Test
-    void deleteProject_callsRepositoryDelete() {
-        projectService.deleteProject(1L);
-        verify(projectRepository, times(1)).deleteById(1L);
+    void updateProject_shouldConvertToUppercaseAndSave() {
+        ProjectDTO updateDTO = new ProjectDTO(1L, "Updated Title", "Updated Desc", "upd", null, null, null, null);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findByTitle(anyString())).thenReturn(Optional.empty());
+        when(projectRepository.findByAbbreviation(anyString())).thenReturn(Optional.empty());
+        when(projectRepository.save(any(Project.class))).thenReturn(project);
+
+        projectService.updateProject(1L, updateDTO);
+
+        ArgumentCaptor<Project> projectCaptor = ArgumentCaptor.forClass(Project.class);
+        verify(projectRepository).save(projectCaptor.capture());
+        Project savedProject = projectCaptor.getValue();
+
+        assertEquals("UPD", savedProject.getAbbreviation());
+    }
+
+    @Test
+    void updateProject_shouldThrowDuplicateResourceException_whenAbbreviationExistsInAnotherProject() {
+        ProjectDTO updateDTO = new ProjectDTO(1L, "Test Project", "Desc", "OTHER", null, null, null, null);
+        Project otherProject = new Project();
+        otherProject.setId(2L);
+        otherProject.setAbbreviation("OTHER");
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findByTitle(anyString())).thenReturn(Optional.empty());
+        when(projectRepository.findByAbbreviation("OTHER")).thenReturn(Optional.of(otherProject));
+
+        DuplicateResourceException exception = assertThrows(DuplicateResourceException.class, () -> projectService.updateProject(1L, updateDTO));
+
+        assertTrue(exception.getMessage().contains("already exists"));
+    }
+
+    @Test
+    void updateProject_shouldSucceed_whenAbbreviationIsUnchanged() {
+        ProjectDTO updateDTO = new ProjectDTO(1L, "Updated Title", "Updated Desc", "tpr", null, null, null, null);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.findByTitle(anyString())).thenReturn(Optional.empty());
+        when(projectRepository.findByAbbreviation("TPR")).thenReturn(Optional.of(project));
+        when(projectRepository.save(any(Project.class))).thenReturn(project);
+
+        assertDoesNotThrow(() -> {
+            projectService.updateProject(1L, updateDTO);
+        });
+
+        ArgumentCaptor<Project> projectCaptor = ArgumentCaptor.forClass(Project.class);
+        verify(projectRepository).save(projectCaptor.capture());
+        Project savedProject = projectCaptor.getValue();
+
+        assertEquals("TPR", savedProject.getAbbreviation());
+        verify(projectRepository).save(any(Project.class));
+    }
+
+    @Test
+    void deleteProject_succeeds_whenProjectHasNoTickets() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        assertDoesNotThrow(() -> projectService.deleteProject(1L));
+
+        verify(projectRepository).delete(project);
+    }
+
+    @Test
+    void deleteProject_throwsException_whenProjectHasOpenTickets() {
+        Ticket openTicket = new Ticket();
+        openTicket.setStatus(TicketStatus.IN_PROGRESS);
+        project.getTickets().add(openTicket);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        ProjectHasOpenTicketsException ex = assertThrows(ProjectHasOpenTicketsException.class,
+                () -> projectService.deleteProject(1L));
+
+        assertEquals("Project cannot be deleted, it still has 1 open ticket(s).", ex.getMessage());
+        verify(projectRepository, never()).delete(project);
+    }
+
+    @Test
+    void deleteProject_succeeds_whenAllTicketsAreClosedOrRejected() {
+        Ticket closedTicket = new Ticket();
+        closedTicket.setStatus(TicketStatus.CLOSED);
+        Ticket rejectedTicket = new Ticket();
+        rejectedTicket.setStatus(TicketStatus.REJECTED);
+        project.getTickets().add(closedTicket);
+        project.getTickets().add(rejectedTicket);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        assertDoesNotThrow(() -> projectService.deleteProject(1L));
+
+        verify(projectRepository).delete(project);
+    }
+
+    @Test
+    void deleteProject_throwsException_whenProjectNotFound() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> projectService.deleteProject(1L));
+
+        verify(projectRepository, never()).delete((Project) any());
     }
 
     @Test
@@ -217,5 +343,21 @@ class ProjectServiceTest {
         Page<Project> resultBlank = projectService.search("", pageable);
         assertEquals(1, resultBlank.getTotalElements());
         verify(projectRepository, times(2)).findAll(ArgumentMatchers.<Specification<Project>>isNull(), eq(pageable));
+    }
+
+    @Test
+    void search_shouldReturnPagedProjects() {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Project> projectList = List.of(project);
+        Page<Project> projectPage = new PageImpl<>(projectList, pageable, 1);
+
+        when(projectRepository.findAll(ArgumentMatchers.<Specification<Project>>any(), eq(pageable)))
+                .thenReturn(projectPage);
+
+        Page<Project> result = projectService.search("TPR", pageable);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.getTotalElements());
+        verify(projectRepository).findAll(ArgumentMatchers.<Specification<Project>>any(), eq(pageable));
     }
 }

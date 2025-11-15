@@ -23,6 +23,20 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     Optional<Project> findByTitle(String Title);
 
     /**
+     * Checks whether a project with the given abbreviation exists.
+     * @param abbreviation the project abbreviation to check
+     * @return {@code true} if a project exists with this abbreviation, otherwise {@code false}
+     */
+    boolean existsByAbbreviation(String abbreviation);
+
+    /**
+     * Finds a project by its unique abbreviation.
+     * @param abbreviation the exact project abbreviation
+     * @return an {@link Optional} containing the project if found
+     */
+    Optional<Project> findByAbbreviation(String abbreviation);
+
+    /**
      * Checks whether a project with the given title exists.
      * @param title the project title to check
      * @return {@code true} if a project exists with this title, otherwise {@code false}

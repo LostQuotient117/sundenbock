@@ -103,6 +103,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles {@link ProjectHasOpenTicketsException} (HTTP 409).
+     * <p>
+     * Thrown when attempting to delete a project that still has open tickets.
+     *
+     * @param ex The caught exception.
+     * @return A 409 Conflict response entity.
+     */
+    @ExceptionHandler(ProjectHasOpenTicketsException.class)
+    public ResponseEntity<Object> handleProjectHasOpenTicketsException(ProjectHasOpenTicketsException ex) {
+        Map<String, Object> body = Map.of(
+                "timestamp", System.currentTimeMillis(),
+                "status", HttpStatus.CONFLICT.value(),
+                "error", "Conflict",
+                "message", ex.getMessage()
+        );
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    /**
      * Handles {@link BadCredentialsException} (HTTP 401).
      * <p>
      * Thrown by Spring Security on login failure (e.g., wrong password).

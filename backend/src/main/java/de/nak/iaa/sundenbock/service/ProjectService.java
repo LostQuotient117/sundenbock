@@ -4,8 +4,10 @@ import de.nak.iaa.sundenbock.dto.projectDTO.CreateProjectDTO;
 import de.nak.iaa.sundenbock.dto.projectDTO.ProjectDTO;
 import de.nak.iaa.sundenbock.dto.mapper.ProjectMapper;
 import de.nak.iaa.sundenbock.exception.DuplicateResourceException;
+import de.nak.iaa.sundenbock.exception.ProjectHasOpenTicketsException;
 import de.nak.iaa.sundenbock.exception.ResourceNotFoundException;
 import de.nak.iaa.sundenbock.model.project.Project;
+import de.nak.iaa.sundenbock.model.ticket.TicketStatus;
 import de.nak.iaa.sundenbock.model.user.User;
 import de.nak.iaa.sundenbock.repository.ProjectRepository;
 import jakarta.persistence.criteria.Join;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
+
+import java.util.Objects;
 
 /**
  * Service class for managing {@link Project} entities.
@@ -100,7 +104,12 @@ public class ProjectService {
         if (projectRepository.existsByTitle(createProjectDTO.title())) {
             throw new DuplicateResourceException("Project with title '" +  createProjectDTO.title() + "' already exists");
         }
+        String abbreviation = createProjectDTO.abbreviation().toUpperCase();
+        if (projectRepository.existsByAbbreviation(abbreviation)) {
+            throw new DuplicateResourceException("Project with abbreviation '" + abbreviation + "' already exists");
+        }
         Project project = projectMapper.toProjectForCreate(createProjectDTO);
+        project.setAbbreviation(abbreviation);
         Project savedProject = projectRepository.save(project);
         return projectMapper.toProjectDTO(savedProject);
     }
@@ -118,8 +127,23 @@ public class ProjectService {
     public ProjectDTO updateProject(Long id, ProjectDTO projectDTO) {
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + id));
-        existingProject.setDescription(projectDTO.description());
+
+        projectRepository.findByTitle(projectDTO.title()).ifPresent(p -> {
+            if (!Objects.equals(p.getId(), existingProject.getId())) {
+                throw new DuplicateResourceException("Project with title '" + projectDTO.title() + "' already exists");
+            }
+        });
+
+        String newAbbreviation = projectDTO.abbreviation().toUpperCase();
+        projectRepository.findByAbbreviation(newAbbreviation).ifPresent(p -> {
+            if (!Objects.equals(p.getId(), existingProject.getId())) {
+                throw new DuplicateResourceException("Project with abbreviation '" + newAbbreviation + "' already exists");
+            }
+        });
+
         existingProject.setTitle(projectDTO.title());
+        existingProject.setDescription(projectDTO.description());
+        existingProject.setAbbreviation(newAbbreviation);
 
         Project updatedProject = projectRepository.save(existingProject);
         return projectMapper.toProjectDTO(updatedProject);
@@ -127,11 +151,28 @@ public class ProjectService {
 
     /**
      * Deletes a project by its ID.
+     * <p>
+     * A project can only be deleted if it has no open tickets. Tickets with status
+     * {@code CLOSED} or {@code REJECTED} are not considered open.
+     * </p>
      *
      * @param id the ID of the project to delete
+     * @throws ResourceNotFoundException      if no project exists with the given ID
+     * @throws ProjectHasOpenTicketsException if the project still has open tickets
      */
     @Transactional
     public void deleteProject(Long id) {
-        projectRepository.deleteById(id);
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id " + id));
+
+        long openTickets = project.getTickets().stream()
+                .filter(ticket -> ticket.getStatus() != TicketStatus.CLOSED && ticket.getStatus() != TicketStatus.REJECTED)
+                .count();
+
+        if (openTickets > 0) {
+            throw new ProjectHasOpenTicketsException("Project cannot be deleted, it still has " + openTickets + " open ticket(s).");
+        }
+
+        projectRepository.delete(project);
     }
 }
