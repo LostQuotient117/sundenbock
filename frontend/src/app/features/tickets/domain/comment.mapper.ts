@@ -1,3 +1,12 @@
+/**
+ * @file comment.mapper.ts
+ *
+ * Definiert die Mapping-Logik (`mapComment`) zur Umwandlung von
+ * rohen `CommentDto`-Objekten (Daten-Schicht) in das interne
+ * Domain-Model `TicketComment`.
+ * Kümmert sich um die Konvertierung von Datums-Strings und
+ * verschachtelten Objekten (Autor, Kind-Kommentare).
+ */
 import { defineMapper, mapBySpec } from '@shared/utils/mapping/mapping.dsl';
 import { CommentDto, UserDto } from '@features/tickets/data/comment.dto';
 import { CommentAuthor, TicketComment } from './comment.model';

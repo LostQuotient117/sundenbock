@@ -1,3 +1,12 @@
+/**
+ * @file comments.client.ts
+ *
+ * Low-Level HTTP-Client für Kommentar-bezogene API-Endpunkte.
+ * Da Kommentare eine Sub-Ressource von Tickets sind, sind die
+ * Pfade spezifisch (z.B. `/tickets/{id}/comments`).
+ * Stellt Methoden zum Auflisten, Erstellen und Aktualisieren
+ * von Kommentaren bereit.
+ */
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/http/api.service';
 import { ResourceClient } from '@core/http/resource-client';

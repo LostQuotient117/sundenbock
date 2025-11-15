@@ -1,3 +1,12 @@
+/**
+ * @file layout.ts
+ *
+ * Logik für die `AppLayout`-Komponente (Haupt-Layout der Anwendung).
+ * Diese Komponente stellt den Rahmen (inkl. Navbar und Footer) bereit
+ * und rendert den Inhalt der aktuellen Route via `<router-outlet>`.
+ * Sie holt sich die sichtbaren Navigations-Items vom `NavbarService`
+ * und bindet die Logout-Funktion an den `AuthService`.
+ */
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NavbarService } from './navbar.service';

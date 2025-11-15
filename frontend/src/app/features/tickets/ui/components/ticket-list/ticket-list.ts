@@ -1,3 +1,12 @@
+/**
+ * @file ticket-list.ts
+ *
+ * Logik für die `TicketList` Komponente (Presentational Component).
+ * Diese Komponente nimmt die Liste der Tickets (`@Input tickets`) entgegen
+ * und stellt sie dar.
+ * Sie enthält die Logik für den Lösch-Dialog (State-Management mit Signals)
+ * und sendet ein `@Output deleted` Event, wenn ein Ticket gelöscht wurde.
+ */
 import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';

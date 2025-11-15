@@ -1,3 +1,13 @@
+/**
+ * @file ticket.mapper.ts
+ *
+ * Definiert die Mapping-Logik (`mapTicket`) zur Umwandlung von
+ * rohen `TicketDto`-Objekten (Daten-Schicht) in das interne
+ * Domain-Model `Ticket`.
+ * Konvertiert ISO-Datums-Strings in Date-Objekte und mappt
+ * verschachtelte DTOs (wie `responsiblePerson`) in flachere
+ * Domain-Strukturen.
+ */
 import { defineMapper, mapBySpec, OutputFromSpec } from '@shared/utils/mapping/mapping.dsl';
 import { TicketDto, TicketResponsiblePersonDto } from '../data/ticket.dto';
 import { Ticket } from './ticket.model';

@@ -1,3 +1,11 @@
+/**
+ * @file nav-item.model.ts
+ *
+ * Definiert das Interface `NavItem`.
+ * Dieses Modell beschreibt die Struktur eines einzelnen Eintrags
+ * in der Navigationsleiste, inklusive Pfad, Label, Icon und
+ * optionalen Regeln für die Zugriffskontrolle (Rollen, Berechtigungen).
+ */
 export type NavItem = {
   path: string;              // Router-Link
   label: string;             // i18n-Key oder Plaintext

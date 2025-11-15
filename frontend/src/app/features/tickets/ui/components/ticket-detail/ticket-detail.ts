@@ -1,3 +1,13 @@
+/**
+ * @file ticket-detail.ts
+ *
+ * Logik für die Ticket-Detailansicht.
+ * Diese "smarte" Komponente lädt das Ticket basierend auf der Routen-ID.
+ * Sie verwaltet den "Bearbeiten"-Zustand (`editing`) und das Reactive Form (`form`).
+ * Sie implementiert die komplexe Logik für Berechtigungen (z.B. `canEditTicket`,
+ * `getStatusOptionsForEdit`) basierend auf der Benutzerrolle und dem Ticketstatus.
+ * Sie integriert auch die `TicketCommentsComponent`.
+ */
 // app/features/tickets/ui/components/ticket-detail/ticket-detail.ts
 
 import { CommonModule, DatePipe } from "@angular/common";

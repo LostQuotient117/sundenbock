@@ -1,3 +1,11 @@
+/**
+ * @file ticket.dto.ts
+ *
+ * Definiert die Data Transfer Object (DTO) Interfaces für Tickets.
+ * Repräsentiert die Rohdaten von der API, inklusive Typ-Aliassen
+ * (`TicketStatusDto`) und spezifischen DTOs für das Erstellen
+ * (`CreateTicketDto`) und Aktualisieren (`UpdateTicketDto`).
+ */
 export type TicketStatusDto =
   | 'CREATED'
   | 'REOPENED'
