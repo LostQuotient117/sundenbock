@@ -5,7 +5,7 @@
 `Sundenbock` ist eine Enterprise Web Application für das Management von Projekten, Tickets und dessen Benutzern. Die Anwendung ist als 3-Schichten-Architektur konzipiert:
 
 - `Backend` Spring Boot 3 (Java 25) mit Spring Security (JWT), Spring Data JPA und MapStruct.<br><br>
-- `Frontend` Angular (TypeScript) mit PrimeNG-Komponenten. <br><br>
+- `Frontend` Angular (v20.3) mit TypeScript, **Tailwind CSS** und **DaisyUI** Komponenten. <br><br>
 - `Datenbank (Dev)` H2 In-Memory-Datenbank, die beim Start, falls noch nicht Initialisiert, automatisch mit Beispieldaten befüllt wird. Zusätzlich ein Prod-Profil für eine PostgreSQL-Datenbank für späteres Deployment.
 
 ---
@@ -25,7 +25,7 @@
 Stellen Sie sicher, dass Sie die folgende Software haben, bevor Sie mit dem Setup fortfahren:
 
 - [ Java Development Kit (JDK) 25](https://jdk.java.net/25/)
-- [Node.js und npm](https://nodejs.org/en/download) (Empfohlen: LTS-Version 20.x)
+- [Node.js und npm](https://nodejs.org/en/download) (Empfohlen: LTS-Version 20.x, passend zu Angular 20)
 - [Apache Maven](https://maven.apache.org/download.cgi) (für die mvn commands)
 - [git](https://git-scm.com/install/windows) (für git Commands)
 
@@ -96,6 +96,8 @@ npm start
 ```
 
 Dieser Befehl startet die Frontend-Anwendung und öffnet automatisch `http://localhost:4200` in Ihrem Browser.
+
+Hinweis zur API-Verbindung: Der npm start-Befehl nutzt automatisch die proxy.conf.json-Datei. Diese leitet alle API-Anfragen (z.B. an /api/v1) vom Frontend-Port 4200 an das Backend auf http://localhost:8080 weiter. Das Funktionieren der Frontend-Backend-Kommunikation wird über diesen Proxy-Mechanismus sichergestellt.
 
 ---
 
