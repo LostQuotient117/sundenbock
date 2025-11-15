@@ -87,6 +87,13 @@ export class ProjectsPage {
   sortByTitleAsc()    { this.setSort('title', 'asc'); }
   sortByTitleDesc()   { this.setSort('title', 'desc'); }
 
+  reloadCurrentPage() {
+    const current = this.page();
+    const temp = current === 0 ? 1 : 0;
+    this.page.set(temp);
+    this.page.set(current);
+  }
+
   // Create Project Logik
   showCreate = signal(false);
   creating   = signal(false);
