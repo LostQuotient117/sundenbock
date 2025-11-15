@@ -38,8 +38,7 @@
     </div>
   </div>
 
-  <!-- Liste: KEIN TypeScript-Cast im Template -->
-  <project-list [items]="result().items"></project-list>
+  <project-list [items]="result().items" (deleted)="reloadCurrentPage()"></project-list>
 
   <!-- Pagination -->
   <div class="flex items-center justify-between mt-2">
