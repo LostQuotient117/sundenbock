@@ -138,14 +138,6 @@ cd backend
 mvn test
 ```
 
-### 5.2. Frontend-Tests (Karma & Jasmine)
-
-Führen Sie im Terminal folgende Befehle aus:
-```
-cd frontend
-npm test
-```
-
 
 ## Autoren
 - Daria Stolarczyk
