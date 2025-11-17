@@ -14,7 +14,7 @@
 
 - Alle API-Endpunkte erfordern eine Authentifizierung. Die einzigen Ausnahmen sind `/api/v1/auth/register` und `/api/v1/auth/authenticate`, die für den Registrierungs- und Login-Vorgang öffentlich zugänglich sind.<br><br>
  
-- Zusätzlich sind aktuell die Endpunkte `/swagger-ui/**`, `/v3/api-docs/**`, `/h2-console/**` und `/api/health` für Entwicklungs- und Review-Zwecke offen. Bei einem finalen Produktiv-Deployment würden diese Endpunkte gesichert oder entfernt und die H2-Datenbank durch PostgreSQL (siehe `application.yaml`) ersetzt.<br><br>
+- Zusätzlich sind aktuell die Endpunkte `/swagger-ui/**`, `/v3/api-docs/**` und `/h2-console/**` für Entwicklungs- und Review-Zwecke offen. Bei einem finalen Produktiv-Deployment würden diese Endpunkte gesichert oder entfernt und die H2-Datenbank durch PostgreSQL (siehe `application.yaml`) ersetzt.<br><br>
  
 - Wenn ich die Zeit habe, wird die App auf meinem lokalen Linux Server in Docker laufen und unter der Domain `sundenbock.lars-hq.vip` erreichbar sein. -Lars
 
@@ -27,7 +27,7 @@ Stellen Sie sicher, dass Sie die folgende Software haben, bevor Sie mit dem Setu
 - [ Java Development Kit (JDK) 25](https://jdk.java.net/25/)
 - [Node.js und npm](https://nodejs.org/en/download) (Empfohlen: LTS-Version 20.x, passend zu Angular 20)
 - [Apache Maven](https://maven.apache.org/download.cgi) (für die mvn commands)
-- [git](https://git-scm.com/install/windows) (für git Commands)
+- [git](https://git-scm.com/install/windows)
 
 IDE Backend:
 - [IntelliJ IDEA](https://www.jetbrains.com/idea/) (empfohlene IDE für das Backend)
@@ -57,6 +57,7 @@ Das Projektverzeichnis enthält zwei Hauptordner: backend und frontend. Die Schr
 3. Öffnen Sie den frontend-Ordner.
 4. Öffnen Sie ein neues Terminal in VS Code.
 5. Installieren Sie alle npm-Abhängigkeiten:```npm install```
+6. Installieren Sie die Angular CLI-Abhängigkeiten:```npm install -g @angular/cli``` (For the ng commands)
 
 ---
 
