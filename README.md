@@ -138,10 +138,3 @@ Führen Sie im Terminal folgende Befehle aus:
 cd backend
 mvn test
 ```
-
-
-## Autoren
-- Daria Stolarczyk
-- Jannick Gottschalk
-- Lars Nicht
-- Nina Pick
